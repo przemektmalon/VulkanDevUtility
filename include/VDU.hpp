@@ -3,3 +3,4 @@
 #include "Initializers.hpp"
 #include "Instance.hpp"
 #include "PhysicalDevice.hpp"
+#include "LogicalDevice.hpp"

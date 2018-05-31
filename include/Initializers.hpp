@@ -6,7 +6,7 @@ namespace vdu
 	template<typename T>
 	T initializer()
 	{
-		printf("Initializer doesn't exist");
+		DBG_SEVERE("Initializer doesn't exist");
 		assert(false);
 	}
 
@@ -32,5 +32,21 @@ namespace vdu
 		VkDebugReportCallbackCreateInfoEXT drcci{};
 		drcci.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
 		return drcci;
+	}
+
+	template<>
+	constexpr VkDeviceQueueCreateInfo initializer<VkDeviceQueueCreateInfo>()
+	{
+		VkDeviceQueueCreateInfo qci{};
+		qci.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		return qci;
+	}
+
+	template<>
+	constexpr VkDeviceCreateInfo initializer<VkDeviceCreateInfo>()
+	{
+		VkDeviceCreateInfo dci{};
+		dci.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		return dci;
 	}
 }
