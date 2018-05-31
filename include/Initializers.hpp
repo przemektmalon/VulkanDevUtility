@@ -65,4 +65,22 @@ namespace vdu
 		dslci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 		return dslci;
 	}
+
+	
+	template<>
+	constexpr VkDescriptorSetAllocateInfo initializer<VkDescriptorSetAllocateInfo>()
+	{
+		VkDescriptorSetAllocateInfo dsai{};
+		dsai.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		return dsai;
+	}
+
+	
+	template<>
+	constexpr VkWriteDescriptorSet initializer<VkWriteDescriptorSet>()
+	{
+		VkWriteDescriptorSet wds{};
+		wds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		return wds;
+	}
 }
