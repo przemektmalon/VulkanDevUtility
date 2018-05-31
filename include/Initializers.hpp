@@ -49,4 +49,12 @@ namespace vdu
 		dci.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		return dci;
 	}
+
+	template<>
+	constexpr VkDescriptorPoolCreateInfo initializer<VkDescriptorPoolCreateInfo>()
+	{
+		VkDescriptorPoolCreateInfo dci{};
+		dci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		return dci;
+	}
 }
