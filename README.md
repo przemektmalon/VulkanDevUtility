@@ -27,7 +27,7 @@ instance.create();
 ## Enumerating physical devices and querying surface capabilities
 
 ```c++
-// Physical device
+// Physical device capabilities and features can be queried
 std::vector<vdu::PhysicalDevice> allPhysicalDevices;
 
 vdu::enumeratePhysicalDevices(instance, allPhysicalDevices);
@@ -83,7 +83,7 @@ set.create(&logicalDevice, &dsl, &pool);
 ```
 
 ## Updating descriptor sets
-```
+```c++
 // When we want to update the set, we make a reusable updater
 
 SetUpdater* updater = set.makeUpdater();
