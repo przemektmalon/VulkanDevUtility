@@ -141,6 +141,11 @@ void vdu::PhysicalDevice::querySurfaceCapabilities(VkSurfaceKHR surface)
 		else
 			m_suitabilityScore -= 100000;
 	}
+
+	for (auto& qf : m_queueFamilies)
+	{
+		qf.queryPresentCapability(surface);
+	}
 }
 
 void vdu::enumeratePhysicalDevices(Instance& instance, std::vector<PhysicalDevice>& deviceList)
@@ -162,7 +167,7 @@ void vdu::enumeratePhysicalDevices(Instance& instance, std::vector<PhysicalDevic
 	// For each handle add it to our device list and query (fill in) its details
 	for (auto physicalDevice : physicalDeviceHandles)
 	{
-		deviceList.push_back(PhysicalDevice(physicalDevice)); // Constructor queries all device details
+		deviceList.emplace_back(physicalDevice); // Constructor queries all device details
 	}
 }
 
