@@ -5,3 +5,5 @@
 #include "PhysicalDevice.hpp"
 #include "LogicalDevice.hpp"
 #include "MemoryPools.hpp"
+#include "Descriptors.hpp"
+#include "Enums.hpp"

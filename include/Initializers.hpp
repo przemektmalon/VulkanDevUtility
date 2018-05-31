@@ -57,4 +57,12 @@ namespace vdu
 		dci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		return dci;
 	}
+
+	template<>
+	constexpr VkDescriptorSetLayoutCreateInfo initializer<VkDescriptorSetLayoutCreateInfo>()
+	{
+		VkDescriptorSetLayoutCreateInfo dslci{};
+		dslci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		return dslci;
+	}
 }
