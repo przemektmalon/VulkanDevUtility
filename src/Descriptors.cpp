@@ -8,7 +8,7 @@ void vdu::DescriptorSetLayout::addBinding(VkDescriptorType type, uint32_t bindin
 	m_layoutBindings.push_back(dslb);
 }
 
-void vdu::DescriptorSetLayout::addBinding(DescriptorType type, uint32_t binding, uint32_t count, ShaderStage stageFlags)
+void vdu::DescriptorSetLayout::addBinding(DescriptorTypeFlags type, uint32_t binding, uint32_t count, ShaderStageFlags stageFlags)
 {
 	VkDescriptorSetLayoutBinding dslb = { binding , static_cast<VkDescriptorType>(type), count, static_cast<VkShaderStageFlags>(stageFlags) };
 	m_layoutBindings.push_back(dslb);

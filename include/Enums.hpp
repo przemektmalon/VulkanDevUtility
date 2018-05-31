@@ -2,7 +2,8 @@
 
 namespace vdu
 {
-	enum class DescriptorType
+	typedef uint32_t DescriptorTypeFlags;
+	enum DescriptorType
 	{
 		Sampler = 0,
 		CombinedImageSampler = 1,
@@ -17,7 +18,8 @@ namespace vdu
 		InputAttachment = 10
 	};
 
-	enum class ShaderStage
+	typedef uint32_t ShaderStageFlags;
+	enum ShaderStage
 	{
 		Vertex = 0x00000001,
 		TessControl = 0x00000002,

@@ -16,9 +16,7 @@ namespace vdu
 		const VkDescriptorSetLayout& getHandle() { return m_descriptorSetLayout; }
 
 		void addBinding(VkDescriptorType type, uint32_t binding, uint32_t count, VkShaderStageFlags stageFlags);
-		void addBinding(DescriptorType type, uint32_t binding, uint32_t count, ShaderStage stageFlags);
-
-		
+		void addBinding(DescriptorTypeFlags type, uint32_t binding, uint32_t count, ShaderStageFlags stageFlags);
 
 	private:
 
