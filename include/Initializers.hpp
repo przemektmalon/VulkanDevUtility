@@ -8,6 +8,7 @@ namespace vdu
 	{
 		DBG_SEVERE("Initializer doesn't exist");
 		assert(false);
+		return T{};
 	}
 
 	template<>
@@ -66,7 +67,6 @@ namespace vdu
 		return dslci;
 	}
 
-	
 	template<>
 	constexpr VkDescriptorSetAllocateInfo initializer<VkDescriptorSetAllocateInfo>()
 	{
@@ -75,7 +75,6 @@ namespace vdu
 		return dsai;
 	}
 
-	
 	template<>
 	constexpr VkWriteDescriptorSet initializer<VkWriteDescriptorSet>()
 	{
@@ -83,4 +82,30 @@ namespace vdu
 		wds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		return wds;
 	}
+
+	template<typename T>
+	T initializer(size_t cs, uint32_t* pc) {}
+	template<>
+	static constexpr VkShaderModuleCreateInfo initializer<VkShaderModuleCreateInfo>(size_t codeSize, uint32_t* pCode)
+	{
+		VkShaderModuleCreateInfo smci{};
+		smci.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		smci.codeSize = codeSize;
+		smci.pCode = pCode;
+		return smci;
+	}
+
+	template<typename T>
+	T initializer(VkShaderStageFlagBits fb, VkShaderModule m, const char* ep) {}
+	template<>
+	static constexpr VkPipelineShaderStageCreateInfo initializer<VkPipelineShaderStageCreateInfo>(VkShaderStageFlagBits stage, VkShaderModule module, const char* entryPoint)
+	{
+		VkPipelineShaderStageCreateInfo pssci{};
+		pssci.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		pssci.stage = stage;
+		pssci.module = module;
+		pssci.pName = entryPoint;
+		return pssci;
+	}
+	
 }

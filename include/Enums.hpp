@@ -30,4 +30,9 @@ namespace vdu
 		AllGraphics = 0x0000001F,
 		All = 0x7FFFFFFF
 	};
+
+	enum class ShaderLanguage
+	{
+		GLSL, SPV, UNKNOWN
+	};
 }

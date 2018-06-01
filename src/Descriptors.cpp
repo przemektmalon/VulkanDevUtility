@@ -72,7 +72,7 @@ vdu::DescriptorSet::SetUpdater::~SetUpdater()
 	}
 }
 
-VkDescriptorImageInfo * vdu::DescriptorSet::SetUpdater::addImageUpdater(const std::string & label, uint32_t arrayElement, uint32_t count)
+VkDescriptorImageInfo * vdu::DescriptorSet::SetUpdater::addImageUpdate(const std::string & label, uint32_t arrayElement, uint32_t count)
 {
 	auto dii = new VkDescriptorImageInfo[count];
 	m_imageInfos.push_back(dii);
@@ -96,7 +96,7 @@ VkDescriptorImageInfo * vdu::DescriptorSet::SetUpdater::addImageUpdater(const st
 	return ret;
 }
 
-VkDescriptorBufferInfo * vdu::DescriptorSet::SetUpdater::addBufferUpdater(const std::string & label, uint32_t arrayElement, uint32_t count)
+VkDescriptorBufferInfo * vdu::DescriptorSet::SetUpdater::addBufferUpdate(const std::string & label, uint32_t arrayElement, uint32_t count)
 {
 	auto dbi = new VkDescriptorBufferInfo[count];
 	m_bufferInfos.push_back(dbi);

@@ -43,8 +43,8 @@ namespace vdu
 			SetUpdater(DescriptorSet* dset);
 			~SetUpdater();
 
-			VkDescriptorImageInfo* addImageUpdater(const std::string& label, uint32_t arrayElement = 0, uint32_t count = 1);
-			VkDescriptorBufferInfo* addBufferUpdater(const std::string& label, uint32_t arrayElement = 0, uint32_t count = 1);
+			VkDescriptorImageInfo* addImageUpdate(const std::string& label, uint32_t arrayElement = 0, uint32_t count = 1);
+			VkDescriptorBufferInfo* addBufferUpdate(const std::string& label, uint32_t arrayElement = 0, uint32_t count = 1);
 
 			const std::vector<VkWriteDescriptorSet>& getWrites() { return m_writes; }
 
