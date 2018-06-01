@@ -7,6 +7,11 @@ VkPhysicalDevice vdu::PhysicalDevice::getHandle()
 	return m_physicalDevice;
 }
 
+const std::vector<vdu::QueueFamily>& vdu::PhysicalDevice::getQueueFamilies()
+{
+	return m_queueFamilies;
+}
+
 uint32_t vdu::PhysicalDevice::findMemoryTypeIndex(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
 	for (uint32_t i = 0; i < m_memoryProperties.memoryTypeCount; i++) {

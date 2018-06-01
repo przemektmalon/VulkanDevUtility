@@ -108,4 +108,12 @@ namespace vdu
 		return pssci;
 	}
 	
+	template<>
+	static constexpr VkCommandPoolCreateInfo initializer<VkCommandPoolCreateInfo>()
+	{
+		VkCommandPoolCreateInfo cpci{};
+		cpci.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		return cpci;
+	}
+
 }

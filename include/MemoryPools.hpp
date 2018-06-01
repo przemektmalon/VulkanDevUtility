@@ -34,4 +34,27 @@ namespace vdu
 
 		LogicalDevice* m_logicalDevice;
 	};
+
+	class CommandPool
+	{
+	public:
+		CommandPool();
+
+		void create(LogicalDevice* logicalDevice);
+
+		void destroy();
+
+		VkCommandPool getHandle() { return m_commandPool; }
+
+		void setQueueFamily(const QueueFamily* family) { m_queueFamily = family; }
+		void setFlags(VkCommandPoolCreateFlagBits flags) { m_flags = flags; }
+
+	private:
+
+		VkCommandPool m_commandPool;
+		const QueueFamily* m_queueFamily;
+		LogicalDevice* m_logicalDevice;
+		VkCommandPoolCreateFlagBits m_flags;
+	};
+
 }

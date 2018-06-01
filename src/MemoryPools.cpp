@@ -41,3 +41,23 @@ void vdu::DescriptorPool::addSetCount(uint32_t count)
 {
 	m_maxSets += count;
 }
+
+vdu::CommandPool::CommandPool() : m_commandPool(0), m_queueFamily(nullptr)
+{
+}
+
+void vdu::CommandPool::create(LogicalDevice * logicalDevice)
+{
+	m_logicalDevice = logicalDevice;
+
+	auto cpci = vdu::initializer<VkCommandPoolCreateInfo>();
+	cpci.flags = m_flags;
+	cpci.queueFamilyIndex = m_queueFamily->getIndex();
+	
+	VDU_VK_CHECK_RESULT(vkCreateCommandPool(m_logicalDevice->getHandle(), &cpci, nullptr, &m_commandPool));
+}
+
+void vdu::CommandPool::destroy()
+{
+	vkDestroyCommandPool(m_logicalDevice->getHandle(), m_commandPool, nullptr);
+}

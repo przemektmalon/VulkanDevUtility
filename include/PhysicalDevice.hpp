@@ -17,14 +17,16 @@ namespace vdu
 
 		void queryPresentCapability(VkSurfaceKHR surface);
 
-		bool supportsGraphics() { return m_supportsGraphics; }
-		bool supportsCompute() { return m_supportsCompute; }
-		bool supportsTransfer() { return m_supportsTransfer; }
-		bool supportsPresent() { return m_supportsPresent; }
+		bool supportsGraphics() const { return m_supportsGraphics; }
+		bool supportsCompute() const { return m_supportsCompute; }
+		bool supportsTransfer() const { return m_supportsTransfer; }
+		bool supportsPresent() const { return m_supportsPresent; }
 
-		uint32_t getQueueCount() { return m_familyProperties.queueCount; }
-		uint32_t getTimestampValidBits() { return m_familyProperties.timestampValidBits; }
-		VkExtent3D getMinImageTransferGranularity() { return m_familyProperties.minImageTransferGranularity; }
+		uint32_t getQueueCount() const { return m_familyProperties.queueCount; }
+		uint32_t getTimestampValidBits() const { return m_familyProperties.timestampValidBits; }
+		VkExtent3D getMinImageTransferGranularity() const { return m_familyProperties.minImageTransferGranularity; }
+
+		uint32_t getIndex() const { return m_familyIndex; }
 
 	private:
 
@@ -59,6 +61,8 @@ namespace vdu
 		void querySurfaceCapabilities(VkSurfaceKHR surface);
 
 		VkPhysicalDevice getHandle();
+
+		const std::vector<QueueFamily>& getQueueFamilies();
 
 		/*
 		Functions for finding memory type indices, supported formats from a list of candidates, and an optimal depth format
