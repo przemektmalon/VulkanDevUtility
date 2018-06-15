@@ -60,14 +60,14 @@ namespace vdu
 		*/
 		void querySurfaceCapabilities(VkSurfaceKHR surface);
 
-		VkPhysicalDevice getHandle();
+		VkPhysicalDevice getHandle() const;
 
-		const std::vector<QueueFamily>& getQueueFamilies();
+		const std::vector<QueueFamily>& getQueueFamilies() const;
 
 		/*
 		Functions for finding memory type indices, supported formats from a list of candidates, and an optimal depth format
 		*/
-		uint32_t findMemoryTypeIndex(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+		uint32_t findMemoryTypeIndex(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 		VkFormat findOptimalDepthFormat();
 

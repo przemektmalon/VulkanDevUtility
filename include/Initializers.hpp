@@ -116,4 +116,12 @@ namespace vdu
 		return cpci;
 	}
 
+	template<>
+	static constexpr VkBufferCreateInfo initializer<VkBufferCreateInfo>()
+	{
+		VkBufferCreateInfo bci{};
+		bci.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		return bci;
+	}
+
 }

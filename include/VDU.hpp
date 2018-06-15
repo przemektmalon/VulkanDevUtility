@@ -8,3 +8,4 @@
 #include "Descriptors.hpp"
 #include "Shaders.hpp"
 #include "Enums.hpp"
+#include "DeviceMemory.hpp"

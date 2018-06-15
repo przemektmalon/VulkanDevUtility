@@ -83,6 +83,7 @@ bool vdu::ShaderModule::compile()
 void vdu::ShaderModule::destroy()
 {
 	vkDestroyShaderModule((*m_logicalDevice)->getHandle(), m_module, 0);
+	m_module = 0;
 }
 
 void vdu::ShaderModule::setIntStage()

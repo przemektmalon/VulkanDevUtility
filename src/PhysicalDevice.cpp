@@ -2,17 +2,17 @@
 #include "PhysicalDevice.hpp"
 #include "Initializers.hpp"
 
-VkPhysicalDevice vdu::PhysicalDevice::getHandle()
+VkPhysicalDevice vdu::PhysicalDevice::getHandle() const
 {
 	return m_physicalDevice;
 }
 
-const std::vector<vdu::QueueFamily>& vdu::PhysicalDevice::getQueueFamilies()
+const std::vector<vdu::QueueFamily>& vdu::PhysicalDevice::getQueueFamilies() const
 {
 	return m_queueFamilies;
 }
 
-uint32_t vdu::PhysicalDevice::findMemoryTypeIndex(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+uint32_t vdu::PhysicalDevice::findMemoryTypeIndex(uint32_t typeFilter, VkMemoryPropertyFlags properties) const
 {
 	for (uint32_t i = 0; i < m_memoryProperties.memoryTypeCount; i++) {
 		if ((typeFilter & (1 << i)) && (m_memoryProperties.memoryTypes[i].propertyFlags & properties) == properties) {

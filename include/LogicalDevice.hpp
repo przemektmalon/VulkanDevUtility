@@ -66,6 +66,7 @@ namespace vdu
 		void destroy();
 
 		VkDevice getHandle() { return m_device; }
+		const PhysicalDevice* getPhysicalDevice() const { return m_physicalDevice; }
 
 		void addQueue(Queue* queue);
 		void addExtension(const char * extensionName);
