@@ -18,6 +18,80 @@
 
 #include "vulkan/vulkan.h"
 
+// Debugging output macros
+#ifdef _WIN32
+
+/*
+bit 0 - foreground blue
+bit 1 - foreground green
+bit 2 - foreground red
+bit 3 - foreground intensity
+
+bit 4 - background blue
+bit 5 - background green
+bit 6 - background red
+bit 7 - background intensity
+*/
+
+#ifdef _MSC_VER
+#define DBG_SEVERE(msg) { \
+			std::stringstream ss; \
+			ss << msg; \
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b11001111); \
+			std::cout << __FILE__ << " Line: " << __LINE__ << std::endl; \
+			std::cout << "! SEVERE  -"; \
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00001111); \
+			std::cout << " " << ss.str() << std::endl; \
+			MessageBoxA(NULL, LPCSTR(ss.str().c_str()), "Severe Error!", MB_OK); \
+			DebugBreak(); } 
+#else
+#define DBG_SEVERE(msg) { \
+			std::stringstream ss; \
+			ss << msg; \
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b11001111); \
+			std::cout << "! SEVERE  -"; \
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00001111); \
+			std::cout << " " << ss.str() << std::endl; \
+			MessageBoxA(NULL, LPCSTR(ss.str().c_str()), "Severe Error!", MB_OK); \
+			__builtin_trap(); }
+#endif
+#define DBG_WARNING(msg) { \
+		std::stringstream ss; \
+		ss << msg; \
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b01101111); \
+		std::cout << __FILE__ << " Line: " << __LINE__ << std::endl; \
+		std::cout << "! Warning -"; \
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00001111); \
+		std::cout << " " << ss.str() << std::endl << std::endl << std::endl << std::endl; } 
+
+#define DBG_INFO(msg) { \
+		std::stringstream ss; \
+		ss << msg; \
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00011111); \
+		std::cout << " Info     -"; \
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00001111); \
+		std::cout << " " << ss.str() << std::endl; } 
+#else
+#ifdef __linux__
+#define DBG_SEVERE(msg) { \
+			std::stringstream ss; \
+			ss << msg; \
+			std::cout << "\033[1;31m! SEVERE  -\033[0m"; \
+			std::cout << " " << ss.str() << std::endl; }
+#define DBG_WARNING(msg) { \
+			std::stringstream ss; \
+			ss << msg; \
+			std::cout << "\033[1;33m! WARNING  -\033[0m"; \
+			std::cout << " " << ss.str() << std::endl; }
+
+#define DBG_INFO(msg) { \
+			std::stringstream ss; \
+			ss << msg; \
+			std::cout << "\033[1;32m! INFO  -\033[0m"; \
+			std::cout << " " << ss.str() << std::endl; }
+#endif
+#endif
+
 #ifndef VDU_NO_VALIDATION
 #define VDU_WITH_VALIDATION
 #endif
@@ -93,79 +167,7 @@
 	} \
 }
 
-// Debugging output macros
-#ifdef _WIN32
 
-	/*
-	bit 0 - foreground blue
-	bit 1 - foreground green
-	bit 2 - foreground red
-	bit 3 - foreground intensity
-
-	bit 4 - background blue
-	bit 5 - background green
-	bit 6 - background red
-	bit 7 - background intensity
-	*/
-
-	#ifdef _MSC_VER
-	#define DBG_SEVERE(msg) { \
-			std::stringstream ss; \
-			ss << msg; \
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b11001111); \
-			std::cout << __FILE__ << " Line: " << __LINE__ << std::endl; \
-			std::cout << "! SEVERE  -"; \
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00001111); \
-			std::cout << " " << ss.str() << std::endl; \
-			MessageBoxA(NULL, LPCSTR(ss.str().c_str()), "Severe Error!", MB_OK); \
-			DebugBreak(); } 
-	#else
-		#define DBG_SEVERE(msg) { \
-			std::stringstream ss; \
-			ss << msg; \
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b11001111); \
-			std::cout << "! SEVERE  -"; \
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00001111); \
-			std::cout << " " << ss.str() << std::endl; \
-			MessageBoxA(NULL, LPCSTR(ss.str().c_str()), "Severe Error!", MB_OK); \
-			__builtin_trap(); }
-	#endif
-	#define DBG_WARNING(msg) { \
-		std::stringstream ss; \
-		ss << msg; \
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b01101111); \
-		std::cout << __FILE__ << " Line: " << __LINE__ << std::endl; \
-		std::cout << "! Warning -"; \
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00001111); \
-		std::cout << " " << ss.str() << std::endl; } 
-
-	#define DBG_INFO(msg) { \
-		std::stringstream ss; \
-		ss << msg; \
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00011111); \
-		std::cout << " Info     -"; \
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00001111); \
-		std::cout << " " << ss.str() << std::endl; } 
-#else
-	#ifdef __linux__
-		#define DBG_SEVERE(msg) { \
-			std::stringstream ss; \
-			ss << msg; \
-			std::cout << "\033[1;31m! SEVERE  -\033[0m"; \
-			std::cout << " " << ss.str() << std::endl; }
-		#define DBG_WARNING(msg) { \
-			std::stringstream ss; \
-			ss << msg; \
-			std::cout << "\033[1;33m! WARNING  -\033[0m"; \
-			std::cout << " " << ss.str() << std::endl; }
-	
-		#define DBG_INFO(msg) { \
-			std::stringstream ss; \
-			ss << msg; \
-			std::cout << "\033[1;32m! INFO  -\033[0m"; \
-			std::cout << " " << ss.str() << std::endl; }
-	#endif
-#endif
 
 
 

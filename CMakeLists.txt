@@ -19,7 +19,7 @@ endif()
 ################################################################
 
 set(LIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/vdu")
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 
