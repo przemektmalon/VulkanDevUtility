@@ -85,6 +85,12 @@ namespace vdu
 		*/
 		VkInstance getInstanceHandle();
 
+		/*
+		Debug callback function
+		*/
+		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallbackFunc(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData);
+
+
 	private:
 
 		/*
@@ -122,6 +128,17 @@ namespace vdu
 		Debug callback vulkan handle
 		*/
 		VkDebugReportCallbackEXT m_debugReportCallback;
+
+	public:
+
+		/*
+		Flag and message for a validation warnings/errors
+		*/
+		static thread_local bool m_validationWarning;
+		static thread_local std::string m_validationMessage;
+		static thread_local VkResult m_lastVulkanResult;
 	};
 
+	static vdu::Instance* internal_debugging_instance;
 }
+

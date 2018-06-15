@@ -16,6 +16,8 @@ vdu::Instance::Instance() :
 
 void vdu::Instance::create()
 {
+	vdu::internal_debugging_instance = this;
+
 	auto appInfo = vdu::initializer<VkApplicationInfo>();
 
 	appInfo.apiVersion = m_apiVersion;
@@ -38,15 +40,17 @@ void vdu::Instance::create()
 
 	VDU_VK_CHECK_RESULT(vkCreateInstance(&instInfo, nullptr, &m_instance));
 
+#ifdef VDU_WITH_VALIDATION
 	if (m_debugReportCallbackFunction)
 	{
 		auto drcci = vdu::initializer<VkDebugReportCallbackCreateInfoEXT>();
 		drcci.flags = m_debugReportLevel;
-		drcci.pfnCallback = m_debugReportCallbackFunction;
+		drcci.pfnCallback = &debugCallbackFunc;
 		auto createDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_instance, "vkCreateDebugReportCallbackEXT");
 
 		VDU_VK_CHECK_RESULT(createDebugReportCallbackEXT(m_instance, &drcci, nullptr, &m_debugReportCallback));
 	}
+#endif
 }
 
 void vdu::Instance::destroy()
@@ -55,7 +59,7 @@ void vdu::Instance::destroy()
 	{
 		PFN_vkDestroyDebugReportCallbackEXT(vkGetInstanceProcAddr(m_instance, "vkDestroyDebugReportCallbackEXT"))(m_instance, m_debugReportCallback, 0);
 	}
-	vkDestroyInstance(m_instance, nullptr);
+	VDU_VK_VALIDATE(vkDestroyInstance(m_instance, nullptr));
 }
 
 void vdu::Instance::addExtension(const char * extensionName)
@@ -108,3 +112,15 @@ VkInstance vdu::Instance::getInstanceHandle()
 	return m_instance;
 }
 
+VKAPI_ATTR VkBool32 VKAPI_CALL vdu::Instance::debugCallbackFunc(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char * layerPrefix, const char * msg, void * userData)
+{
+	m_validationWarning = true;
+	m_validationMessage = msg;
+	if (vdu::internal_debugging_instance->m_debugReportCallbackFunction)
+		return vdu::internal_debugging_instance->m_debugReportCallbackFunction(flags, objType, obj, location, code, layerPrefix, msg, userData);
+	return 0;
+}
+
+thread_local bool vdu::Instance::m_validationWarning;
+thread_local std::string vdu::Instance::m_validationMessage;
+thread_local VkResult vdu::Instance::m_lastVulkanResult;

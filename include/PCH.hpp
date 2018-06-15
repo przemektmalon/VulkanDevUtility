@@ -18,10 +18,41 @@
 
 #include "vulkan/vulkan.h"
 
+#ifndef VDU_NO_VALIDATION
+#define VDU_WITH_VALIDATION
+#endif
+
+#ifdef VDU_WITH_VALIDATION
+#define VDU_VK_VALIDATE(f) { \
+	f; \
+	if (vdu::Instance::m_validationWarning) { \
+		DBG_WARNING(vdu::Instance::m_validationMessage); \
+		vdu::Instance::m_validationWarning = false; \
+		vdu::Instance::m_validationMessage.clear(); \
+	} \
+}
+
+#define VDU_VK_VALIDATE_W_RESULT(f) \
+	vdu::Instance::m_lastVulkanResult = f; \
+	if (vdu::Instance::m_validationWarning) { \
+			DBG_WARNING(vdu::Instance::m_validationMessage); \
+			vdu::Instance::m_validationWarning = false; \
+			vdu::Instance::m_validationMessage.clear(); \
+	}
+
+#else
+#define VDU_VK_VALIDATE(f) { \
+	f;}
+
+#define VDU_VK_VALIDATE_W_RESULT(f) \
+	vdu::Instance::m_lastVulkanResult = f;}
+
+#endif
+
 #define VDU_VK_CHECK_RESULT(f) { \
-	VkResult result = f; \
-	if (result != VK_SUCCESS) { \
-		switch(result){ \
+	VDU_VK_VALIDATE_W_RESULT(f); \
+	if (vdu::Instance::m_lastVulkanResult != VK_SUCCESS) { \
+		switch(vdu::Instance::m_lastVulkanResult){ \
 			case(VK_ERROR_OUT_OF_HOST_MEMORY): \
 				DBG_SEVERE("VK_ERROR_OUT_OF_HOST_MEMORY"); break; \
 			case(VK_ERROR_OUT_OF_DEVICE_MEMORY): \
@@ -141,30 +172,12 @@
 
 /// Utilities includes
 
-#include <cstdlib>
-// system, getenv, malloc, calloc, realloc, free, atof, atoi, abs
-
-#include <csignal>
-// signal handlers
-
 #include <functional>
 
 #include <utility>
 // pair, make_pair
 
-#include <ctime>
-
-#include <chrono>
-
 #include <initializer_list>
-
-/// Numeric limits includes
-
-#include <limits>
-
-/// Error handling includes
-
-#include <cassert>
 
 /// Strings includes
 
@@ -190,19 +203,9 @@
 
 #include <array>
 
-/// Algorithms includes
-
-#include <algorithm>
-
 /// Iterators includes
 
 #include <iterator>
-
-/// Numerics includes
-
-#include <cmath>
-
-#include <random>
 
 /// IO includes
 
@@ -215,13 +218,3 @@
 #include <cstdio>
 
 #include <sstream>
-
-/// Regex includes
-
-#include <regex>
-
-///  Thread support
-
-#include <thread>
-
-#include <mutex>

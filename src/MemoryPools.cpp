@@ -29,7 +29,7 @@ void vdu::DescriptorPool::create(LogicalDevice* logicalDevice)
 
 void vdu::DescriptorPool::destroy()
 {
-	vkDestroyDescriptorPool(m_logicalDevice->getHandle(), m_descriptorPool, nullptr);
+	VDU_VK_VALIDATE(vkDestroyDescriptorPool(m_logicalDevice->getHandle(), m_descriptorPool, nullptr));
 }
 
 void vdu::DescriptorPool::addPoolCount(VkDescriptorType type, uint32_t count)
@@ -59,5 +59,5 @@ void vdu::CommandPool::create(LogicalDevice * logicalDevice)
 
 void vdu::CommandPool::destroy()
 {
-	vkDestroyCommandPool(m_logicalDevice->getHandle(), m_commandPool, nullptr);
+	VDU_VK_VALIDATE(vkDestroyCommandPool(m_logicalDevice->getHandle(), m_commandPool, nullptr));
 }
