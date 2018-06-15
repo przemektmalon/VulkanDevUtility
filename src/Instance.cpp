@@ -41,15 +41,12 @@ void vdu::Instance::create()
 	VDU_VK_CHECK_RESULT(vkCreateInstance(&instInfo, nullptr, &m_instance));
 
 #ifdef VDU_WITH_VALIDATION
-	if (m_debugReportCallbackFunction)
-	{
-		auto drcci = vdu::initializer<VkDebugReportCallbackCreateInfoEXT>();
-		drcci.flags = m_debugReportLevel;
-		drcci.pfnCallback = &debugCallbackFunc;
-		auto createDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_instance, "vkCreateDebugReportCallbackEXT");
+	auto drcci = vdu::initializer<VkDebugReportCallbackCreateInfoEXT>();
+	drcci.flags = m_debugReportLevel;
+	drcci.pfnCallback = &debugCallbackFunc;
+	auto createDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_instance, "vkCreateDebugReportCallbackEXT");
 
-		VDU_VK_CHECK_RESULT(createDebugReportCallbackEXT(m_instance, &drcci, nullptr, &m_debugReportCallback));
-	}
+	VDU_VK_CHECK_RESULT(createDebugReportCallbackEXT(m_instance, &drcci, nullptr, &m_debugReportCallback));
 #endif
 }
 
@@ -116,8 +113,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vdu::Instance::debugCallbackFunc(VkDebugReportFla
 {
 	m_validationWarning = true;
 	m_validationMessage = msg;
-	if (vdu::internal_debugging_instance->m_debugReportCallbackFunction)
-		return vdu::internal_debugging_instance->m_debugReportCallbackFunction(flags, objType, obj, location, code, layerPrefix, msg, userData);
+	//if (vdu::internal_debugging_instance->m_debugReportCallbackFunction)
+	//	return vdu::internal_debugging_instance->m_debugReportCallbackFunction(flags, objType, obj, location, code, layerPrefix, msg, userData);
 	return 0;
 }
 

@@ -7,7 +7,7 @@ void vdu::LogicalDevice::create(PhysicalDevice* physicalDevice)
 	m_physicalDevice = physicalDevice;
 
 	std::vector<VkDeviceQueueCreateInfo> qcis;
-	for (auto familyCount : m_queueFamilyCountsPriorities)
+	for (auto& familyCount : m_queueFamilyCountsPriorities)
 	{
 		auto qci = vdu::initializer<VkDeviceQueueCreateInfo>();
 		qci.queueFamilyIndex = familyCount.first;
