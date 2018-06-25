@@ -52,10 +52,9 @@ void vdu::Instance::create()
 
 void vdu::Instance::destroy()
 {
-	if (m_debugReportCallbackFunction)
-	{
-		PFN_vkDestroyDebugReportCallbackEXT(vkGetInstanceProcAddr(m_instance, "vkDestroyDebugReportCallbackEXT"))(m_instance, m_debugReportCallback, 0);
-	}
+#ifdef VDU_WITH_VALIDATION
+	PFN_vkDestroyDebugReportCallbackEXT(vkGetInstanceProcAddr(m_instance, "vkDestroyDebugReportCallbackEXT"))(m_instance, m_debugReportCallback, 0);
+#endif
 	VDU_VK_VALIDATE(vkDestroyInstance(m_instance, nullptr));
 }
 

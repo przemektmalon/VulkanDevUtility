@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 #include "MemoryPools.hpp"
 #include "Initializers.hpp"
+#include "CommandBuffer.hpp"
 
 vdu::DescriptorPool::DescriptorPool() : m_maxSets(0)
 {
@@ -60,4 +61,84 @@ void vdu::CommandPool::create(LogicalDevice * logicalDevice)
 void vdu::CommandPool::destroy()
 {
 	VDU_VK_VALIDATE(vkDestroyCommandPool(m_logicalDevice->getHandle(), m_commandPool, nullptr));
+}
+
+vdu::QueryPool::QueryPool() : m_queryPool(0), m_logicalDevice(nullptr), m_pipelineStats(0), m_queryData(nullptr)
+{
+}
+
+void vdu::QueryPool::create(LogicalDevice * logicalDevice)
+{
+	m_logicalDevice = logicalDevice;
+
+	VkQueryPoolCreateInfo ci = {};
+	ci.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+	ci.queryType = m_type;
+	ci.queryCount = m_count;
+	ci.pipelineStatistics = m_pipelineStats;
+
+	VDU_VK_CHECK_RESULT(vkCreateQueryPool(m_logicalDevice->getHandle(), &ci, 0, &m_queryPool));
+
+	m_queryData = new uint64_t[m_count];
+}
+
+void vdu::QueryPool::destroy()
+{
+	VDU_VK_VALIDATE(vkDestroyQueryPool(m_logicalDevice->getHandle(), m_queryPool, nullptr));
+}
+
+void vdu::QueryPool::setQueryType(VkQueryType type)
+{
+	m_type = type;
+}
+
+void vdu::QueryPool::setPipelineStats(VkQueryPipelineStatisticFlags flags)
+{
+	m_pipelineStats = flags;
+}
+
+void vdu::QueryPool::setQueryCount(uint32_t count)
+{
+	m_count = count;
+}
+
+uint64_t * vdu::QueryPool::query()
+{
+	return query(0, m_count);
+}
+
+uint64_t * vdu::QueryPool::query(uint32_t first, uint32_t count)
+{
+	VDU_VK_CHECK_RESULT(vkGetQueryPoolResults(m_logicalDevice->getHandle(), m_queryPool, first, count, sizeof(uint64_t) * count, m_queryData, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT));
+	return m_queryData;
+}
+
+void vdu::QueryPool::cmdReset(const vdu::CommandBuffer & cmd)
+{
+	cmdReset(cmd, 0, m_count);
+}
+
+void vdu::QueryPool::cmdReset(const vdu::CommandBuffer & cmd, uint32_t first, uint32_t count)
+{
+	cmdReset(cmd.getHandle(), first, count);
+}
+
+void vdu::QueryPool::cmdReset(const VkCommandBuffer & cmd)
+{
+	cmdReset(cmd, 0, m_count);
+}
+
+void vdu::QueryPool::cmdReset(const VkCommandBuffer & cmd, uint32_t first, uint32_t count)
+{
+	VDU_VK_VALIDATE(vkCmdResetQueryPool(cmd, m_queryPool, 0, count));
+}
+
+void vdu::QueryPool::cmdTimestamp(const vdu::CommandBuffer & cmd, VkPipelineStageFlagBits flags, uint32_t index)
+{
+	VDU_VK_VALIDATE(vkCmdWriteTimestamp(cmd.getHandle(), flags, m_queryPool, index));
+}
+
+void vdu::QueryPool::cmdTimestamp(const VkCommandBuffer & cmd, VkPipelineStageFlagBits flags, uint32_t index)
+{
+	VDU_VK_VALIDATE(vkCmdWriteTimestamp(cmd, flags, m_queryPool, index));
 }

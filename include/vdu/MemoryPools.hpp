@@ -8,6 +8,8 @@ Wrappers for command, descriptor, and query pools
 
 namespace vdu
 {
+	class CommandBuffer;
+
 	class DescriptorPool
 	{
 	public:
@@ -55,6 +57,42 @@ namespace vdu
 		const QueueFamily* m_queueFamily;
 		LogicalDevice* m_logicalDevice;
 		VkCommandPoolCreateFlagBits m_flags;
+	};
+
+	class QueryPool
+	{
+	public:
+		QueryPool();
+
+		void create(LogicalDevice* logicalDevice);
+		void destroy();
+
+		void setQueryType(VkQueryType type);
+		void setPipelineStats(VkQueryPipelineStatisticFlags flags);
+		void setQueryCount(uint32_t count);
+
+		uint64_t* query();
+		uint64_t* query(uint32_t first, uint32_t count);
+
+		void cmdReset(const vdu::CommandBuffer& cmd);
+		void cmdReset(const vdu::CommandBuffer& cmd, uint32_t first, uint32_t count);
+		void cmdReset(const VkCommandBuffer& cmd);
+		void cmdReset(const VkCommandBuffer& cmd, uint32_t first, uint32_t count);
+
+		VkQueryPool getHandle() { return m_queryPool; }
+
+		void cmdTimestamp(const vdu::CommandBuffer& cmd, VkPipelineStageFlagBits flags, uint32_t index);
+		void cmdTimestamp(const VkCommandBuffer& cmd, VkPipelineStageFlagBits flags, uint32_t index);
+
+	private:
+
+		VkQueryPool m_queryPool;
+		LogicalDevice* m_logicalDevice;
+		VkQueryPipelineStatisticFlags m_pipelineStats;
+		VkQueryType m_type;
+		uint32_t m_count;
+
+		uint64_t* m_queryData;
 	};
 
 }
