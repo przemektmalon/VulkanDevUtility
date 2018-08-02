@@ -68,6 +68,17 @@ vdu::RenderPass::AttachmentInfo* vdu::RenderPass::addColourAttachment(vdu::Textu
 	return insertion.first->second;
 }
 
+vdu::RenderPass::AttachmentInfo* vdu::RenderPass::addColourAttachment(VkFormat format, std::string name)
+{
+	m_attachments.insert(std::make_pair(name, nullptr));
+	auto insertion = m_attachmentInfos.insert(std::make_pair(name, new AttachmentInfo()));
+
+	m_attachmentInfos[name]->setFormat(format);
+	m_attachmentInfos[name]->setAttachmentIndex(m_attachments.size() - 1 + (m_depthAttachment ? 1 : 0));
+
+	return insertion.first->second;
+}
+
 vdu::RenderPass::AttachmentInfo* vdu::RenderPass::setDepthAttachment(vdu::Texture * texture)
 {
 	m_depthAttachment = texture;
