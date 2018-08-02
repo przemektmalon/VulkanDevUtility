@@ -115,7 +115,7 @@ uint64_t * vdu::QueryPool::query(uint32_t first, uint32_t count)
 
 void vdu::QueryPool::cmdReset(const vdu::CommandBuffer & cmd)
 {
-	cmdReset(cmd, 0, m_count);
+	cmdReset(cmd.getHandle(), 0, m_count);
 }
 
 void vdu::QueryPool::cmdReset(const vdu::CommandBuffer & cmd, uint32_t first, uint32_t count)

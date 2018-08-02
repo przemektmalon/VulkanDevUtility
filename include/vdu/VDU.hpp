@@ -10,3 +10,4 @@
 #include "Enums.hpp"
 #include "DeviceMemory.hpp"
 #include "CommandBuffer.hpp"
+#include "RenderPass.hpp"
