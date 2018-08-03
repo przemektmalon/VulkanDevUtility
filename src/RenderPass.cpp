@@ -91,6 +91,18 @@ vdu::RenderPass::AttachmentInfo* vdu::RenderPass::setDepthAttachment(vdu::Textur
 	return m_depthAttachmentInfo;
 }
 
+vdu::RenderPass::AttachmentInfo* vdu::RenderPass::setDepthAttachment(VkFormat format)
+{
+	m_depthAttachment = (vdu::Texture*)1;
+
+	m_depthAttachmentInfo = new AttachmentInfo();
+
+	m_depthAttachmentInfo->setFormat(format);
+	m_depthAttachmentInfo->setAttachmentIndex(m_attachments.size());
+
+	return m_depthAttachmentInfo;
+}
+
 vdu::RenderPass::AttachmentInfo::AttachmentInfo()
 {
 	m_description.format = VK_FORMAT_UNDEFINED;

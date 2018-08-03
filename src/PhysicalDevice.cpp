@@ -50,17 +50,17 @@ VkFormat vdu::PhysicalDevice::findOptimalDepthFormat()
 	);
 }
 
-const VkSurfaceCapabilitiesKHR& vdu::PhysicalDevice::getSurfaceCapabilities()
+const VkSurfaceCapabilitiesKHR& vdu::PhysicalDevice::getSurfaceCapabilities() const
 {
 	return m_surfaceCapabilities;
 }
 
-const std::vector<VkSurfaceFormatKHR>& vdu::PhysicalDevice::getSurfaceFormats()
+const std::vector<VkSurfaceFormatKHR>& vdu::PhysicalDevice::getSurfaceFormats() const
 {
 	return m_surfaceFormats;
 }
 
-const std::vector<VkPresentModeKHR>& vdu::PhysicalDevice::getPresentModes()
+const std::vector<VkPresentModeKHR>& vdu::PhysicalDevice::getPresentModes() const
 {
 	return m_presentModes;
 }

@@ -11,3 +11,5 @@
 #include "DeviceMemory.hpp"
 #include "CommandBuffer.hpp"
 #include "RenderPass.hpp"
+#include "Framebuffer.hpp"
+#include "Swapchain.hpp"

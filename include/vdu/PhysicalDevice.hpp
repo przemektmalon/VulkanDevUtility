@@ -71,9 +71,9 @@ namespace vdu
 		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 		VkFormat findOptimalDepthFormat();
 
-		const VkSurfaceCapabilitiesKHR& getSurfaceCapabilities();
-		const std::vector<VkSurfaceFormatKHR>& getSurfaceFormats();
-		const std::vector<VkPresentModeKHR>& getPresentModes();
+		const VkSurfaceCapabilitiesKHR& getSurfaceCapabilities() const;
+		const std::vector<VkSurfaceFormatKHR>& getSurfaceFormats() const;
+		const std::vector<VkPresentModeKHR>& getPresentModes() const;
 
 	private:
 

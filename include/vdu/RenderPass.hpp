@@ -37,11 +37,12 @@ namespace vdu
 
 		void destroy();
 
-		const VkRenderPass& getHandle() { return m_renderPass; }
+		const VkRenderPass& getHandle() const { return m_renderPass; }
 
 		AttachmentInfo* addColourAttachment(vdu::Texture* texture, std::string name);
 		AttachmentInfo* addColourAttachment(VkFormat format, std::string name);
 		AttachmentInfo* setDepthAttachment(vdu::Texture* texture);
+		AttachmentInfo* setDepthAttachment(VkFormat format);
 
 	private:
 
