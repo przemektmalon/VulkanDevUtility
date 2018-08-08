@@ -56,7 +56,7 @@ namespace vdu
 
 		void setPipelineLayout(PipelineLayout* layout);
 		void setShaderProgram(ShaderProgram* shader);
-		void setFramebuffer(Framebuffer* framebuffer);
+		
 
 		const VkPipeline& getHandle() { return m_pipeline; }
 		const PipelineLayout* getLayout() { return m_layout; }
@@ -72,8 +72,6 @@ namespace vdu
 		DescriptorSetLayout* m_descriptorSetLayout;
 
 		ShaderProgram* m_shaderProgram;
-
-		Framebuffer* m_framebuffer;
 
 		LogicalDevice* m_logicalDevice;
 	};
@@ -143,8 +141,6 @@ namespace vdu
 	public:
 
 		void create(LogicalDevice* device);
-
-	private:
 
 	};
 }

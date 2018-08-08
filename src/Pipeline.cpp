@@ -11,11 +11,6 @@ void vdu::Pipeline::setShaderProgram(vdu::ShaderProgram * shader)
 	m_shaderProgram = shader;
 }
 
-void vdu::Pipeline::setFramebuffer(vdu::Framebuffer * framebuffer)
-{
-	m_framebuffer = framebuffer;
-}
-
 void vdu::Pipeline::destroy()
 {
 	VDU_VK_VALIDATE(vkDestroyPipeline(m_logicalDevice->getHandle(), m_pipeline, 0));
@@ -29,6 +24,13 @@ void vdu::GraphicsPipeline::setRenderPass(RenderPass * renderPass)
 void vdu::ComputePipeline::create(vdu::LogicalDevice * device)
 {
 	m_logicalDevice = device;
+
+	VkComputePipelineCreateInfo pipelineInfo = {};
+	pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+	pipelineInfo.stage = m_shaderProgram->getShaderStageCreateInfos()[0];
+	pipelineInfo.layout = m_layout->getHandle();
+
+	VDU_VK_CHECK_RESULT(vkCreateComputePipelines(m_logicalDevice->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline));
 }
 
 void vdu::GraphicsPipeline::setSwapchain(Swapchain * swapchain)
