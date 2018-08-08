@@ -82,7 +82,7 @@ void vdu::GraphicsPipeline::create(vdu::LogicalDevice * device)
 	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	colorBlending.logicOpEnable = m_logicOpEnable;
 	colorBlending.logicOp = m_logicOp;
-	colorBlending.attachmentCount = m_swapchain->getRenderPass().getAttachments().size();
+	colorBlending.attachmentCount = m_renderPass->getAttachments().size();
 	colorBlending.pAttachments = blendState.data();
 	colorBlending.blendConstants[0] = m_colorBlendConstants[0];
 	colorBlending.blendConstants[1] = m_colorBlendConstants[1];
