@@ -120,7 +120,7 @@ VkDescriptorBufferInfo * vdu::DescriptorSet::SetUpdater::addBufferUpdate(const s
 	return ret;
 }
 
-void vdu::DescriptorSet::create(LogicalDevice * logicalDevice, DescriptorSetLayout * layout, DescriptorPool* descriptorPool)
+void vdu::DescriptorSet::allocate(LogicalDevice * logicalDevice, DescriptorSetLayout * layout, DescriptorPool* descriptorPool)
 {
 	m_logicalDevice = logicalDevice;
 	m_descriptorSetLayout = layout;
@@ -134,7 +134,7 @@ void vdu::DescriptorSet::create(LogicalDevice * logicalDevice, DescriptorSetLayo
 	VDU_VK_CHECK_RESULT(vkAllocateDescriptorSets(m_logicalDevice->getHandle(), &dsai, &m_descriptorSet));
 }
 
-void vdu::DescriptorSet::destroy()
+void vdu::DescriptorSet::free()
 {
 	VDU_VK_CHECK_RESULT(vkFreeDescriptorSets(m_logicalDevice->getHandle(), m_descriptorPool->getHandle(), 1, &m_descriptorSet));
 }

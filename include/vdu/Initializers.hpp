@@ -86,7 +86,7 @@ namespace vdu
 	template<typename T>
 	T initializer(size_t cs, uint32_t* pc) {}
 	template<>
-	static constexpr VkShaderModuleCreateInfo initializer<VkShaderModuleCreateInfo>(size_t codeSize, uint32_t* pCode)
+	constexpr VkShaderModuleCreateInfo initializer<VkShaderModuleCreateInfo>(size_t codeSize, uint32_t* pCode)
 	{
 		VkShaderModuleCreateInfo smci{};
 		smci.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -98,7 +98,7 @@ namespace vdu
 	template<typename T>
 	T initializer(VkShaderStageFlagBits fb, VkShaderModule m, const char* ep) {}
 	template<>
-	static constexpr VkPipelineShaderStageCreateInfo initializer<VkPipelineShaderStageCreateInfo>(VkShaderStageFlagBits stage, VkShaderModule module, const char* entryPoint)
+	constexpr VkPipelineShaderStageCreateInfo initializer<VkPipelineShaderStageCreateInfo>(VkShaderStageFlagBits stage, VkShaderModule module, const char* entryPoint)
 	{
 		VkPipelineShaderStageCreateInfo pssci{};
 		pssci.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -109,7 +109,7 @@ namespace vdu
 	}
 	
 	template<>
-	static constexpr VkCommandPoolCreateInfo initializer<VkCommandPoolCreateInfo>()
+	constexpr VkCommandPoolCreateInfo initializer<VkCommandPoolCreateInfo>()
 	{
 		VkCommandPoolCreateInfo cpci{};
 		cpci.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -117,7 +117,7 @@ namespace vdu
 	}
 
 	template<>
-	static constexpr VkBufferCreateInfo initializer<VkBufferCreateInfo>()
+	constexpr VkBufferCreateInfo initializer<VkBufferCreateInfo>()
 	{
 		VkBufferCreateInfo bci{};
 		bci.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

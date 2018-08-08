@@ -174,6 +174,8 @@ bit 7 - background intensity
 
 /// Utilities includes
 
+#include <limits>
+
 #include <functional>
 
 #include <utility>

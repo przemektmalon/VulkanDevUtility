@@ -59,9 +59,9 @@ namespace vdu
 
 	public:
 
-		void create(LogicalDevice* logicalDevice, DescriptorSetLayout* layout, DescriptorPool* descriptorPool);
+		void allocate(LogicalDevice* logicalDevice, DescriptorSetLayout* layout, DescriptorPool* descriptorPool);
 
-		void destroy();
+		void free();
 
 		const VkDescriptorSet& getHandle() { return m_descriptorSet; }
 
