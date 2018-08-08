@@ -13,3 +13,4 @@
 #include "RenderPass.hpp"
 #include "Framebuffer.hpp"
 #include "Swapchain.hpp"
+#include "Pipeline.hpp"

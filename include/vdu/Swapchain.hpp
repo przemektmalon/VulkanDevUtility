@@ -13,15 +13,15 @@ namespace vdu
 
 		void destroy();
 
-		const VkFormat& getFormat() { return m_imageFormat; }
-		const VkExtent2D& getExtent() { return m_extent; }
-		const uint32_t getImageCount() { return m_imageCount; }
-		const VkSwapchainKHR getHandle() { return m_swapchain; }
-		const RenderPass& getRenderPass() { return m_renderPass; }
+		const VkFormat& getFormat() const { return m_imageFormat; }
+		const VkExtent2D& getExtent() const { return m_extent; }
+		const uint32_t getImageCount() const { return m_imageCount; }
+		const VkSwapchainKHR getHandle() const { return m_swapchain; }
+		const RenderPass& getRenderPass() const { return m_renderPass; }
 
-		const std::vector<VkImage>& getImages() { return m_images; }
-		const std::vector<VkImageView>& getImageViews() { return m_imageViews; }
-		const std::vector<VkFramebuffer>& getFramebuffers() { return m_framebuffers; }
+		const std::vector<VkImage>& getImages() const { return m_images; }
+		const std::vector<VkImageView>& getImageViews() const { return m_imageViews; }
+		const std::vector<VkFramebuffer>& getFramebuffers() const { return m_framebuffers; }
 
 	private:
 

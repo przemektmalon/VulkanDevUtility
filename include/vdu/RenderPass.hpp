@@ -44,6 +44,8 @@ namespace vdu
 		AttachmentInfo* setDepthAttachment(vdu::Texture* texture);
 		AttachmentInfo* setDepthAttachment(VkFormat format);
 
+		const std::map<std::string, vdu::Texture*>& getAttachments() const { return m_attachments; }
+
 	private:
 
 		std::map<std::string, vdu::Texture*> m_attachments;
