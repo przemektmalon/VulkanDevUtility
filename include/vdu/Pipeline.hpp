@@ -38,12 +38,14 @@ namespace vdu
 		void destroy();
 
 		void addDescriptorSetLayout(DescriptorSetLayout* layout);
+		void addPushConstantRange(VkPushConstantRange range);
 
 		const VkPipelineLayout& getHandle() { return m_layout; }
 
 	private:
 
 		std::vector<DescriptorSetLayout*> m_descriptorSetLayouts;
+		std::vector<VkPushConstantRange> m_pushConstantRanges;
 
 		LogicalDevice* m_logicalDevice;
 

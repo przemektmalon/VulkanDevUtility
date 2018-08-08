@@ -125,7 +125,8 @@ void vdu::PipelineLayout::create(LogicalDevice * device)
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = layoutHandles.size();
 	pipelineLayoutInfo.pSetLayouts = layoutHandles.data();
-	pipelineLayoutInfo.pushConstantRangeCount = 0;
+	pipelineLayoutInfo.pushConstantRangeCount = m_pushConstantRanges.size();
+	pipelineLayoutInfo.pPushConstantRanges = m_pushConstantRanges.data();
 
 	VDU_VK_CHECK_RESULT(vkCreatePipelineLayout(m_logicalDevice->getHandle(), &pipelineLayoutInfo, nullptr, &m_layout));
 }
@@ -138,6 +139,11 @@ void vdu::PipelineLayout::destroy()
 void vdu::PipelineLayout::addDescriptorSetLayout(DescriptorSetLayout * layout)
 {
 	m_descriptorSetLayouts.push_back(layout);
+}
+
+void vdu::PipelineLayout::addPushConstantRange(VkPushConstantRange range)
+{
+	m_pushConstantRanges.push_back(range);
 }
 
 void vdu::VertexInputState::addBinding(uint32_t binding, uint32_t stride, VkVertexInputRate rate)
