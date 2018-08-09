@@ -74,3 +74,18 @@ void vdu::Queue::prepare(uint32_t queueFamilyIndex, float priority)
 	m_queueFamilyIndex = queueFamilyIndex;
 	m_priority = priority;
 }
+
+void vdu::Queue::submit(VkSubmitInfo * info, uint32_t count, VkFence fence)
+{
+	VDU_VK_CHECK_RESULT(vkQueueSubmit(m_queue, count, info, fence));
+}
+
+void vdu::Queue::present(const VkPresentInfoKHR * info)
+{
+	VDU_VK_CHECK_RESULT(vkQueuePresentKHR(m_queue, info));
+}
+
+void vdu::Queue::waitIdle()
+{
+	VDU_VK_CHECK_RESULT(vkQueueWaitIdle(m_queue));
+}

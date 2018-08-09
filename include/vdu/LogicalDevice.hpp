@@ -15,6 +15,10 @@ namespace vdu
 
 		void prepare(uint32_t queueFamilyIndex, float priority);
 
+		void submit(VkSubmitInfo* info, uint32_t count = 1, VkFence fence = VK_NULL_HANDLE);
+		void present(const VkPresentInfoKHR* info);
+		void waitIdle();
+
 		VkQueue getHandle() { return m_queue; }
 		uint32_t getFamilyIndex() { return m_queueFamilyIndex; }
 		uint32_t getIndex() { return m_queueIndex; }
