@@ -23,7 +23,7 @@ uint32_t vdu::PhysicalDevice::findMemoryTypeIndex(uint32_t typeFilter, VkMemoryP
 	return ~(uint32_t(0));
 }
 
-VkFormat vdu::PhysicalDevice::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+VkFormat vdu::PhysicalDevice::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const
 {
 	for (VkFormat format : candidates) {
 		VkFormatProperties props;
@@ -41,7 +41,7 @@ VkFormat vdu::PhysicalDevice::findSupportedFormat(const std::vector<VkFormat>& c
 	return VK_FORMAT_UNDEFINED;
 }
 
-VkFormat vdu::PhysicalDevice::findOptimalDepthFormat()
+VkFormat vdu::PhysicalDevice::findOptimalDepthFormat() const
 {
 	return findSupportedFormat(
 		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },

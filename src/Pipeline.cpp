@@ -89,6 +89,11 @@ void vdu::GraphicsPipeline::create(vdu::LogicalDevice * device)
 	colorBlending.blendConstants[2] = m_colorBlendConstants[2];
 	colorBlending.blendConstants[3] = m_colorBlendConstants[3];
 
+	VkPipelineDynamicStateCreateInfo dsci = {};
+	dsci.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dsci.dynamicStateCount = m_dynamicState.size();
+	dsci.pDynamicStates = m_dynamicState.data();
+
 	// Collate all the data necessary to create pipeline
 	VkGraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -102,10 +107,12 @@ void vdu::GraphicsPipeline::create(vdu::LogicalDevice * device)
 	pipelineInfo.pColorBlendState = &colorBlending;
 	pipelineInfo.pDepthStencilState = &m_depthStencilState;
 	pipelineInfo.layout = m_layout->getHandle();
-	pipelineInfo.renderPass = m_swapchain->getRenderPass().getHandle();
+	pipelineInfo.renderPass = m_renderPass->getHandle();
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 	pipelineInfo.flags = 0;
+	if (m_dynamicState.size() > 0)
+		pipelineInfo.pDynamicState = &dsci;
 
 	VDU_VK_CHECK_RESULT(vkCreateGraphicsPipelines(m_logicalDevice->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline));
 }
@@ -169,7 +176,7 @@ void vdu::VertexInputState::addAttributes(const std::vector<VkVertexInputAttribu
 	}
 }
 
-vdu::GraphicsPipeline::GraphicsPipeline() : m_rasterizerState({}), m_multisampleState({}), m_assemblyState({}), m_depthStencilState({}), m_vertexInputState(nullptr), m_logicOpEnable(VK_FALSE), m_logicOp(VK_LOGIC_OP_AND), m_renderPass(nullptr), m_swapchain(nullptr)
+vdu::GraphicsPipeline::GraphicsPipeline() : m_rasterizerState({}), m_multisampleState({}), m_assemblyState({}), m_depthStencilState({}), m_vertexInputState(nullptr), m_logicOpEnable(VK_FALSE), m_logicOp(VK_LOGIC_OP_COPY), m_renderPass(nullptr), m_swapchain(nullptr)
 {
 	m_rasterizerState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	m_rasterizerState.depthClampEnable = VK_FALSE;
@@ -315,4 +322,9 @@ void vdu::GraphicsPipeline::setMinDepthBounds(float min)
 void vdu::GraphicsPipeline::setMaxDepthBounds(float max)
 {
 	m_depthStencilState.maxDepthBounds = max;
+}
+
+void vdu::GraphicsPipeline::addDynamicState(VkDynamicState state)
+{
+	m_dynamicState.push_back(state);
 }

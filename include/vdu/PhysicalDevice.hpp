@@ -68,8 +68,8 @@ namespace vdu
 		Functions for finding memory type indices, supported formats from a list of candidates, and an optimal depth format
 		*/
 		uint32_t findMemoryTypeIndex(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
-		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-		VkFormat findOptimalDepthFormat();
+		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+		VkFormat findOptimalDepthFormat() const;
 
 		const VkSurfaceCapabilitiesKHR& getSurfaceCapabilities() const;
 		const std::vector<VkSurfaceFormatKHR>& getSurfaceFormats() const;

@@ -117,12 +117,15 @@ namespace vdu
 		void setMinDepthBounds(float min);
 		void setMaxDepthBounds(float max);
 
+		void addDynamicState(VkDynamicState state);
+
 	private:
 
 		VertexInputState * m_vertexInputState;
 
 		std::vector<VkViewport> m_viewports;
 		std::vector<VkRect2D> m_scissors;
+		std::vector<VkDynamicState> m_dynamicState;
 
 		std::map<std::string, VkPipelineColorBlendAttachmentState> m_blendState;
 		VkBool32 m_logicOpEnable;
