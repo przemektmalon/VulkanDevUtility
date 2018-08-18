@@ -14,6 +14,16 @@ void vdu::ShaderModule::create(ShaderStage stage, const std::string& path, Logic
 	load();
 }
 
+void vdu::ShaderModule::removeMacroDefinition(const std::string & define)
+{
+	m_macroDefinitions.erase(define);
+}
+
+void vdu::ShaderModule::setMacroDefinition(const std::string & define, const std::string & value)
+{
+	m_macroDefinitions[define] = value;
+}
+
 void vdu::ShaderModule::load()
 {
 	determineLanguage();
@@ -57,6 +67,13 @@ bool vdu::ShaderModule::compile()
 		shaderc::CompileOptions o;
 		o.SetAutoBindUniforms(true);
 		o.AddMacroDefinition(m_stageMacro);
+		for (auto& define : m_macroDefinitions)
+		{
+			if (define.second.empty())
+				o.AddMacroDefinition(define.first);
+			else
+				o.AddMacroDefinition(define.first,define.second);
+		}
 		o.SetLimit(shaderc_limit::shaderc_limit_max_combined_texture_image_units, 1024);
 		auto res = c.CompileGlslToSpv(m_glslSource, m_internalStage, m_path.c_str(), o);
 		if (res.GetCompilationStatus() != shaderc_compilation_status_success)

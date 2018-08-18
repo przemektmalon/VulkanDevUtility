@@ -12,6 +12,9 @@ namespace vdu
 		ShaderModule();
 		void create(ShaderStage stage, const std::string& path, LogicalDevice** logicalDevice);
 
+		void setMacroDefinition(const std::string& define, const std::string& value = "");
+		void removeMacroDefinition(const std::string& define);
+
 		VkShaderModule getHandle() { return m_module; }
 		ShaderStage getStage() { return m_stage; }
 
@@ -34,6 +37,8 @@ namespace vdu
 
 		std::string m_infoLog;
 		std::string m_debugLog;
+
+		std::unordered_map<std::string, std::string> m_macroDefinitions;
 
 		LogicalDevice** m_logicalDevice;
 
