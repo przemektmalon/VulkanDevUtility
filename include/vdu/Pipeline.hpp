@@ -63,7 +63,7 @@ namespace vdu
 		const VkPipeline& getHandle() { return m_pipeline; }
 		const PipelineLayout* getLayout() { return m_layout; }
 
-		void destroy();
+		virtual void destroy();
 
 	protected:
 
@@ -87,6 +87,7 @@ namespace vdu
 		void setSwapchain(Swapchain* swapchain);
 
 		void create(LogicalDevice* device);
+		void destroy() override;
 
 		void setVertexInputState(VertexInputState* state);
 

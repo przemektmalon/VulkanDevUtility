@@ -117,6 +117,18 @@ void vdu::GraphicsPipeline::create(vdu::LogicalDevice * device)
 	VDU_VK_CHECK_RESULT(vkCreateGraphicsPipelines(m_logicalDevice->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline));
 }
 
+void vdu::GraphicsPipeline::destroy()
+{
+	Pipeline::destroy();
+	m_vertexInputState = nullptr;
+	m_viewports.clear();
+	m_scissors.clear();
+	m_dynamicState.clear();
+	m_blendState.clear();
+	
+	GraphicsPipeline();
+}
+
 void vdu::PipelineLayout::create(LogicalDevice * device)
 {
 	m_logicalDevice = device;
@@ -141,6 +153,9 @@ void vdu::PipelineLayout::create(LogicalDevice * device)
 void vdu::PipelineLayout::destroy()
 {
 	VDU_VK_VALIDATE(vkDestroyPipelineLayout(m_logicalDevice->getHandle(), m_layout, 0));
+	m_descriptorSetLayouts.clear();
+	m_pushConstantRanges.clear();
+	m_layout = 0;
 }
 
 void vdu::PipelineLayout::addDescriptorSetLayout(DescriptorSetLayout * layout)

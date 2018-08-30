@@ -37,4 +37,8 @@ void vdu::Framebuffer::create(vdu::LogicalDevice * device, vdu::RenderPass * ren
 void vdu::Framebuffer::destroy()
 {
 	VDU_VK_VALIDATE(vkDestroyFramebuffer(m_logicalDevice->getHandle(), m_framebuffer, 0));
+	m_renderPass = nullptr;
+	m_attachments.clear();
+	m_attachmentNames.clear();
+	m_framebuffer = 0;
 }

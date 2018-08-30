@@ -55,6 +55,10 @@ void vdu::RenderPass::create(vdu::LogicalDevice * device)
 void vdu::RenderPass::destroy()
 {
 	VDU_VK_VALIDATE(vkDestroyRenderPass(m_logicalDevice->getHandle(), m_renderPass, 0));
+	m_attachments.clear();
+	m_attachmentInfos.clear();
+	m_depthAttachment = nullptr;
+	m_depthAttachmentInfo = nullptr;
 }
 
 vdu::RenderPass::AttachmentInfo* vdu::RenderPass::addColourAttachment(vdu::Texture * texture, std::string name)

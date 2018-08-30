@@ -44,6 +44,11 @@ void vdu::DescriptorSetLayout::create(LogicalDevice * logicalDevice)
 void vdu::DescriptorSetLayout::destroy()
 {
 	VDU_VK_VALIDATE(vkDestroyDescriptorSetLayout(m_logicalDevice->getHandle(), m_descriptorSetLayout, nullptr));
+	m_layoutBindingsLabels.clear();
+	m_imageLayoutBindings.clear();
+	m_bufferLayoutBindings.clear();
+	m_layoutBindings.clear();
+	m_descriptorSetLayout = 0;
 }
 
 vdu::DescriptorSet::SetUpdater::SetUpdater(DescriptorSet * dset)
