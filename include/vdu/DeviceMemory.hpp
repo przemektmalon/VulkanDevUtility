@@ -81,7 +81,7 @@ namespace vdu
 	class Texture
 	{
 	public:
-		Texture() : m_width(0), m_height(0), m_depth(0), m_layers(0), m_image(0), m_imageView(0), m_format(VK_FORMAT_UNDEFINED), m_layout(VK_IMAGE_LAYOUT_UNDEFINED), m_aspectFlags(VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM), m_usageFlags(VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM), m_tiling(VK_IMAGE_TILING_MAX_ENUM){}
+		Texture() : m_logicalDevice(nullptr), m_width(0), m_height(0), m_depth(0), m_layers(0), m_image(0), m_imageView(0), m_format(VK_FORMAT_UNDEFINED), m_layout(VK_IMAGE_LAYOUT_UNDEFINED), m_aspectFlags(VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM), m_usageFlags(VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM), m_tiling(VK_IMAGE_TILING_MAX_ENUM){}
 
 		void setProperties(const TextureCreateInfo& ci);
 		void create(LogicalDevice* logicalDevice);

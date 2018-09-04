@@ -13,6 +13,9 @@ namespace vdu
 		void allocate(LogicalDevice* logicalDevice, CommandPool* commandPool);
 		void free();
 
+		void begin(VkCommandBufferUsageFlagBits usage = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+		void end();
+
 		const VkCommandBuffer& getHandle() const { return m_commandBuffer; }
 
 	private:

@@ -227,6 +227,8 @@ void vdu::Texture::setProperties(const TextureCreateInfo & ci)
 
 void vdu::Texture::destroy()
 {
+	if (!m_logicalDevice)
+		return;
 	VDU_VK_VALIDATE(vkDestroyImageView(m_logicalDevice->getHandle(), m_imageView, nullptr));
 	VDU_VK_VALIDATE(vkDestroyImage(m_logicalDevice->getHandle(), m_image, nullptr));
 	m_deviceMemory->free();

@@ -24,6 +24,19 @@ void vdu::CommandBuffer::free()
 	VDU_VK_VALIDATE(vkFreeCommandBuffers(m_logicalDevice->getHandle(), m_commandPool->getHandle(), 1, &m_commandBuffer));
 }
 
+void vdu::CommandBuffer::begin(VkCommandBufferUsageFlagBits usage)
+{
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = usage;
+	vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
+}
+
+void vdu::CommandBuffer::end()
+{
+	vkEndCommandBuffer(m_commandBuffer);
+}
+
 void vdu::CommandBufferArray::setLevel(VkCommandBufferLevel level)
 {
 	m_level = level;
