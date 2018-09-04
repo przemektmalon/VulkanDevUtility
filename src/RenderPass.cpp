@@ -59,6 +59,7 @@ void vdu::RenderPass::destroy()
 	m_attachmentInfos.clear();
 	m_depthAttachment = nullptr;
 	m_depthAttachmentInfo = nullptr;
+	m_renderPass = 0;
 }
 
 vdu::RenderPass::AttachmentInfo* vdu::RenderPass::addColourAttachment(vdu::Texture * texture, std::string name)

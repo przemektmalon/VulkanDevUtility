@@ -14,3 +14,4 @@
 #include "Framebuffer.hpp"
 #include "Swapchain.hpp"
 #include "Pipeline.hpp"
+#include "Synchro.hpp"
