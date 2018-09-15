@@ -68,6 +68,26 @@ void vdu::Queue::present(const VkPresentInfoKHR * info)
 	VDU_VK_CHECK_RESULT(vkQueuePresentKHR(m_queue, info));
 }
 
+void vdu::Queue::present(const QueuePresentation & qPresent)
+{
+	auto& waitsems = qPresent.getWaitSemaphores();
+	auto& swaps = qPresent.getSwapchains();
+	auto& indices = qPresent.getImageIndices();
+	auto& displayInfo = qPresent.getDisplayPresentInfo();
+
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	if (displayInfo.sType != 0)
+		presentInfo.pNext = &displayInfo;
+	presentInfo.waitSemaphoreCount = waitsems.size();
+	presentInfo.pWaitSemaphores = waitsems.data();
+	presentInfo.swapchainCount = swaps.size();
+	presentInfo.pSwapchains = swaps.data();
+	presentInfo.pImageIndices = indices.data();
+
+	VDU_VK_CHECK_RESULT(vkQueuePresentKHR(m_queue, &presentInfo));
+}
+
 void vdu::Queue::waitIdle()
 {
 	VDU_VK_CHECK_RESULT(vkQueueWaitIdle(m_queue));
@@ -84,6 +104,11 @@ void vdu::QueueSubmission::addCommands(vdu::CommandBuffer * cmd)
 	m_commandBuffers.push_back(cmd->getHandle());
 }
 
+void vdu::QueueSubmission::addCommands(VkCommandBuffer cmd)
+{
+	m_commandBuffers.push_back(cmd);
+}
+
 void vdu::QueueSubmission::addSignal(VkSemaphore signal)
 {
 	m_signalSemaphores.push_back(signal);
@@ -95,4 +120,24 @@ void vdu::QueueSubmission::clear()
 	m_waitStages.clear();
 	m_commandBuffers.clear();
 	m_signalSemaphores.clear();
+}
+
+void vdu::QueuePresentation::addWait(VkSemaphore wait)
+{
+	m_waitSemaphores.push_back(wait);
+}
+
+void vdu::QueuePresentation::addSwapchain(const vdu::Swapchain& swapchain, uint32_t imageIndex, const VkRect2D & srcRect, const VkRect2D & dstRect, VkBool32 persistant)
+{
+	m_swapchains.push_back(swapchain.getHandle());
+	m_imageIndices.push_back(imageIndex);
+	m_displayInfo = {};
+
+	if (srcRect.offset.x != std::numeric_limits<int32_t>::lowest() && srcRect.offset.y != std::numeric_limits<int32_t>::lowest())
+	{
+		m_displayInfo.sType = VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR;
+		m_displayInfo.srcRect = srcRect;
+		m_displayInfo.dstRect = dstRect;
+		m_displayInfo.persistent = persistant;
+	}
 }
