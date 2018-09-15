@@ -1,10 +1,11 @@
 #pragma once
 #include "PCH.hpp"
-#include "LogicalDevice.hpp"
-#include "CommandBuffer.hpp"
 
 namespace vdu
 {
+	class LogicalDevice;
+	class CommandBuffer;
+
 	class Event
 	{
 	public:
@@ -35,13 +36,13 @@ namespace vdu
 		void create(LogicalDevice* device, bool initiallySignalled = false);
 		void destroy();
 
-		VkFence getHandle() { return m_fence; }
+		VkFence getHandle() const { return m_fence; }
 
-		VkResult getStatus() { return vkGetFenceStatus(m_logicalDevice->getHandle(), m_fence); }
-		bool isSignalled() { return vkGetFenceStatus(m_logicalDevice->getHandle(), m_fence) == VK_SUCCESS; }
+		VkResult getStatus() const;
+		bool isSignalled() const;
 
 		void reset();
-		void wait();
+		void wait() const;
 
 	private:
 

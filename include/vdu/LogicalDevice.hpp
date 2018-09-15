@@ -4,60 +4,7 @@
 
 namespace vdu
 {
-	/*
-	Wrapper for logical queue
-	*/
-	class Queue
-	{
-		friend class LogicalDevice;
-	public:
-		Queue();
-
-		void prepare(uint32_t queueFamilyIndex, float priority);
-
-		void submit(VkSubmitInfo* info, uint32_t count = 1, VkFence fence = VK_NULL_HANDLE);
-		void present(const VkPresentInfoKHR* info);
-		void waitIdle();
-
-		VkQueue getHandle() { return m_queue; }
-		uint32_t getFamilyIndex() { return m_queueFamilyIndex; }
-		uint32_t getIndex() { return m_queueIndex; }
-		float getPriority() { return m_priority; }
-
-	private:
-
-		/*
-		This is set when the queue is added to a logical device
-		*/
-		void setIndex(uint32_t index) { m_queueIndex = index; }
-
-		/*
-		This is set when the logical device that owns the queue is created
-		*/
-		void setQueueHandle(VkQueue handle) { m_queue = handle; }
-
-		/*
-		Queues handle
-		*/
-		VkQueue m_queue;
-
-		/*
-		Queue's family index
-		*/
-		uint32_t m_queueFamilyIndex;
-
-		/*
-		Queue index within family
-		*/
-		uint32_t m_queueIndex;
-
-		/*
-		Queue priority
-		*/
-		float m_priority;
-
-
-	};
+	class Queue;
 
 	/*
 	Wrapper for logical device

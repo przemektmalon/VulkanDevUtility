@@ -15,3 +15,4 @@
 #include "Swapchain.hpp"
 #include "Pipeline.hpp"
 #include "Synchro.hpp"
+#include "Queue.hpp"

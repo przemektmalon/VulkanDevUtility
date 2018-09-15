@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 #include "LogicalDevice.hpp"
 #include "Initializers.hpp"
+#include "Queue.hpp"
 
 void vdu::LogicalDevice::create(PhysicalDevice* physicalDevice)
 {
@@ -63,29 +64,4 @@ void vdu::LogicalDevice::addExtension(const char * extensionName)
 void vdu::LogicalDevice::addLayer(const char * layerName)
 {
 	m_enabledLayers.push_back(layerName);
-}
-
-vdu::Queue::Queue() : m_queue(0), m_queueFamilyIndex(~(uint32_t(0))), m_queueIndex(~(uint32_t(0))), m_priority(1.f)
-{
-}
-
-void vdu::Queue::prepare(uint32_t queueFamilyIndex, float priority)
-{
-	m_queueFamilyIndex = queueFamilyIndex;
-	m_priority = priority;
-}
-
-void vdu::Queue::submit(VkSubmitInfo * info, uint32_t count, VkFence fence)
-{
-	VDU_VK_CHECK_RESULT(vkQueueSubmit(m_queue, count, info, fence));
-}
-
-void vdu::Queue::present(const VkPresentInfoKHR * info)
-{
-	VDU_VK_CHECK_RESULT(vkQueuePresentKHR(m_queue, info));
-}
-
-void vdu::Queue::waitIdle()
-{
-	VDU_VK_CHECK_RESULT(vkQueueWaitIdle(m_queue));
 }

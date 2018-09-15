@@ -1,5 +1,7 @@
 #include "PCH.hpp"
 #include "Synchro.hpp"
+#include "LogicalDevice.hpp"
+#include "CommandBuffer.hpp"
 
 void vdu::Event::create(LogicalDevice * device)
 {
@@ -67,12 +69,22 @@ void vdu::Fence::destroy()
 	VDU_VK_VALIDATE(vkDestroyFence(m_logicalDevice->getHandle(), m_fence, nullptr));
 }
 
+VkResult vdu::Fence::getStatus() const
+{
+	return vkGetFenceStatus(m_logicalDevice->getHandle(), m_fence);
+}
+
+bool vdu::Fence::isSignalled() const
+{
+	return vkGetFenceStatus(m_logicalDevice->getHandle(), m_fence) == VK_SUCCESS;
+}
+
 void vdu::Fence::reset()
 {
 	VDU_VK_CHECK_RESULT(vkResetFences(m_logicalDevice->getHandle(), 1, &m_fence));
 }
 
-void vdu::Fence::wait()
+void vdu::Fence::wait() const
 {
 	VDU_VK_CHECK_RESULT(vkWaitForFences(m_logicalDevice->getHandle(), 1, &m_fence, true, std::numeric_limits<uint64_t>::max()));
 }
