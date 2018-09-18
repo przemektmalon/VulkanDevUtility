@@ -49,6 +49,21 @@ void vdu::DeviceMemory::unmap() const
 	VDU_VK_VALIDATE(vkUnmapMemory(m_logicalDevice->getHandle(), m_deviceMemory));
 }
 
+vdu::Buffer::Buffer(Buffer & stagingDestination)
+{
+	createStaging(stagingDestination);
+}
+
+vdu::Buffer::Buffer(Buffer & stagingDestination, VkDeviceSize size)
+{
+	createStaging(stagingDestination.getDevice(), size);
+}
+
+vdu::Buffer::Buffer(LogicalDevice * logicalDevice, VkDeviceSize size)
+{
+	create(logicalDevice, size);
+}
+
 void vdu::Buffer::create(LogicalDevice * logicalDevice, VkDeviceSize size)
 {
 	if (m_usageFlags == 0 || m_memoryProperties == 0)
@@ -94,6 +109,8 @@ void vdu::Buffer::destroy()
 	VDU_VK_VALIDATE(vkDestroyBuffer(m_logicalDevice->getHandle(), m_buffer, nullptr));
 	m_deviceMemory->free();
 	delete m_deviceMemory;
+	m_deviceMemory = 0;
+	m_buffer = 0;
 }
 
 void vdu::Buffer::addUsingQueueFamily(const QueueFamily * queueFamily)
@@ -116,7 +133,12 @@ void vdu::Buffer::bindMemory(DeviceMemory * memory)
 	VDU_VK_CHECK_RESULT(vkBindBufferMemory(m_logicalDevice->getHandle(), m_buffer, memory->getHandle() , 0));
 }
 
-void vdu::Buffer::cmdCopyTo(VkCommandBuffer& commandBuffer, Buffer * dst, VkDeviceSize range, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
+void vdu::Buffer::cmdCopyTo(CommandBuffer * cmd, Buffer * dst, VkDeviceSize range, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
+{
+	cmdCopyTo(cmd->getHandle(), dst, range, srcOffset, dstOffset);
+}
+
+void vdu::Buffer::cmdCopyTo(const VkCommandBuffer& commandBuffer, Buffer * dst, VkDeviceSize range, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
 {
 	VkBufferCopy copyRegion = {};
 	copyRegion.srcOffset = srcOffset;
@@ -127,7 +149,7 @@ void vdu::Buffer::cmdCopyTo(VkCommandBuffer& commandBuffer, Buffer * dst, VkDevi
 	VDU_VK_VALIDATE(vkCmdCopyBuffer(commandBuffer, m_buffer, dst->getHandle(), 1, &copyRegion));
 }
 
-void vdu::Buffer::cmdCopyTo(VkCommandBuffer& commandBuffer, Texture * dst, VkDeviceSize srcOffset, int mipLevel, int baseLayer, int layerCount, VkOffset3D offset, VkExtent3D extent)
+void vdu::Buffer::cmdCopyTo(const VkCommandBuffer& commandBuffer, Texture * dst, VkDeviceSize srcOffset, int mipLevel, int baseLayer, int layerCount, VkOffset3D offset, VkExtent3D extent)
 {
 	if (extent.depth == 0)
 		extent.depth = 1;
@@ -156,6 +178,14 @@ void vdu::Buffer::createStaging(Buffer & staging)
 	staging.setUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 
 	staging.create(m_logicalDevice, m_deviceMemory->getSize());
+}
+
+void vdu::Buffer::createStaging(Buffer & staging, VkDeviceSize size)
+{
+	staging.setMemoryProperty(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	staging.setUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+
+	staging.create(m_logicalDevice, size);
 }
 
 void vdu::Buffer::createStaging(LogicalDevice* logicalDevice, VkDeviceSize size)

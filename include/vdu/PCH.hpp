@@ -33,6 +33,8 @@ bit 6 - background red
 bit 7 - background intensity
 */
 
+#define BREAK_ON_WARNING
+
 #ifdef _MSC_VER
 #define DBG_SEVERE(msg) { \
 			std::stringstream ss; \
@@ -55,6 +57,17 @@ bit 7 - background intensity
 			MessageBoxA(NULL, LPCSTR(ss.str().c_str()), "Severe Error!", MB_OK); \
 			__builtin_trap(); }
 #endif
+#ifdef BREAK_ON_WARNING
+#define DBG_WARNING(msg) { \
+		std::stringstream ss; \
+		ss << msg; \
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b01101111); \
+		std::cout << __FILE__ << " Line: " << __LINE__ << std::endl; \
+		std::cout << "! Warning -"; \
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00001111); \
+		std::cout << " " << ss.str() << std::endl << std::endl << std::endl << std::endl; \
+		DebugBreak(); }
+#else
 #define DBG_WARNING(msg) { \
 		std::stringstream ss; \
 		ss << msg; \
@@ -63,6 +76,7 @@ bit 7 - background intensity
 		std::cout << "! Warning -"; \
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00001111); \
 		std::cout << " " << ss.str() << std::endl << std::endl << std::endl << std::endl; } 
+#endif
 
 #define DBG_INFO(msg) { \
 		std::stringstream ss; \

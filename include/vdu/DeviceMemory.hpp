@@ -1,6 +1,7 @@
 #pragma once
 #include "PCH.hpp"
 #include "LogicalDevice.hpp"
+#include "CommandBuffer.hpp"
 
 namespace vdu
 {
@@ -32,7 +33,10 @@ namespace vdu
 	class Buffer
 	{
 	public:
-
+		Buffer() {}
+		Buffer(Buffer& stagingDestination);
+		Buffer(Buffer& stagingDestination, VkDeviceSize size);
+		Buffer(LogicalDevice* logicalDevice, VkDeviceSize size);
 		void create(LogicalDevice* logicalDevice, VkDeviceSize pSize);
 		void destroy();
 
@@ -43,15 +47,19 @@ namespace vdu
 
 		const DeviceMemory* getMemory() { return m_deviceMemory; }
 		VkBuffer getHandle() { return m_buffer; }
+		
 		VkBufferUsageFlags getUsageFlags() { return m_usageFlags; }
 
 		void bindMemory(DeviceMemory* memory);
 
-		void cmdCopyTo(VkCommandBuffer& cmd, Buffer* dst, VkDeviceSize range = 0, VkDeviceSize srcOffset = 0, VkDeviceSize dstOffset = 0);
-		void cmdCopyTo(VkCommandBuffer& cmd, Texture* dst, VkDeviceSize srcOffset = 0, int mipLevel = 0, int baseLayer = 0, int layerCount = 1, VkOffset3D offset = { 0,0,0 }, VkExtent3D extent = { 0,0,0 });
+		void cmdCopyTo(CommandBuffer* cmd, Buffer* dst, VkDeviceSize range = 0, VkDeviceSize srcOffset = 0, VkDeviceSize dstOffset = 0);
 
-		void createStaging(Buffer& staging);
-		void createStaging(LogicalDevice* logicalDevice, VkDeviceSize size);
+		void cmdCopyTo(const VkCommandBuffer& cmd, Buffer* dst, VkDeviceSize range = 0, VkDeviceSize srcOffset = 0, VkDeviceSize dstOffset = 0);
+		void cmdCopyTo(const VkCommandBuffer& cmd, Texture* dst, VkDeviceSize srcOffset = 0, int mipLevel = 0, int baseLayer = 0, int layerCount = 1, VkOffset3D offset = { 0,0,0 }, VkExtent3D extent = { 0,0,0 });
+
+		void createStaging(Buffer& staging); // Creates 'staging' as a buffer to map for 'this'
+		void createStaging(Buffer& staging, VkDeviceSize size); // Creates 'staging' as a buffer to map a portion 'this' 
+		void createStaging(LogicalDevice* logicalDevice, VkDeviceSize size); // 'this' is created as a mappable staging buffer
 
 	private:
 

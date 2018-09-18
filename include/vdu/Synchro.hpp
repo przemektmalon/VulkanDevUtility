@@ -33,6 +33,8 @@ namespace vdu
 	class Fence
 	{
 	public:
+		Fence() {}
+		Fence(LogicalDevice* device, bool initiallySignalled = false);
 		void create(LogicalDevice* device, bool initiallySignalled = false);
 		void destroy();
 

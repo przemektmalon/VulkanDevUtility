@@ -55,6 +55,11 @@ void vdu::Event::reset()
 	VDU_VK_CHECK_RESULT(vkResetEvent(m_logicalDevice->getHandle(), m_event));
 }
 
+vdu::Fence::Fence(LogicalDevice * device, bool initiallySignalled)
+{
+	create(device, initiallySignalled);
+}
+
 void vdu::Fence::create(LogicalDevice * device, bool initiallySignalled)
 {
 	m_logicalDevice = device;
