@@ -24,6 +24,11 @@ void vdu::CommandBuffer::free()
 	VDU_VK_VALIDATE(vkFreeCommandBuffers(m_logicalDevice->getHandle(), m_commandPool->getHandle(), 1, &m_commandBuffer));
 }
 
+void vdu::CommandBuffer::reset()
+{
+	VDU_VK_CHECK_RESULT(vkResetCommandBuffer(m_commandBuffer, 0));
+}
+
 void vdu::CommandBuffer::begin(VkCommandBufferUsageFlagBits usage)
 {
 	VkCommandBufferBeginInfo beginInfo = {};

@@ -12,6 +12,7 @@ namespace vdu
 		void setLevel(VkCommandBufferLevel level);
 		void allocate(LogicalDevice* logicalDevice, CommandPool* commandPool);
 		void free();
+		void reset();
 
 		void begin(VkCommandBufferUsageFlagBits usage = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
 		void end();

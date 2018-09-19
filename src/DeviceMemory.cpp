@@ -56,7 +56,7 @@ vdu::Buffer::Buffer(Buffer & stagingDestination)
 
 vdu::Buffer::Buffer(Buffer & stagingDestination, VkDeviceSize size)
 {
-	createStaging(stagingDestination.getDevice(), size);
+	createStaging(stagingDestination.m_logicalDevice, size);
 }
 
 vdu::Buffer::Buffer(LogicalDevice * logicalDevice, VkDeviceSize size)
@@ -136,6 +136,11 @@ void vdu::Buffer::bindMemory(DeviceMemory * memory)
 void vdu::Buffer::cmdCopyTo(CommandBuffer * cmd, Buffer * dst, VkDeviceSize range, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
 {
 	cmdCopyTo(cmd->getHandle(), dst, range, srcOffset, dstOffset);
+}
+
+void vdu::Buffer::cmdCopyTo(CommandBuffer * cmd, Texture * dst, VkDeviceSize srcOffset, int mipLevel, int baseLayer, int layerCount, VkOffset3D offset, VkExtent3D extent)
+{
+	cmdCopyTo(cmd->getHandle(), dst, srcOffset, mipLevel, baseLayer, layerCount, offset, extent);
 }
 
 void vdu::Buffer::cmdCopyTo(const VkCommandBuffer& commandBuffer, Buffer * dst, VkDeviceSize range, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
@@ -264,7 +269,7 @@ void vdu::Texture::destroy()
 	m_deviceMemory->free();
 }
 
-void vdu::Texture::cmdGenerateMipMaps(VkCommandBuffer & cmd)
+void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer & cmd)
 {
 	VkImageMemoryBarrier barrier = {};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -338,6 +343,11 @@ void vdu::Texture::cmdGenerateMipMaps(VkCommandBuffer & cmd)
 		0, nullptr,
 		0, nullptr,
 		1, &barrier));
+}
+
+void vdu::Texture::cmdGenerateMipMaps(CommandBuffer * cmd)
+{
+	cmdGenerateMipMaps(cmd->getHandle());
 }
 
 void vdu::Texture::bindMemory(DeviceMemory * memory)

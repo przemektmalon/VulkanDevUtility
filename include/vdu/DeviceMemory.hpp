@@ -53,6 +53,7 @@ namespace vdu
 		void bindMemory(DeviceMemory* memory);
 
 		void cmdCopyTo(CommandBuffer* cmd, Buffer* dst, VkDeviceSize range = 0, VkDeviceSize srcOffset = 0, VkDeviceSize dstOffset = 0);
+		void cmdCopyTo(CommandBuffer* cmd, Texture* dst, VkDeviceSize srcOffset = 0, int mipLevel = 0, int baseLayer = 0, int layerCount = 1, VkOffset3D offset = { 0,0,0 }, VkExtent3D extent = { 0,0,0 });
 
 		void cmdCopyTo(const VkCommandBuffer& cmd, Buffer* dst, VkDeviceSize range = 0, VkDeviceSize srcOffset = 0, VkDeviceSize dstOffset = 0);
 		void cmdCopyTo(const VkCommandBuffer& cmd, Texture* dst, VkDeviceSize srcOffset = 0, int mipLevel = 0, int baseLayer = 0, int layerCount = 1, VkOffset3D offset = { 0,0,0 }, VkExtent3D extent = { 0,0,0 });
@@ -95,7 +96,8 @@ namespace vdu
 		void create(LogicalDevice* logicalDevice);
 		void destroy();
 
-		void cmdGenerateMipMaps(VkCommandBuffer& cmd);
+		void cmdGenerateMipMaps(const VkCommandBuffer& cmd);
+		void cmdGenerateMipMaps(CommandBuffer* cmd);
 		void bindMemory(DeviceMemory* memory);
 
 		uint32_t getWidth() { return m_width; }
