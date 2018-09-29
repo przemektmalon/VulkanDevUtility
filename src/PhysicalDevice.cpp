@@ -27,7 +27,7 @@ VkFormat vdu::PhysicalDevice::findSupportedFormat(const std::vector<VkFormat>& c
 {
 	for (VkFormat format : candidates) {
 		VkFormatProperties props;
-		VDU_VK_VALIDATE(vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props));
+		vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
 
 		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
 			return format;
@@ -69,8 +69,8 @@ void vdu::PhysicalDevice::queryDetails()
 {
 	// Query device properties and features
 	{
-		VDU_VK_VALIDATE(vkGetPhysicalDeviceProperties(m_physicalDevice, &m_deviceProperties));
-		VDU_VK_VALIDATE(vkGetPhysicalDeviceFeatures(m_physicalDevice, &m_deviceFeatures));
+		vkGetPhysicalDeviceProperties(m_physicalDevice, &m_deviceProperties);
+		vkGetPhysicalDeviceFeatures(m_physicalDevice, &m_deviceFeatures);
 
 		switch (m_deviceProperties.deviceType)
 		{
@@ -94,10 +94,10 @@ void vdu::PhysicalDevice::queryDetails()
 	// Query queue family properties
 	{
 		uint32_t queueFamilyCount = 0;
-		VDU_VK_VALIDATE(vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, nullptr));
+		vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, nullptr);
 		queueFamilyProperties.resize(queueFamilyCount);
 		m_queueFamilies.reserve(queueFamilyCount);
-		VDU_VK_VALIDATE(vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, queueFamilyProperties.data()));
+		vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, queueFamilyProperties.data());
 	}
 
 	// Choose queue families
@@ -112,7 +112,7 @@ void vdu::PhysicalDevice::queryDetails()
 
 	// Query device memory properties
 	{
-		VDU_VK_VALIDATE(vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &m_memoryProperties));
+		vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &m_memoryProperties);
 	}
 }
 

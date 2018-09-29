@@ -110,37 +110,10 @@ bit 7 - background intensity
 #define VDU_WITH_VALIDATION
 #endif
 
-#ifdef VDU_WITH_VALIDATION
-#define VDU_VK_VALIDATE(f) { \
-	f; \
-	if (vdu::Instance::m_validationWarning) { \
-		DBG_WARNING(vdu::Instance::m_validationMessage); \
-		vdu::Instance::m_validationWarning = false; \
-		vdu::Instance::m_validationMessage.clear(); \
-	} \
-}
-
-#define VDU_VK_VALIDATE_W_RESULT(f) \
-	vdu::Instance::m_lastVulkanResult = f; \
-	if (vdu::Instance::m_validationWarning) { \
-			DBG_WARNING(vdu::Instance::m_validationMessage); \
-			vdu::Instance::m_validationWarning = false; \
-			vdu::Instance::m_validationMessage.clear(); \
-	}
-
-#else
-#define VDU_VK_VALIDATE(f) { \
-	f;}
-
-#define VDU_VK_VALIDATE_W_RESULT(f) \
-	vdu::Instance::m_lastVulkanResult = f;}
-
-#endif
-
 #define VDU_VK_CHECK_RESULT(f) { \
-	VDU_VK_VALIDATE_W_RESULT(f); \
-	if (vdu::Instance::m_lastVulkanResult != VK_SUCCESS) { \
-		switch(vdu::Instance::m_lastVulkanResult){ \
+	auto result = f; \
+	if (result != VK_SUCCESS) { \
+		switch(result){ \
 			case(VK_ERROR_OUT_OF_HOST_MEMORY): \
 				DBG_SEVERE("VK_ERROR_OUT_OF_HOST_MEMORY"); break; \
 			case(VK_ERROR_OUT_OF_DEVICE_MEMORY): \

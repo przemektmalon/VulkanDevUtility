@@ -31,14 +31,14 @@ void vdu::LogicalDevice::create(PhysicalDevice* physicalDevice)
 	for (auto queue : m_queues)
 	{
 		VkQueue queueCreate;
-		VDU_VK_VALIDATE(vkGetDeviceQueue(m_device, queue->getFamilyIndex(), queue->getIndex(), &queueCreate));
+		vkGetDeviceQueue(m_device, queue->getFamilyIndex(), queue->getIndex(), &queueCreate);
 		queue->setQueueHandle(queueCreate);
 	}
 }
 
 void vdu::LogicalDevice::destroy()
 {
-	VDU_VK_VALIDATE(vkDestroyDevice(m_device, nullptr));
+	vkDestroyDevice(m_device, nullptr);
 }
 
 void vdu::LogicalDevice::addQueue(Queue * queue)

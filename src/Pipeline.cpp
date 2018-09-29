@@ -13,7 +13,7 @@ void vdu::Pipeline::setShaderProgram(vdu::ShaderProgram * shader)
 
 void vdu::Pipeline::destroy()
 {
-	VDU_VK_VALIDATE(vkDestroyPipeline(m_logicalDevice->getHandle(), m_pipeline, 0));
+	vkDestroyPipeline(m_logicalDevice->getHandle(), m_pipeline, 0);
 }
 
 void vdu::GraphicsPipeline::setRenderPass(RenderPass * renderPass)
@@ -152,7 +152,7 @@ void vdu::PipelineLayout::create(LogicalDevice * device)
 
 void vdu::PipelineLayout::destroy()
 {
-	VDU_VK_VALIDATE(vkDestroyPipelineLayout(m_logicalDevice->getHandle(), m_layout, 0));
+	vkDestroyPipelineLayout(m_logicalDevice->getHandle(), m_layout, 0);
 	m_descriptorSetLayouts.clear();
 	m_pushConstantRanges.clear();
 	m_layout = 0;

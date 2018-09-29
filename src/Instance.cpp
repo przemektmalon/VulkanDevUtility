@@ -10,14 +10,12 @@ vdu::Instance::Instance() :
 	m_apiVersion(VK_API_VERSION_1_0),
 	m_engineVersion(VK_MAKE_VERSION(1, 0, 0)),
 	m_applicationVersion(VK_MAKE_VERSION(1, 0, 0)),
-	m_debugReportCallbackFunction(nullptr)
+	m_thisInstance(this)
 {
 }
 
 void vdu::Instance::create()
 {
-	vdu::internal_debugging_instance = this;
-
 	auto appInfo = vdu::initializer<VkApplicationInfo>();
 
 	appInfo.apiVersion = m_apiVersion;
@@ -43,7 +41,8 @@ void vdu::Instance::create()
 #ifdef VDU_WITH_VALIDATION
 	auto drcci = vdu::initializer<VkDebugReportCallbackCreateInfoEXT>();
 	drcci.flags = m_debugReportLevel;
-	drcci.pfnCallback = &debugCallbackFunc;
+	drcci.pfnCallback = &vduVkDebugCallbackFunc;
+	drcci.pUserData = &m_thisInstance;
 	auto createDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_instance, "vkCreateDebugReportCallbackEXT");
 
 	VDU_VK_CHECK_RESULT(createDebugReportCallbackEXT(m_instance, &drcci, nullptr, &m_debugReportCallback));
@@ -55,7 +54,7 @@ void vdu::Instance::destroy()
 #ifdef VDU_WITH_VALIDATION
 	PFN_vkDestroyDebugReportCallbackEXT(vkGetInstanceProcAddr(m_instance, "vkDestroyDebugReportCallbackEXT"))(m_instance, m_debugReportCallback, 0);
 #endif
-	VDU_VK_VALIDATE(vkDestroyInstance(m_instance, nullptr));
+	vkDestroyInstance(m_instance, nullptr);
 }
 
 void vdu::Instance::addExtension(const char * extensionName)
@@ -66,11 +65,6 @@ void vdu::Instance::addExtension(const char * extensionName)
 void vdu::Instance::addLayer(const char * layerName)
 {
 	m_enabledLayers.push_back(layerName);
-}
-
-void vdu::Instance::setDebugCallbackFunction(PFN_vkDebugReportCallbackEXT debugCallbackFunction)
-{
-	m_debugReportCallbackFunction = debugCallbackFunction;
 }
 
 void vdu::Instance::addDebugReportLevel(DebugReportLevel debugReportLevel)
@@ -108,15 +102,36 @@ VkInstance vdu::Instance::getInstanceHandle()
 	return m_instance;
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL vdu::Instance::debugCallbackFunc(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char * layerPrefix, const char * msg, void * userData)
+VKAPI_ATTR VkBool32 VKAPI_CALL vduVkDebugCallbackFunc(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char * layerPrefix, const char * msg, void * userData)
 {
-	m_validationWarning = true;
-	m_validationMessage = msg;
-	//if (vdu::internal_debugging_instance->m_debugReportCallbackFunction)
-	//	return vdu::internal_debugging_instance->m_debugReportCallbackFunction(flags, objType, obj, location, code, layerPrefix, msg, userData);
+	vdu::Instance* instance = *(vdu::Instance**)userData;
+
+	auto debugCallbackFunc = instance->getDebugCallbackFunc();
+
+	if (debugCallbackFunc) {
+		std::string message = msg;
+		std::string objectName;
+		objectName.reserve(128);
+		
+		switch (objType)
+		{
+		case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT:
+			objectName.append(instance->m_objectNamer.getName(VkBuffer(obj)));
+			break;
+		}
+
+		debugCallbackFunc((vdu::Instance::DebugReportLevel)flags, (vdu::Instance::DebugObjectType)objType, obj, objectName, message);
+	}
+
 	return 0;
 }
 
-thread_local bool vdu::Instance::m_validationWarning;
-thread_local std::string vdu::Instance::m_validationMessage;
-thread_local VkResult vdu::Instance::m_lastVulkanResult;
+void vdu::Instance::nameObject(vdu::Buffer * buffer, const std::string & name)
+{
+	m_objectNamer.addName(buffer->getHandle(), name);
+}
+
+void vdu::Instance::setDebugCallback(PFN_vkDebugCallback callback)
+{
+	m_userDebugCallbackFunc = callback;
+}

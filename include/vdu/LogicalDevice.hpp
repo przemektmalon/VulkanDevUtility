@@ -34,7 +34,7 @@ namespace vdu
 		VkPhysicalDeviceFeatures m_enabledDeviceFeatures;
 
 		/*
-		Enabled layers and extensions
+			Enabled layers and extensions
 		*/
 		std::vector<const char*> m_enabledExtensions;
 		std::vector<const char*> m_enabledLayers;

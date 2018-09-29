@@ -17,7 +17,7 @@ void vdu::DeviceMemory::allocate(LogicalDevice * logicalDevice, VkDeviceSize siz
 
 void vdu::DeviceMemory::free()
 {
-	VDU_VK_VALIDATE(vkFreeMemory(m_logicalDevice->getHandle(), m_deviceMemory, nullptr));
+	vkFreeMemory(m_logicalDevice->getHandle(), m_deviceMemory, nullptr);
 }
 
 void * vdu::DeviceMemory::map() const
@@ -46,7 +46,7 @@ void * vdu::DeviceMemory::map(VkDeviceSize offset, VkDeviceSize size) const
 
 void vdu::DeviceMemory::unmap() const
 {
-	VDU_VK_VALIDATE(vkUnmapMemory(m_logicalDevice->getHandle(), m_deviceMemory));
+	vkUnmapMemory(m_logicalDevice->getHandle(), m_deviceMemory);
 }
 
 vdu::Buffer::Buffer(Buffer & stagingDestination)
@@ -98,7 +98,7 @@ void vdu::Buffer::create(LogicalDevice * logicalDevice, VkDeviceSize size)
 
 	m_deviceMemory = new DeviceMemory();
 	VkMemoryRequirements memRequirements;
-	VDU_VK_VALIDATE(vkGetBufferMemoryRequirements(m_logicalDevice->getHandle(), m_buffer, &memRequirements));
+	vkGetBufferMemoryRequirements(m_logicalDevice->getHandle(), m_buffer, &memRequirements);
 	m_deviceMemory->allocate(m_logicalDevice, size, m_memoryProperties, memRequirements);
 
 	bindMemory(m_deviceMemory);
@@ -106,7 +106,7 @@ void vdu::Buffer::create(LogicalDevice * logicalDevice, VkDeviceSize size)
 
 void vdu::Buffer::destroy()
 {
-	VDU_VK_VALIDATE(vkDestroyBuffer(m_logicalDevice->getHandle(), m_buffer, nullptr));
+	vkDestroyBuffer(m_logicalDevice->getHandle(), m_buffer, nullptr);
 	m_deviceMemory->free();
 	delete m_deviceMemory;
 	m_deviceMemory = 0;
@@ -151,7 +151,7 @@ void vdu::Buffer::cmdCopyTo(const VkCommandBuffer& commandBuffer, Buffer * dst, 
 	if (range == 0)
 		range = m_deviceMemory->getSize();
 	copyRegion.size = range;
-	VDU_VK_VALIDATE(vkCmdCopyBuffer(commandBuffer, m_buffer, dst->getHandle(), 1, &copyRegion));
+	vkCmdCopyBuffer(commandBuffer, m_buffer, dst->getHandle(), 1, &copyRegion);
 }
 
 void vdu::Buffer::cmdCopyTo(const VkCommandBuffer& commandBuffer, Texture * dst, VkDeviceSize srcOffset, int mipLevel, int baseLayer, int layerCount, VkOffset3D offset, VkExtent3D extent)
@@ -174,7 +174,7 @@ void vdu::Buffer::cmdCopyTo(const VkCommandBuffer& commandBuffer, Texture * dst,
 	region.imageOffset = offset;
 	region.imageExtent = extent;
 
-	VDU_VK_VALIDATE(vkCmdCopyBufferToImage(commandBuffer, m_buffer, dst->getHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region));
+	vkCmdCopyBufferToImage(commandBuffer, m_buffer, dst->getHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 }
 
 void vdu::Buffer::createStaging(Buffer & staging)
@@ -225,7 +225,7 @@ void vdu::Texture::create(LogicalDevice* logicalDevice)
 	VDU_VK_CHECK_RESULT(vkCreateImage(m_logicalDevice->getHandle(), &imageInfo, nullptr, &m_image));
 
 	VkMemoryRequirements memRequirements;
-	VDU_VK_VALIDATE(vkGetImageMemoryRequirements(m_logicalDevice->getHandle(), m_image, &memRequirements));
+	vkGetImageMemoryRequirements(m_logicalDevice->getHandle(), m_image, &memRequirements);
 
 	m_deviceMemory = new DeviceMemory;
 	m_deviceMemory->allocate(m_logicalDevice, memRequirements.size, m_memoryProperties, memRequirements);
@@ -264,8 +264,8 @@ void vdu::Texture::destroy()
 {
 	if (!m_logicalDevice)
 		return;
-	VDU_VK_VALIDATE(vkDestroyImageView(m_logicalDevice->getHandle(), m_imageView, nullptr));
-	VDU_VK_VALIDATE(vkDestroyImage(m_logicalDevice->getHandle(), m_image, nullptr));
+	vkDestroyImageView(m_logicalDevice->getHandle(), m_imageView, nullptr);
+	vkDestroyImage(m_logicalDevice->getHandle(), m_image, nullptr);
 	m_deviceMemory->free();
 }
 
@@ -291,11 +291,11 @@ void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer & cmd)
 		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
-		VDU_VK_VALIDATE(vkCmdPipelineBarrier(cmd,
+		vkCmdPipelineBarrier(cmd,
 			VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
 			0, nullptr,
 			0, nullptr,
-			1, &barrier));
+			1, &barrier);
 
 		VkImageBlit blit = {};
 		blit.srcOffsets[0] = { 0, 0, 0 };
@@ -311,22 +311,22 @@ void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer & cmd)
 		blit.dstSubresource.baseArrayLayer = 0;
 		blit.dstSubresource.layerCount = 1;
 
-		VDU_VK_VALIDATE(vkCmdBlitImage(cmd,
+		vkCmdBlitImage(cmd,
 			m_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 			m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1, &blit,
-			VK_FILTER_LINEAR));
+			VK_FILTER_LINEAR);
 
 		barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 		barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-		VDU_VK_VALIDATE(vkCmdPipelineBarrier(cmd,
+		vkCmdPipelineBarrier(cmd,
 			VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
 			0, nullptr,
 			0, nullptr,
-			1, &barrier));
+			1, &barrier);
 
 		if (mipWidth > 1) mipWidth /= 2;
 		if (mipHeight > 1) mipHeight /= 2;
@@ -338,11 +338,11 @@ void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer & cmd)
 	barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 	barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-	VDU_VK_VALIDATE(vkCmdPipelineBarrier(cmd,
+	vkCmdPipelineBarrier(cmd,
 		VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0,
 		0, nullptr,
 		0, nullptr,
-		1, &barrier));
+		1, &barrier);
 }
 
 void vdu::Texture::cmdGenerateMipMaps(CommandBuffer * cmd)

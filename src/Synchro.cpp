@@ -12,7 +12,7 @@ void vdu::Event::create(LogicalDevice * device)
 
 void vdu::Event::destroy()
 {
-	VDU_VK_VALIDATE(vkDestroyEvent(m_logicalDevice->getHandle(), m_event, nullptr));
+	vkDestroyEvent(m_logicalDevice->getHandle(), m_event, nullptr);
 }
 
 VkResult vdu::Event::getStatus()
@@ -27,22 +27,22 @@ bool vdu::Event::isSet()
 
 void vdu::Event::cmdSet(CommandBuffer * cmd, VkPipelineStageFlagBits stage)
 {
-	VDU_VK_VALIDATE(vkCmdSetEvent(cmd->getHandle(), m_event, stage));
+	vkCmdSetEvent(cmd->getHandle(), m_event, stage);
 }
 
 void vdu::Event::cmdReset(CommandBuffer * cmd, VkPipelineStageFlagBits stage)
 {
-	VDU_VK_VALIDATE(vkCmdResetEvent(cmd->getHandle(), m_event, stage));
+	vkCmdResetEvent(cmd->getHandle(), m_event, stage);
 }
 
 void vdu::Event::cmdSet(VkCommandBuffer & cmd, VkPipelineStageFlagBits stage)
 {
-	VDU_VK_VALIDATE(vkCmdSetEvent(cmd, m_event, stage));
+	vkCmdSetEvent(cmd, m_event, stage);
 }
 
 void vdu::Event::cmdReset(VkCommandBuffer & cmd, VkPipelineStageFlagBits stage)
 {
-	VDU_VK_VALIDATE(vkCmdResetEvent(cmd, m_event, stage));
+	vkCmdResetEvent(cmd, m_event, stage);
 }
 
 void vdu::Event::set()
@@ -71,7 +71,7 @@ void vdu::Fence::create(LogicalDevice * device, bool initiallySignalled)
 
 void vdu::Fence::destroy()
 {
-	VDU_VK_VALIDATE(vkDestroyFence(m_logicalDevice->getHandle(), m_fence, nullptr));
+	vkDestroyFence(m_logicalDevice->getHandle(), m_fence, nullptr);
 }
 
 VkResult vdu::Fence::getStatus() const

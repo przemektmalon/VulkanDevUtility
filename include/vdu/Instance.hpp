@@ -1,8 +1,11 @@
 #pragma once
 #include "PCH.hpp"
+#include "Debug.hpp"
 
 namespace vdu
 {
+	class Buffer;
+
 	/*
 	Wrapper for vulkan instance
 	*/
@@ -19,6 +22,55 @@ namespace vdu
 			Error = 8,
 			Debug = 16
 		};
+
+		/*
+		Object types for debug report callback
+		*/
+		enum DebugObjectType {
+			Unknown,
+			Instance_, // Cant have same name as class Instance, hence the _
+			PhysicalDevice,
+			Device,
+			Queue,
+			Semaphore,
+			CommandBuffer,
+			Fence,
+			DeviceMemory,
+			Buffer,
+			Image,
+			Event,
+			QueryPool,
+			BufferView,
+			ImageView,
+			ShaderModule,
+			PipelineCache,
+			PipelinLayout,
+			RenderPass,
+			Pipeline,
+			DescriptorSetLayout,
+			Sampler,
+			DescriptorPool,
+			DescriptorSet,
+			Framebuffer,
+			CommandPool,
+			Surface,
+			Swapchain,
+			DebugReport,
+			Display,
+			DisplayMode,
+			ObjectTableNVX,
+			IndirectCommandsLayoutNVX
+		};
+
+		/*
+		Define type of function for debug callbacks
+		*/
+		typedef void(*PFN_vkDebugCallback)(
+			DebugReportLevel level,
+			DebugObjectType objectType,
+			uint64_t objectHandle,
+			const std::string& objectName,
+			const std::string& message);
 
 		/*
 		Initialised with some default values
@@ -44,11 +96,6 @@ namespace vdu
 		Add a layer
 		*/
 		void addLayer(const char * layerName);
-
-		/*
-		Set the debug report callback function
-		*/
-		void setDebugCallbackFunction(PFN_vkDebugReportCallbackEXT debugCallbackFunction);
 
 		/*
 		Add a debug report level (OR'd with previous value)
@@ -85,14 +132,9 @@ namespace vdu
 		*/
 		VkInstance getInstanceHandle();
 
-		/*
-		Debug callback function
-		*/
-		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallbackFunc(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData);
-
+		void nameObject(vdu::Buffer* buffer, const std::string& name);
 
 	private:
-
 		/*
 		Vulkan instance
 		*/
@@ -120,25 +162,30 @@ namespace vdu
 		int32_t m_debugReportLevel;
 
 		/*
-		Debug callback function pointer
-		*/
-		PFN_vkDebugReportCallbackEXT m_debugReportCallbackFunction;
-
-		/*
 		Debug callback vulkan handle
 		*/
 		VkDebugReportCallbackEXT m_debugReportCallback;
 
-	public:
+		/*
+		Library user debug callback function
+		*/
+		PFN_vkDebugCallback m_userDebugCallbackFunc;
 
 		/*
-		Flag and message for a validation warnings/errors
+		Used in 'pUserData' parameter to vkCreateDebugReportCallbackEXT in order to identify the vdu::Instance that the callback belongs to
 		*/
-		static thread_local bool m_validationWarning;
-		static thread_local std::string m_validationMessage;
-		static thread_local VkResult m_lastVulkanResult;
-	};
+		Instance* m_thisInstance;
 
-	static vdu::Instance* internal_debugging_instance;
+	public:
+
+		void setDebugCallback(PFN_vkDebugCallback callback);
+		PFN_vkDebugCallback getDebugCallbackFunc() { return m_userDebugCallbackFunc; }
+
+		vdu::ObjectNamer m_objectNamer;
+	};
 }
 
+/*
+Vulkan debug callback function
+*/
+VKAPI_ATTR VkBool32 VKAPI_CALL vduVkDebugCallbackFunc(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData);

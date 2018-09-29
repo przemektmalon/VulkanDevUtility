@@ -43,7 +43,7 @@ void vdu::DescriptorSetLayout::create(LogicalDevice * logicalDevice)
 
 void vdu::DescriptorSetLayout::destroy()
 {
-	VDU_VK_VALIDATE(vkDestroyDescriptorSetLayout(m_logicalDevice->getHandle(), m_descriptorSetLayout, nullptr));
+	vkDestroyDescriptorSetLayout(m_logicalDevice->getHandle(), m_descriptorSetLayout, nullptr);
 	m_layoutBindingsLabels.clear();
 	m_imageLayoutBindings.clear();
 	m_bufferLayoutBindings.clear();
@@ -157,5 +157,5 @@ void vdu::DescriptorSet::destroyUpdater(SetUpdater * updater)
 void vdu::DescriptorSet::submitUpdater(SetUpdater * updater)
 {
 	auto& writes = updater->getWrites();
-	VDU_VK_VALIDATE(vkUpdateDescriptorSets(m_logicalDevice->getHandle(), writes.size(), writes.data(), 0, nullptr));
+	vkUpdateDescriptorSets(m_logicalDevice->getHandle(), writes.size(), writes.data(), 0, nullptr);
 }

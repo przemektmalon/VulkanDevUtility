@@ -21,7 +21,7 @@ void vdu::CommandBuffer::allocate(LogicalDevice * logicalDevice, CommandPool * c
 
 void vdu::CommandBuffer::free()
 {
-	VDU_VK_VALIDATE(vkFreeCommandBuffers(m_logicalDevice->getHandle(), m_commandPool->getHandle(), 1, &m_commandBuffer));
+	vkFreeCommandBuffers(m_logicalDevice->getHandle(), m_commandPool->getHandle(), 1, &m_commandBuffer);
 }
 
 void vdu::CommandBuffer::reset()
@@ -66,5 +66,5 @@ void vdu::CommandBufferArray::allocate(LogicalDevice * logicalDevice, CommandPoo
 
 void vdu::CommandBufferArray::free()
 {
-	VDU_VK_VALIDATE(vkFreeCommandBuffers(m_logicalDevice->getHandle(), m_commandPool->getHandle(), m_count, m_commandBuffers));
+	vkFreeCommandBuffers(m_logicalDevice->getHandle(), m_commandPool->getHandle(), m_count, m_commandBuffers);
 }

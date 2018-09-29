@@ -18,7 +18,7 @@ namespace vdu
 		void unmap() const;
 
 		const VkDeviceMemory& getHandle() { return m_deviceMemory; }
-		VkDeviceSize getSize() { return m_deviceSize; }
+ 		VkDeviceSize getSize() { return m_deviceSize; }
 
 	private:
 
