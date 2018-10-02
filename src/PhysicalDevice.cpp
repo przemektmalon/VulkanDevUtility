@@ -23,7 +23,6 @@ uint32_t vdu::PhysicalDevice::findMemoryTypeIndex(uint32_t typeFilter, VkMemoryP
 			return i;
 		}
 	}
-	VDU_DBG_WARNING("VDU - Suitable memory type not found");
 	return ~(uint32_t(0));
 }
 
@@ -41,7 +40,6 @@ VkFormat vdu::PhysicalDevice::findSupportedFormat(const std::vector<VkFormat>& c
 		}
 	}
 
-	VDU_DBG_WARNING("VDU - Failed to find supported format");
 	return VK_FORMAT_UNDEFINED;
 }
 

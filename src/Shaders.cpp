@@ -33,7 +33,7 @@ void vdu::ShaderModule::load()
 	file.open(m_path, std::ios_base::in | std::ios_base::binary);
 
 	if (!file.is_open())
-		VDU_DBG_WARNING("Failed to open GLSL shader file: " << m_path);
+		(*m_logicalDevice)->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Failed to open shader file " + m_path);
 
 	file.seekg(0, std::ios_base::end);
 	size_t shaderSize = file.tellg();
@@ -57,7 +57,7 @@ bool vdu::ShaderModule::compile()
 {
 	if (!m_logicalDevice)
 	{
-		VDU_DBG_SEVERE("Attempting to compile an empty (uncreated) shader");
+		(*m_logicalDevice)->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Attempting to compile an empty (uncreated) shader");
 		return false;
 	}
 
@@ -78,13 +78,13 @@ bool vdu::ShaderModule::compile()
 		auto res = c.CompileGlslToSpv(m_glslSource, m_internalStage, m_path.c_str(), o);
 		if (res.GetCompilationStatus() != shaderc_compilation_status_success)
 		{
-			VDU_DBG_WARNING("\n" << res.GetErrorMessage() << "\n");
+			(*m_logicalDevice)->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Warning, res.GetErrorMessage());
 			return false;
 		}
 		m_spirvSource.assign(res.begin(), res.end());
 	}
 	if (m_spirvSource.size() == 0) {
-		VDU_DBG_WARNING("Source missing, cannot compile shader: " << m_path);
+		(*m_logicalDevice)->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Warning, "Source missing, cannot compile shader: " + m_path);
 		return false;
 	}
 	auto createInfo = vdu::initializer<VkShaderModuleCreateInfo>(m_spirvSource.size() * sizeof(int), m_spirvSource.data());
@@ -94,7 +94,7 @@ bool vdu::ShaderModule::compile()
 
 	auto result = vkCreateShaderModule((*m_logicalDevice)->getHandle(), &createInfo, nullptr, &m_module);
 	if (result != VK_SUCCESS)
-		(*m_logicalDevice)->_internalReportError(result, "Encountered error on creating shader module");
+		(*m_logicalDevice)->_internalReportVkError(result, "Encountered error on creating shader module");
 
 	return true;
 }
@@ -131,7 +131,7 @@ void vdu::ShaderModule::determineLanguage()
 	{
 		++i;
 		if (i > m_path.length())
-			VDU_DBG_WARNING("Bad shader file name format: " << m_path);
+			(*m_logicalDevice)->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Warning, "Bad shader file name format: " + m_path);
 	}
 	std::string extension;
 	extension.assign(&m_path[i + 1]);
@@ -141,7 +141,7 @@ void vdu::ShaderModule::determineLanguage()
 		m_language = ShaderLanguage::SPV;
 	else
 	{
-		VDU_DBG_WARNING("Bad shader file extension: " << m_path << " - '.glsl' and 'spv' supported");
+		(*m_logicalDevice)->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Warning, "Bad shader file extension: " + m_path + " - '.glsl' and 'spv' supported");
 		m_language = ShaderLanguage::UNKNOWN;
 	}
 }

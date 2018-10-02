@@ -51,7 +51,7 @@ void vdu::DescriptorSetLayout::destroy()
 	m_descriptorSetLayout = 0;
 }
 
-vdu::DescriptorSet::SetUpdater::SetUpdater(DescriptorSet * dset)
+vdu::DescriptorSet::SetUpdater::SetUpdater(DescriptorSet * dset, LogicalDevice* logicalDevice)
 {
 	auto layout = dset->getLayout();
 	const auto& allBindings = layout->getLayoutBindingLabels();
@@ -63,6 +63,7 @@ vdu::DescriptorSet::SetUpdater::SetUpdater(DescriptorSet * dset)
 	m_bufferInfos.reserve(bufferBindings.size());
 
 	m_descriptorSet = dset;
+	m_logicalDevice = logicalDevice;
 }
 
 vdu::DescriptorSet::SetUpdater::~SetUpdater()
@@ -86,8 +87,10 @@ VkDescriptorImageInfo * vdu::DescriptorSet::SetUpdater::addImageUpdate(const std
 	const auto& allBindings = m_descriptorSet->getLayout()->getLayoutBindingLabels();
 
 	auto bindingFind = allBindings.find(label);
-	if (bindingFind == allBindings.end())
-		VDU_DBG_SEVERE("Attempting to update a descriptor label that doesnt exist");
+	if (bindingFind == allBindings.end()) {
+		m_logicalDevice->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Attempting to update a descriptor label that doesnt exist");
+		return nullptr;
+	}
 
 	auto wds = vdu::initializer<VkWriteDescriptorSet>();
 	wds.dstSet = m_descriptorSet->getHandle();
@@ -110,8 +113,9 @@ VkDescriptorBufferInfo * vdu::DescriptorSet::SetUpdater::addBufferUpdate(const s
 	const auto& allBindings = m_descriptorSet->getLayout()->getLayoutBindingLabels();
 
 	auto bindingFind = allBindings.find(label);
-	if (bindingFind == allBindings.end())
-		VDU_DBG_SEVERE("Attempting to update a descriptor label that doesnt exist");
+	if (bindingFind == allBindings.end()) {
+		m_logicalDevice->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Attempting to update a descriptor label that doesnt exist");
+	}
 
 	auto wds = vdu::initializer<VkWriteDescriptorSet>();
 	wds.dstSet = m_descriptorSet->getHandle();
@@ -146,7 +150,7 @@ void vdu::DescriptorSet::free()
 
 vdu::DescriptorSet::SetUpdater * vdu::DescriptorSet::makeUpdater()
 {
-	return new SetUpdater(this);
+	return new SetUpdater(this, m_logicalDevice);
 }
 
 void vdu::DescriptorSet::destroyUpdater(SetUpdater * updater)

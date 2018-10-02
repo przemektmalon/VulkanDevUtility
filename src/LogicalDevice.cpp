@@ -59,15 +59,28 @@ void vdu::LogicalDevice::setEnabledDeviceFeatures(const VkPhysicalDeviceFeatures
 	m_enabledDeviceFeatures = pdf;
 }
 
-void vdu::LogicalDevice::setErrorCallback(PFN_vkErrorCallback errorCallback)
+void vdu::LogicalDevice::setVkErrorCallback(PFN_vkErrorCallback errorCallback)
 {
-	m_errorCallbackFunc = errorCallback;
+	m_vkErrorCallbackFunc = errorCallback;
 }
 
-void vdu::LogicalDevice::_internalReportError(VkResult error, const std::string & message)
+void vdu::LogicalDevice::setVduDebugCallback(PFN_vduDebugCallback errorCallback)
 {
-	if (m_errorCallbackFunc)
-		m_errorCallbackFunc(error, message);
+	m_vduDebugCallbackFunc = errorCallback;
+}
+
+void vdu::LogicalDevice::_internalReportVkError(VkResult error, const std::string & message)
+{
+	if (m_vkErrorCallbackFunc)
+		m_vkErrorCallbackFunc(error, message);
+	else
+		assert(false); // If you are here then set an error callback and handle the error (or not and get crashes)
+}
+
+void vdu::LogicalDevice::_internalReportVduDebug(VduDebugLevel level, const std::string & message)
+{
+	if (m_vduDebugCallbackFunc)
+		m_vduDebugCallbackFunc(level, message);
 	else
 		assert(false); // If you are here then set an error callback and handle the error (or not and get crashes)
 }

@@ -24,13 +24,17 @@ namespace vdu
 		void addLayer(const char * layerName);
 		void setEnabledDeviceFeatures(const VkPhysicalDeviceFeatures& pdf);
 		
-		typedef void(*PFN_vkErrorCallback)(
-			VkResult error,
-			const std::string& message);
+		typedef void(*PFN_vkErrorCallback)(VkResult error, const std::string& message);
 
-		void setErrorCallback(PFN_vkErrorCallback errorCallback);
+		enum VduDebugLevel { Info, Warning, Error };
 
-		void _internalReportError(VkResult error, const std::string& message);
+		typedef void(*PFN_vduDebugCallback)(VduDebugLevel level, const std::string& message);
+
+		void setVkErrorCallback(PFN_vkErrorCallback errorCallback);
+		void setVduDebugCallback(PFN_vduDebugCallback errorCallback);
+
+		void _internalReportVkError(VkResult error, const std::string& message);
+		void _internalReportVduDebug(VduDebugLevel level, const std::string& message);
 
 	private:
 
@@ -41,7 +45,8 @@ namespace vdu
 
 		VkPhysicalDeviceFeatures m_enabledDeviceFeatures;
 
-		PFN_vkErrorCallback m_errorCallbackFunc = nullptr;
+		PFN_vkErrorCallback m_vkErrorCallbackFunc = nullptr;
+		PFN_vduDebugCallback m_vduDebugCallbackFunc = nullptr;
 
 		/*
 			Enabled layers and extensions

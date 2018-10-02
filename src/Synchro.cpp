@@ -95,6 +95,6 @@ VkResult vdu::Fence::wait(uint64_t timeout) const
 	if (result == VK_SUCCESS || result == VK_TIMEOUT)
 		return result;
 	else {
-		m_logicalDevice->_internalReportError(result, "Encountered Vulkan error while waiting for fence");
+		m_logicalDevice->_internalReportVkError(result, "Encountered Vulkan error while waiting for fence");
 	}
 }

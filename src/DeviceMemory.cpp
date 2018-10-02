@@ -24,7 +24,7 @@ void * vdu::DeviceMemory::map() const
 {
 	if (m_memoryProperties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 	{
-		VDU_DBG_SEVERE("Attempting to map an unmappable buffer");
+		m_logicalDevice->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Attempting to map an unmappable buffer");
 		return nullptr;
 	}
 	void* data;
@@ -36,7 +36,7 @@ void * vdu::DeviceMemory::map(VkDeviceSize offset, VkDeviceSize size) const
 {
 	if (m_memoryProperties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 	{
-		VDU_DBG_SEVERE("Attempting to map an unmappable buffer");
+		m_logicalDevice->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Attempting to map an unmappable buffer");
 		return nullptr;
 	}
 	void* data;
@@ -68,7 +68,7 @@ void vdu::Buffer::create(LogicalDevice * logicalDevice, VkDeviceSize size)
 {
 	if (m_usageFlags == 0 || m_memoryProperties == 0)
 	{
-		VDU_DBG_SEVERE("Attempting to create buffer with no usage flags or memory properties");
+		m_logicalDevice->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Attempting to create buffer with no usage flags or memory properties");
 		return;
 	}
 

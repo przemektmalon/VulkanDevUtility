@@ -40,7 +40,7 @@ namespace vdu
 		class SetUpdater
 		{
 		public:
-			SetUpdater(DescriptorSet* dset);
+			SetUpdater(DescriptorSet* dset, LogicalDevice* logicalDevice);
 			~SetUpdater();
 
 			VkDescriptorImageInfo* addImageUpdate(const std::string& label, uint32_t arrayElement = 0, uint32_t count = 1);
@@ -55,6 +55,7 @@ namespace vdu
 			std::vector<VkDescriptorImageInfo*> m_imageInfos;
 
 			DescriptorSet* m_descriptorSet;
+			LogicalDevice* m_logicalDevice;
 		};
 
 	public:
