@@ -16,7 +16,7 @@ void vdu::CommandBuffer::allocate(LogicalDevice * logicalDevice, CommandPool * c
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandBufferCount = 1;
 
-	VDU_VK_CHECK_RESULT(vkAllocateCommandBuffers(m_logicalDevice->getHandle(), &allocInfo, &m_commandBuffer));
+	VDU_VK_CHECK_RESULT(vkAllocateCommandBuffers(m_logicalDevice->getHandle(), &allocInfo, &m_commandBuffer), "allocating command buffer");
 }
 
 void vdu::CommandBuffer::free()
@@ -26,7 +26,7 @@ void vdu::CommandBuffer::free()
 
 void vdu::CommandBuffer::reset()
 {
-	VDU_VK_CHECK_RESULT(vkResetCommandBuffer(m_commandBuffer, 0));
+	VDU_VK_CHECK_RESULT(vkResetCommandBuffer(m_commandBuffer, 0), "resetting command buffer");
 }
 
 void vdu::CommandBuffer::begin(VkCommandBufferUsageFlagBits usage)
@@ -61,7 +61,7 @@ void vdu::CommandBufferArray::allocate(LogicalDevice * logicalDevice, CommandPoo
 
 	m_commandBuffers = new VkCommandBuffer[m_count];
 
-	VDU_VK_CHECK_RESULT(vkAllocateCommandBuffers(m_logicalDevice->getHandle(), &allocInfo, m_commandBuffers));
+	VDU_VK_CHECK_RESULT(vkAllocateCommandBuffers(m_logicalDevice->getHandle(), &allocInfo, m_commandBuffers), "allocating command buffer array");
 }
 
 void vdu::CommandBufferArray::free()

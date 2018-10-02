@@ -15,7 +15,7 @@ namespace vdu
 	public:
 		QueueFamily(PhysicalDevice* physicalDevice, VkQueueFamilyProperties props, uint32_t familyIndex);
 
-		void queryPresentCapability(VkSurfaceKHR surface);
+		VkResult queryPresentCapability(VkSurfaceKHR surface);
 
 		bool supportsGraphics() const { return m_supportsGraphics; }
 		bool supportsCompute() const { return m_supportsCompute; }
@@ -58,7 +58,7 @@ namespace vdu
 		/*
 		Query surface capabilities
 		*/
-		void querySurfaceCapabilities(VkSurfaceKHR surface);
+		VkResult querySurfaceCapabilities(VkSurfaceKHR surface);
 
 		VkPhysicalDevice getHandle() const;
 
@@ -103,5 +103,5 @@ namespace vdu
 	/*
 	Return a list of vulkan capable physical devices with their properties fields filled out
 	*/
-	void enumeratePhysicalDevices(Instance& instance, std::vector<PhysicalDevice>& deviceList);
+	VkResult enumeratePhysicalDevices(Instance& instance, std::vector<PhysicalDevice>& deviceList);
 }

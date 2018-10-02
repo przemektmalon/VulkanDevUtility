@@ -11,12 +11,12 @@ void vdu::Queue::prepare(uint32_t queueFamilyIndex, float priority)
 	m_priority = priority;
 }
 
-void vdu::Queue::submit(VkSubmitInfo * info, uint32_t count, VkFence fence)
+VkResult vdu::Queue::submit(VkSubmitInfo * info, uint32_t count, VkFence fence)
 {
-	VDU_VK_CHECK_RESULT(vkQueueSubmit(m_queue, count, info, fence));
+	return vkQueueSubmit(m_queue, count, info, fence);
 }
 
-void vdu::Queue::submit(const QueueSubmission& qSubmit, const vdu::Fence& fence)
+VkResult vdu::Queue::submit(const QueueSubmission& qSubmit, const vdu::Fence& fence)
 {
 	auto& waitsems = qSubmit.getWaitSemaphores();
 	auto& cmds = qSubmit.getCommandBuffers();
@@ -33,10 +33,10 @@ void vdu::Queue::submit(const QueueSubmission& qSubmit, const vdu::Fence& fence)
 	info.signalSemaphoreCount = sigs.size();
 	info.pSignalSemaphores = sigs.data();
 
-	VDU_VK_CHECK_RESULT(vkQueueSubmit(m_queue, 1, &info, fence.getHandle()));
+	return vkQueueSubmit(m_queue, 1, &info, fence.getHandle());
 }
 
-void vdu::Queue::submit(const std::vector<QueueSubmission>& qSubmits, const vdu::Fence& fence)
+VkResult vdu::Queue::submit(const std::vector<QueueSubmission>& qSubmits, const vdu::Fence& fence)
 {
 	auto submitInfos = new VkSubmitInfo[qSubmits.size()];
 	uint32_t i = 0;
@@ -60,15 +60,15 @@ void vdu::Queue::submit(const std::vector<QueueSubmission>& qSubmits, const vdu:
 		++i;
 	}
 
-	VDU_VK_CHECK_RESULT(vkQueueSubmit(m_queue, i, submitInfos, fence.getHandle()));
+	return vkQueueSubmit(m_queue, i, submitInfos, fence.getHandle());
 }
 
-void vdu::Queue::present(const VkPresentInfoKHR * info)
+VkResult vdu::Queue::present(const VkPresentInfoKHR * info)
 {
-	VDU_VK_CHECK_RESULT(vkQueuePresentKHR(m_queue, info));
+	return vkQueuePresentKHR(m_queue, info);
 }
 
-void vdu::Queue::present(const QueuePresentation & qPresent)
+VkResult vdu::Queue::present(const QueuePresentation & qPresent)
 {
 	auto& waitsems = qPresent.getWaitSemaphores();
 	auto& swaps = qPresent.getSwapchains();
@@ -85,12 +85,12 @@ void vdu::Queue::present(const QueuePresentation & qPresent)
 	presentInfo.pSwapchains = swaps.data();
 	presentInfo.pImageIndices = indices.data();
 
-	VDU_VK_CHECK_RESULT(vkQueuePresentKHR(m_queue, &presentInfo));
+	return vkQueuePresentKHR(m_queue, &presentInfo);
 }
 
-void vdu::Queue::waitIdle()
+VkResult vdu::Queue::waitIdle()
 {
-	VDU_VK_CHECK_RESULT(vkQueueWaitIdle(m_queue));
+	return vkQueueWaitIdle(m_queue);
 }
 
 void vdu::QueueSubmission::addWait(VkSemaphore wait, VkPipelineStageFlags stage)

@@ -30,7 +30,7 @@ void vdu::ComputePipeline::create(vdu::LogicalDevice * device)
 	pipelineInfo.stage = m_shaderProgram->getShaderStageCreateInfos()[0];
 	pipelineInfo.layout = m_layout->getHandle();
 
-	VDU_VK_CHECK_RESULT(vkCreateComputePipelines(m_logicalDevice->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline));
+	VDU_VK_CHECK_RESULT(vkCreateComputePipelines(m_logicalDevice->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline), "creating compute pipeline");
 }
 
 void vdu::GraphicsPipeline::setSwapchain(Swapchain * swapchain)
@@ -114,7 +114,7 @@ void vdu::GraphicsPipeline::create(vdu::LogicalDevice * device)
 	if (m_dynamicState.size() > 0)
 		pipelineInfo.pDynamicState = &dsci;
 
-	VDU_VK_CHECK_RESULT(vkCreateGraphicsPipelines(m_logicalDevice->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline));
+	VDU_VK_CHECK_RESULT(vkCreateGraphicsPipelines(m_logicalDevice->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline), "creating graphics pipeline");
 }
 
 void vdu::GraphicsPipeline::destroy()
@@ -147,7 +147,7 @@ void vdu::PipelineLayout::create(LogicalDevice * device)
 	pipelineLayoutInfo.pushConstantRangeCount = m_pushConstantRanges.size();
 	pipelineLayoutInfo.pPushConstantRanges = m_pushConstantRanges.data();
 
-	VDU_VK_CHECK_RESULT(vkCreatePipelineLayout(m_logicalDevice->getHandle(), &pipelineLayoutInfo, nullptr, &m_layout));
+	VDU_VK_CHECK_RESULT(vkCreatePipelineLayout(m_logicalDevice->getHandle(), &pipelineLayoutInfo, nullptr, &m_layout), "creating pipeline layout");
 }
 
 void vdu::PipelineLayout::destroy()

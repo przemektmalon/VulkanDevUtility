@@ -80,7 +80,7 @@ namespace vdu
 		/*
 		Create the instance with previously specified extensions, layers, and other creation data
 		*/
-		void create();
+		VkResult create();
 
 		/*
 		Destroy the instance

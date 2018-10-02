@@ -25,7 +25,7 @@ void vdu::DescriptorPool::create(LogicalDevice* logicalDevice)
 	dpci.poolSizeCount = poolSizes.size();
 	dpci.pPoolSizes = poolSizes.data();
 
-	VDU_VK_CHECK_RESULT(vkCreateDescriptorPool(m_logicalDevice->getHandle(), &dpci, nullptr, &m_descriptorPool));
+	VDU_VK_CHECK_RESULT(vkCreateDescriptorPool(m_logicalDevice->getHandle(), &dpci, nullptr, &m_descriptorPool), "creating descriptor pool");
 }
 
 void vdu::DescriptorPool::destroy()
@@ -55,7 +55,7 @@ void vdu::CommandPool::create(LogicalDevice * logicalDevice)
 	cpci.flags = m_flags;
 	cpci.queueFamilyIndex = m_queueFamily->getIndex();
 	
-	VDU_VK_CHECK_RESULT(vkCreateCommandPool(m_logicalDevice->getHandle(), &cpci, nullptr, &m_commandPool));
+	VDU_VK_CHECK_RESULT(vkCreateCommandPool(m_logicalDevice->getHandle(), &cpci, nullptr, &m_commandPool), "creating command pool");
 }
 
 void vdu::CommandPool::destroy()
@@ -77,7 +77,7 @@ void vdu::QueryPool::create(LogicalDevice * logicalDevice)
 	ci.queryCount = m_count;
 	ci.pipelineStatistics = m_pipelineStats;
 
-	VDU_VK_CHECK_RESULT(vkCreateQueryPool(m_logicalDevice->getHandle(), &ci, 0, &m_queryPool));
+	VDU_VK_CHECK_RESULT(vkCreateQueryPool(m_logicalDevice->getHandle(), &ci, 0, &m_queryPool), "creating query pool");
 
 	m_queryData = new uint64_t[m_count];
 }
@@ -109,7 +109,7 @@ uint64_t * vdu::QueryPool::query()
 
 uint64_t * vdu::QueryPool::query(uint32_t first, uint32_t count)
 {
-	VDU_VK_CHECK_RESULT(vkGetQueryPoolResults(m_logicalDevice->getHandle(), m_queryPool, first, count, sizeof(uint64_t) * count, m_queryData, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT));
+	VDU_VK_CHECK_RESULT(vkGetQueryPoolResults(m_logicalDevice->getHandle(), m_queryPool, first, count, sizeof(uint64_t) * count, m_queryData, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT), "querying query pool");
 	return m_queryData;
 }
 

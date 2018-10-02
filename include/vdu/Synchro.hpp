@@ -44,7 +44,7 @@ namespace vdu
 		bool isSignalled() const;
 
 		void reset();
-		void wait() const;
+		VkResult wait(uint64_t timeout = std::numeric_limits<uint64_t>::max()) const;
 
 	private:
 

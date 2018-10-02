@@ -64,12 +64,12 @@ namespace vdu
 
 		void prepare(uint32_t queueFamilyIndex, float priority);
 
-		void submit(VkSubmitInfo* info, uint32_t count = 1, VkFence fence = VK_NULL_HANDLE);
-		void submit(const QueueSubmission& qSubmit, const vdu::Fence& fence = vdu::Fence());
-		void submit(const std::vector<QueueSubmission>& qSubmits, const vdu::Fence& fence = vdu::Fence());
-		void present(const VkPresentInfoKHR* info);
-		void present(const QueuePresentation& qPresent);
-		void waitIdle();
+		VkResult submit(VkSubmitInfo* info, uint32_t count = 1, VkFence fence = VK_NULL_HANDLE);
+		VkResult submit(const QueueSubmission& qSubmit, const vdu::Fence& fence = vdu::Fence());
+		VkResult submit(const std::vector<QueueSubmission>& qSubmits, const vdu::Fence& fence = vdu::Fence());
+		VkResult present(const VkPresentInfoKHR* info);
+		VkResult present(const QueuePresentation& qPresent);
+		VkResult waitIdle();
 
 		VkQueue getHandle() { return m_queue; }
 		uint32_t getFamilyIndex() { return m_queueFamilyIndex; }

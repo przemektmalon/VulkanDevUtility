@@ -38,7 +38,7 @@ void vdu::DescriptorSetLayout::create(LogicalDevice * logicalDevice)
 	auto dslci = vdu::initializer<VkDescriptorSetLayoutCreateInfo>();
 	dslci.bindingCount = m_layoutBindings.size();
 	dslci.pBindings = m_layoutBindings.data();
-	VDU_VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_logicalDevice->getHandle(), &dslci, nullptr, &m_descriptorSetLayout));
+	VDU_VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_logicalDevice->getHandle(), &dslci, nullptr, &m_descriptorSetLayout), "creating descriptor set layout");
 }
 
 void vdu::DescriptorSetLayout::destroy()
@@ -87,7 +87,7 @@ VkDescriptorImageInfo * vdu::DescriptorSet::SetUpdater::addImageUpdate(const std
 
 	auto bindingFind = allBindings.find(label);
 	if (bindingFind == allBindings.end())
-		DBG_SEVERE("Attempting to update a descriptor label that doesnt exist");
+		VDU_DBG_SEVERE("Attempting to update a descriptor label that doesnt exist");
 
 	auto wds = vdu::initializer<VkWriteDescriptorSet>();
 	wds.dstSet = m_descriptorSet->getHandle();
@@ -111,7 +111,7 @@ VkDescriptorBufferInfo * vdu::DescriptorSet::SetUpdater::addBufferUpdate(const s
 
 	auto bindingFind = allBindings.find(label);
 	if (bindingFind == allBindings.end())
-		DBG_SEVERE("Attempting to update a descriptor label that doesnt exist");
+		VDU_DBG_SEVERE("Attempting to update a descriptor label that doesnt exist");
 
 	auto wds = vdu::initializer<VkWriteDescriptorSet>();
 	wds.dstSet = m_descriptorSet->getHandle();
@@ -136,12 +136,12 @@ void vdu::DescriptorSet::allocate(LogicalDevice * logicalDevice, DescriptorSetLa
 	dsai.descriptorSetCount = 1;
 	dsai.pSetLayouts = &m_descriptorSetLayout->getHandle();
 
-	VDU_VK_CHECK_RESULT(vkAllocateDescriptorSets(m_logicalDevice->getHandle(), &dsai, &m_descriptorSet));
+	VDU_VK_CHECK_RESULT(vkAllocateDescriptorSets(m_logicalDevice->getHandle(), &dsai, &m_descriptorSet), "allocating descriptor set");
 }
 
 void vdu::DescriptorSet::free()
 {
-	VDU_VK_CHECK_RESULT(vkFreeDescriptorSets(m_logicalDevice->getHandle(), m_descriptorPool->getHandle(), 1, &m_descriptorSet));
+	VDU_VK_CHECK_RESULT(vkFreeDescriptorSets(m_logicalDevice->getHandle(), m_descriptorPool->getHandle(), 1, &m_descriptorSet), "freeing descriptor set");
 }
 
 vdu::DescriptorSet::SetUpdater * vdu::DescriptorSet::makeUpdater()

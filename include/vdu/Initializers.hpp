@@ -6,7 +6,7 @@ namespace vdu
 	template<typename T>
 	T initializer()
 	{
-		DBG_SEVERE("Initializer doesn't exist");
+		VDU_DBG_SEVERE("Initializer doesn't exist");
 		assert(false);
 		return T{};
 	}

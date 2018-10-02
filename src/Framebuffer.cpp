@@ -31,7 +31,7 @@ void vdu::Framebuffer::create(vdu::LogicalDevice * device, vdu::RenderPass * ren
 	framebufferInfo.height = m_attachments[0]->getHeight();
 	framebufferInfo.layers = 1;
 
-	VDU_VK_CHECK_RESULT(vkCreateFramebuffer(m_logicalDevice->getHandle(), &framebufferInfo, nullptr, &m_framebuffer));
+	VDU_VK_CHECK_RESULT(vkCreateFramebuffer(m_logicalDevice->getHandle(), &framebufferInfo, nullptr, &m_framebuffer), "creating framebuffer");
 }
 
 void vdu::Framebuffer::destroy()

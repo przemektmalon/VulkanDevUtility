@@ -36,7 +36,7 @@ bit 7 - background intensity
 #define BREAK_ON_WARNING
 
 #ifdef _MSC_VER
-#define DBG_SEVERE(msg) { \
+#define VDU_DBG_SEVERE(msg) { \
 			std::stringstream ss; \
 			ss << msg; \
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b11001111); \
@@ -47,7 +47,7 @@ bit 7 - background intensity
 			MessageBoxA(NULL, LPCSTR(ss.str().c_str()), "Severe Error!", MB_OK); \
 			DebugBreak(); } 
 #else
-#define DBG_SEVERE(msg) { \
+#define VDU_DBG_SEVERE(msg) { \
 			std::stringstream ss; \
 			ss << msg; \
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b11001111); \
@@ -58,7 +58,7 @@ bit 7 - background intensity
 			__builtin_trap(); }
 #endif
 #ifdef BREAK_ON_WARNING
-#define DBG_WARNING(msg) { \
+#define VDU_DBG_WARNING(msg) { \
 		std::stringstream ss; \
 		ss << msg; \
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b01101111); \
@@ -68,7 +68,7 @@ bit 7 - background intensity
 		std::cout << " " << ss.str() << std::endl << std::endl << std::endl << std::endl; \
 		DebugBreak(); }
 #else
-#define DBG_WARNING(msg) { \
+#define VDU_DBG_WARNING(msg) { \
 		std::stringstream ss; \
 		ss << msg; \
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b01101111); \
@@ -78,7 +78,7 @@ bit 7 - background intensity
 		std::cout << " " << ss.str() << std::endl << std::endl << std::endl << std::endl; } 
 #endif
 
-#define DBG_INFO(msg) { \
+#define VDU_DBG_INFO(msg) { \
 		std::stringstream ss; \
 		ss << msg; \
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0b00011111); \
@@ -87,18 +87,18 @@ bit 7 - background intensity
 		std::cout << " " << ss.str() << std::endl; } 
 #else
 #ifdef __linux__
-#define DBG_SEVERE(msg) { \
+#define VDU_DBG_SEVERE(msg) { \
 			std::stringstream ss; \
 			ss << msg; \
 			std::cout << "\033[1;31m! SEVERE  -\033[0m"; \
 			std::cout << " " << ss.str() << std::endl; }
-#define DBG_WARNING(msg) { \
+#define VDU_DBG_WARNING(msg) { \
 			std::stringstream ss; \
 			ss << msg; \
 			std::cout << "\033[1;33m! WARNING  -\033[0m"; \
 			std::cout << " " << ss.str() << std::endl; }
 
-#define DBG_INFO(msg) { \
+#define VDU_DBG_INFO(msg) { \
 			std::stringstream ss; \
 			ss << msg; \
 			std::cout << "\033[1;32m! INFO  -\033[0m"; \
@@ -110,54 +110,41 @@ bit 7 - background intensity
 #define VDU_WITH_VALIDATION
 #endif
 
-#define VDU_VK_CHECK_RESULT(f) { \
+#define VDU_VK_CHECK_RESULT(f, message) { \
 	auto result = f; \
 	if (result != VK_SUCCESS) { \
+		std::string errorMsg = "Encountered "; \
 		switch(result){ \
 			case(VK_ERROR_OUT_OF_HOST_MEMORY): \
-				DBG_SEVERE("VK_ERROR_OUT_OF_HOST_MEMORY"); break; \
+				errorMsg += "VK_ERROR_OUT_OF_HOST_MEMORY: "; break; \
 			case(VK_ERROR_OUT_OF_DEVICE_MEMORY): \
-				DBG_SEVERE("VK_ERROR_OUT_OF_DEVICE_MEMORY"); break; \
+				errorMsg += "VK_ERROR_OUT_OF_DEVICE_MEMORY: "; break; \
 			case(VK_ERROR_INITIALIZATION_FAILED): \
-				DBG_SEVERE("VK_ERROR_INITIALIZATION_FAILED"); break; \
+				errorMsg += "VK_ERROR_INITIALIZATION_FAILED: "; break; \
 			case(VK_ERROR_DEVICE_LOST): \
-				DBG_SEVERE("VK_ERROR_DEVICE_LOST"); break; \
+				errorMsg += "VK_ERROR_DEVICE_LOST: "; break; \
 			case(VK_ERROR_MEMORY_MAP_FAILED): \
-				DBG_SEVERE("VK_ERROR_MEMORY_MAP_FAILED"); break; \
+				errorMsg += "VK_ERROR_MEMORY_MAP_FAILED: "; break; \
 			case(VK_ERROR_LAYER_NOT_PRESENT): \
-				DBG_SEVERE("VK_ERROR_LAYER_NOT_PRESENT"); break; \
+				errorMsg += "VK_ERROR_LAYER_NOT_PRESENT: "; break; \
 			case(VK_ERROR_EXTENSION_NOT_PRESENT): \
-				DBG_SEVERE("VK_ERROR_EXTENSION_NOT_PRESENT"); break; \
+				errorMsg += "VK_ERROR_EXTENSION_NOT_PRESENT: "; break; \
 			case(VK_ERROR_FEATURE_NOT_PRESENT): \
-				DBG_SEVERE("VK_ERROR_FEATURE_NOT_PRESENT"); break; \
+				errorMsg += "VK_ERROR_FEATURE_NOT_PRESENT: "; break; \
 			case(VK_ERROR_INCOMPATIBLE_DRIVER): \
-				DBG_SEVERE("VK_ERROR_INCOMPATIBLE_DRIVER"); break; \
+				errorMsg += "VK_ERROR_INCOMPATIBLE_DRIVER: "; break; \
 			case(VK_ERROR_TOO_MANY_OBJECTS): \
-				DBG_SEVERE("VK_ERROR_TOO_MANY_OBJECTS"); break; \
+				errorMsg += "VK_ERROR_TOO_MANY_OBJECTS: "; break; \
 			case(VK_ERROR_FORMAT_NOT_SUPPORTED): \
-				DBG_SEVERE("VK_ERROR_FORMAT_NOT_SUPPORTED"); break; \
+				errorMsg += "VK_ERROR_FORMAT_NOT_SUPPORTED: "; break; \
 			case(VK_ERROR_FRAGMENTED_POOL): \
-				DBG_SEVERE("VK_ERROR_FRAGMENTED_POOL"); break; \
-			case(VK_NOT_READY): \
-				DBG_WARNING("VK_NOT_READY"); break; \
-			case(VK_TIMEOUT): \
-				DBG_WARNING("VK_TIMEOUT"); break; \
-			case(VK_EVENT_SET): \
-				DBG_WARNING("VK_EVENT_SET"); break; \
-			case(VK_EVENT_RESET): \
-				DBG_WARNING("VK_EVENT_RESET"); break; \
-			case(VK_INCOMPLETE): \
-				DBG_WARNING("VK_INCOMPLETE"); break; \
+				errorMsg += "VK_ERROR_FRAGMENTED_POOL: "; break; \
 			default: \
-				DBG_SEVERE("VK_ERROR"); break; \
+				errorMsg += "UNKNOWN VK_ERROR: "; break; \
 		} \
+		m_logicalDevice->_internalReportError(result, errorMsg + message); \
 	} \
 }
-
-
-
-
-
 
 /// Utilities includes
 
@@ -169,6 +156,8 @@ bit 7 - background intensity
 // pair, make_pair
 
 #include <initializer_list>
+
+#include <assert.h>
 
 /// Strings includes
 

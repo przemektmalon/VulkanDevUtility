@@ -2,6 +2,10 @@
 #include "PhysicalDevice.hpp"
 #include "Initializers.hpp"
 
+#define VK_CHECK_RESULT(f) { \
+	auto result = f; \
+	if (result != VK_SUCCESS) return result; }
+
 VkPhysicalDevice vdu::PhysicalDevice::getHandle() const
 {
 	return m_physicalDevice;
@@ -19,7 +23,7 @@ uint32_t vdu::PhysicalDevice::findMemoryTypeIndex(uint32_t typeFilter, VkMemoryP
 			return i;
 		}
 	}
-	DBG_WARNING("VDU - Suitable memory type not found");
+	VDU_DBG_WARNING("VDU - Suitable memory type not found");
 	return ~(uint32_t(0));
 }
 
@@ -37,7 +41,7 @@ VkFormat vdu::PhysicalDevice::findSupportedFormat(const std::vector<VkFormat>& c
 		}
 	}
 
-	DBG_WARNING("VDU - Failed to find supported format");
+	VDU_DBG_WARNING("VDU - Failed to find supported format");
 	return VK_FORMAT_UNDEFINED;
 }
 
@@ -116,19 +120,19 @@ void vdu::PhysicalDevice::queryDetails()
 	}
 }
 
-void vdu::PhysicalDevice::querySurfaceCapabilities(VkSurfaceKHR surface)
+VkResult vdu::PhysicalDevice::querySurfaceCapabilities(VkSurfaceKHR surface)
 {
 	// Query surface capabilities
-	VDU_VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevice, surface, &m_surfaceCapabilities));
+	VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevice, surface, &m_surfaceCapabilities));
 
 	// Query surface formats
 	{
 		uint32_t formatCount;
-		VDU_VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, surface, &formatCount, nullptr));
+		VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, surface, &formatCount, nullptr));
 
 		if (formatCount != 0) {
 			m_surfaceFormats.resize(formatCount);
-			VDU_VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, surface, &formatCount, m_surfaceFormats.data()));
+			VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, surface, &formatCount, m_surfaceFormats.data()));
 		}
 		else
 			m_suitabilityScore -= 100000;
@@ -137,11 +141,11 @@ void vdu::PhysicalDevice::querySurfaceCapabilities(VkSurfaceKHR surface)
 	// Query surface present modes
 	{
 		uint32_t presentModeCount;
-		VDU_VK_CHECK_RESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, surface, &presentModeCount, nullptr));
+		VK_CHECK_RESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, surface, &presentModeCount, nullptr));
 
 		if (presentModeCount != 0) {
 			m_presentModes.resize(presentModeCount);
-			VDU_VK_CHECK_RESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, surface, &presentModeCount, m_presentModes.data()));
+			VK_CHECK_RESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, surface, &presentModeCount, m_presentModes.data()));
 		}
 		else
 			m_suitabilityScore -= 100000;
@@ -149,17 +153,20 @@ void vdu::PhysicalDevice::querySurfaceCapabilities(VkSurfaceKHR surface)
 
 	for (auto& qf : m_queueFamilies)
 	{
-		qf.queryPresentCapability(surface);
+		auto result = qf.queryPresentCapability(surface);
+		if (result != VK_SUCCESS)
+			return result;
 	}
+	return VK_SUCCESS;
 }
 
-void vdu::enumeratePhysicalDevices(Instance& instance, std::vector<PhysicalDevice>& deviceList)
+VkResult vdu::enumeratePhysicalDevices(Instance& instance, std::vector<PhysicalDevice>& deviceList)
 {
 	auto instanceHandle = instance.getInstanceHandle();
 
 	// Get the physical device count
 	uint32_t deviceCount = 0;
-	VDU_VK_CHECK_RESULT(vkEnumeratePhysicalDevices(instanceHandle, &deviceCount, nullptr));
+	VK_CHECK_RESULT(vkEnumeratePhysicalDevices(instanceHandle, &deviceCount, nullptr));
 
 	// Initialise vectors
 	std::vector<VkPhysicalDevice> physicalDeviceHandles;
@@ -167,13 +174,14 @@ void vdu::enumeratePhysicalDevices(Instance& instance, std::vector<PhysicalDevic
 	deviceList.reserve(deviceCount);
 	
 	// Get actual physical device handles
-	VDU_VK_CHECK_RESULT(vkEnumeratePhysicalDevices(instanceHandle, &deviceCount, physicalDeviceHandles.data()));
+	VK_CHECK_RESULT(vkEnumeratePhysicalDevices(instanceHandle, &deviceCount, physicalDeviceHandles.data()));
 
 	// For each handle add it to our device list and query (fill in) its details
 	for (auto physicalDevice : physicalDeviceHandles)
 	{
 		deviceList.emplace_back(physicalDevice); // Constructor queries all device details
 	}
+	return VK_SUCCESS;
 }
 
 vdu::QueueFamily::QueueFamily(PhysicalDevice * physicalDevice, VkQueueFamilyProperties props, uint32_t familyIndex) :
@@ -188,11 +196,12 @@ vdu::QueueFamily::QueueFamily(PhysicalDevice * physicalDevice, VkQueueFamilyProp
 	queryDetails();
 }
 
-void vdu::QueueFamily::queryPresentCapability(VkSurfaceKHR surface)
+VkResult vdu::QueueFamily::queryPresentCapability(VkSurfaceKHR surface)
 {
 	VkBool32 surfaceSupport = false;
-	VDU_VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevice->getHandle(), m_familyIndex, surface, &surfaceSupport));
+	VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevice->getHandle(), m_familyIndex, surface, &surfaceSupport));
 	m_supportsPresent = surfaceSupport;
+	return VK_SUCCESS;
 }
 
 void vdu::QueueFamily::queryDetails()

@@ -49,7 +49,7 @@ void vdu::RenderPass::create(vdu::LogicalDevice * device)
 	renderPassInfo.dependencyCount = 1;
 	renderPassInfo.pDependencies = &dependency;
 
-	VDU_VK_CHECK_RESULT(vkCreateRenderPass(m_logicalDevice->getHandle(), &renderPassInfo, nullptr, &m_renderPass));
+	VDU_VK_CHECK_RESULT(vkCreateRenderPass(m_logicalDevice->getHandle(), &renderPassInfo, nullptr, &m_renderPass), "creating render pass");
 }
 
 void vdu::RenderPass::destroy()

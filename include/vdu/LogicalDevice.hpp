@@ -12,7 +12,7 @@ namespace vdu
 	class LogicalDevice
 	{
 	public:
-		void create(PhysicalDevice* physicalDevice);
+		VkResult create(PhysicalDevice* physicalDevice);
 
 		void destroy();
 
@@ -24,6 +24,14 @@ namespace vdu
 		void addLayer(const char * layerName);
 		void setEnabledDeviceFeatures(const VkPhysicalDeviceFeatures& pdf);
 		
+		typedef void(*PFN_vkErrorCallback)(
+			VkResult error,
+			const std::string& message);
+
+		void setErrorCallback(PFN_vkErrorCallback errorCallback);
+
+		void _internalReportError(VkResult error, const std::string& message);
+
 	private:
 
 		VkDevice m_device;
@@ -32,6 +40,8 @@ namespace vdu
 		std::map<uint32_t, std::vector<float>> m_queueFamilyCountsPriorities; // and priorities
 
 		VkPhysicalDeviceFeatures m_enabledDeviceFeatures;
+
+		PFN_vkErrorCallback m_errorCallbackFunc = nullptr;
 
 		/*
 			Enabled layers and extensions

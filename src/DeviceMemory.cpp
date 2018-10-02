@@ -12,7 +12,7 @@ void vdu::DeviceMemory::allocate(LogicalDevice * logicalDevice, VkDeviceSize siz
 	allocInfo.allocationSize = memReqs.size;
 	allocInfo.memoryTypeIndex = m_logicalDevice->getPhysicalDevice()->findMemoryTypeIndex(memReqs.memoryTypeBits, memFlags);
 
-	VDU_VK_CHECK_RESULT(vkAllocateMemory(m_logicalDevice->getHandle(), &allocInfo, nullptr, &m_deviceMemory));
+	VDU_VK_CHECK_RESULT(vkAllocateMemory(m_logicalDevice->getHandle(), &allocInfo, nullptr, &m_deviceMemory), "allocating device memory");
 }
 
 void vdu::DeviceMemory::free()
@@ -24,11 +24,11 @@ void * vdu::DeviceMemory::map() const
 {
 	if (m_memoryProperties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 	{
-		DBG_SEVERE("Attempting to map an unmappable buffer");
+		VDU_DBG_SEVERE("Attempting to map an unmappable buffer");
 		return nullptr;
 	}
 	void* data;
-	VDU_VK_CHECK_RESULT(vkMapMemory(m_logicalDevice->getHandle(), m_deviceMemory, 0, m_deviceSize, 0, &data));
+	VDU_VK_CHECK_RESULT(vkMapMemory(m_logicalDevice->getHandle(), m_deviceMemory, 0, m_deviceSize, 0, &data), "mapping device memory");
 	return data;
 }
 
@@ -36,11 +36,11 @@ void * vdu::DeviceMemory::map(VkDeviceSize offset, VkDeviceSize size) const
 {
 	if (m_memoryProperties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 	{
-		DBG_SEVERE("Attempting to map an unmappable buffer");
+		VDU_DBG_SEVERE("Attempting to map an unmappable buffer");
 		return nullptr;
 	}
 	void* data;
-	VDU_VK_CHECK_RESULT(vkMapMemory(m_logicalDevice->getHandle(), m_deviceMemory, offset, size, 0, &data));
+	VDU_VK_CHECK_RESULT(vkMapMemory(m_logicalDevice->getHandle(), m_deviceMemory, offset, size, 0, &data), "mapping device memory");
 	return data;
 }
 
@@ -68,7 +68,7 @@ void vdu::Buffer::create(LogicalDevice * logicalDevice, VkDeviceSize size)
 {
 	if (m_usageFlags == 0 || m_memoryProperties == 0)
 	{
-		DBG_SEVERE("Attempting to create buffer with no usage flags or memory properties");
+		VDU_DBG_SEVERE("Attempting to create buffer with no usage flags or memory properties");
 		return;
 	}
 
@@ -94,7 +94,7 @@ void vdu::Buffer::create(LogicalDevice * logicalDevice, VkDeviceSize size)
 		bci.pQueueFamilyIndices = sharingQueueFamilyIndices.data();
 	}
 
-	VDU_VK_CHECK_RESULT(vkCreateBuffer(m_logicalDevice->getHandle(), &bci, nullptr, &m_buffer));
+	VDU_VK_CHECK_RESULT(vkCreateBuffer(m_logicalDevice->getHandle(), &bci, nullptr, &m_buffer), "creating buffer");
 
 	m_deviceMemory = new DeviceMemory();
 	VkMemoryRequirements memRequirements;
@@ -130,7 +130,7 @@ void vdu::Buffer::setMemoryProperty(VkMemoryPropertyFlags memProperty)
 
 void vdu::Buffer::bindMemory(DeviceMemory * memory)
 {
-	VDU_VK_CHECK_RESULT(vkBindBufferMemory(m_logicalDevice->getHandle(), m_buffer, memory->getHandle() , 0));
+	VDU_VK_CHECK_RESULT(vkBindBufferMemory(m_logicalDevice->getHandle(), m_buffer, memory->getHandle() , 0), "binding buffer memory");
 }
 
 void vdu::Buffer::cmdCopyTo(CommandBuffer * cmd, Buffer * dst, VkDeviceSize range, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
@@ -222,7 +222,7 @@ void vdu::Texture::create(LogicalDevice* logicalDevice)
 	if (m_layers == 6) /// TODO: is this always true ?
 		imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 
-	VDU_VK_CHECK_RESULT(vkCreateImage(m_logicalDevice->getHandle(), &imageInfo, nullptr, &m_image));
+	VDU_VK_CHECK_RESULT(vkCreateImage(m_logicalDevice->getHandle(), &imageInfo, nullptr, &m_image), "creating image");
 
 	VkMemoryRequirements memRequirements;
 	vkGetImageMemoryRequirements(m_logicalDevice->getHandle(), m_image, &memRequirements);
@@ -246,7 +246,7 @@ void vdu::Texture::create(LogicalDevice* logicalDevice)
 	else
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 
-	VDU_VK_CHECK_RESULT(vkCreateImageView(m_logicalDevice->getHandle(), &viewInfo, nullptr, &m_imageView));
+	VDU_VK_CHECK_RESULT(vkCreateImageView(m_logicalDevice->getHandle(), &viewInfo, nullptr, &m_imageView), "creating image view");
 }
 
 void vdu::Texture::setProperties(const TextureCreateInfo & ci)
@@ -352,7 +352,7 @@ void vdu::Texture::cmdGenerateMipMaps(CommandBuffer * cmd)
 
 void vdu::Texture::bindMemory(DeviceMemory * memory)
 {
-	VDU_VK_CHECK_RESULT(vkBindImageMemory(m_logicalDevice->getHandle(), m_image, m_deviceMemory->getHandle(), 0));
+	VDU_VK_CHECK_RESULT(vkBindImageMemory(m_logicalDevice->getHandle(), m_image, m_deviceMemory->getHandle(), 0), "binding texture memory");
 }
 
 uint32_t vdu::Texture::getBytesPerPixel()

@@ -14,7 +14,7 @@ vdu::Instance::Instance() :
 {
 }
 
-void vdu::Instance::create()
+VkResult vdu::Instance::create()
 {
 	auto appInfo = vdu::initializer<VkApplicationInfo>();
 
@@ -36,7 +36,9 @@ void vdu::Instance::create()
 	instInfo.enabledLayerCount = m_enabledLayers.size();
 	instInfo.ppEnabledLayerNames = m_enabledLayers.data();
 
-	VDU_VK_CHECK_RESULT(vkCreateInstance(&instInfo, nullptr, &m_instance));
+	auto result = vkCreateInstance(&instInfo, nullptr, &m_instance);
+	if (result != VK_SUCCESS)
+		return result;
 
 #ifdef VDU_WITH_VALIDATION
 	auto drcci = vdu::initializer<VkDebugReportCallbackCreateInfoEXT>();
@@ -45,8 +47,9 @@ void vdu::Instance::create()
 	drcci.pUserData = &m_thisInstance;
 	auto createDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_instance, "vkCreateDebugReportCallbackEXT");
 
-	VDU_VK_CHECK_RESULT(createDebugReportCallbackEXT(m_instance, &drcci, nullptr, &m_debugReportCallback));
+	result = createDebugReportCallbackEXT(m_instance, &drcci, nullptr, &m_debugReportCallback);
 #endif
+	return result;
 }
 
 void vdu::Instance::destroy()

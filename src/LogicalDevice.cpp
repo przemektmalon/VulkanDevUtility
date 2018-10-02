@@ -3,7 +3,7 @@
 #include "Initializers.hpp"
 #include "Queue.hpp"
 
-void vdu::LogicalDevice::create(PhysicalDevice* physicalDevice)
+VkResult vdu::LogicalDevice::create(PhysicalDevice* physicalDevice)
 {
 	m_physicalDevice = physicalDevice;
 
@@ -26,7 +26,9 @@ void vdu::LogicalDevice::create(PhysicalDevice* physicalDevice)
 	dci.ppEnabledExtensionNames = m_enabledExtensions.data();
 	dci.pEnabledFeatures = &m_enabledDeviceFeatures;
 
-	VDU_VK_CHECK_RESULT(vkCreateDevice(m_physicalDevice->getHandle(), &dci, nullptr, &m_device));
+	auto result = vkCreateDevice(m_physicalDevice->getHandle(), &dci, nullptr, &m_device);
+	if (result != VK_SUCCESS)
+		return result;
 
 	for (auto queue : m_queues)
 	{
@@ -34,6 +36,7 @@ void vdu::LogicalDevice::create(PhysicalDevice* physicalDevice)
 		vkGetDeviceQueue(m_device, queue->getFamilyIndex(), queue->getIndex(), &queueCreate);
 		queue->setQueueHandle(queueCreate);
 	}
+	return VK_SUCCESS;
 }
 
 void vdu::LogicalDevice::destroy()
@@ -54,6 +57,19 @@ void vdu::LogicalDevice::addQueue(Queue * queue)
 void vdu::LogicalDevice::setEnabledDeviceFeatures(const VkPhysicalDeviceFeatures & pdf)
 {
 	m_enabledDeviceFeatures = pdf;
+}
+
+void vdu::LogicalDevice::setErrorCallback(PFN_vkErrorCallback errorCallback)
+{
+	m_errorCallbackFunc = errorCallback;
+}
+
+void vdu::LogicalDevice::_internalReportError(VkResult error, const std::string & message)
+{
+	if (m_errorCallbackFunc)
+		m_errorCallbackFunc(error, message);
+	else
+		assert(false); // If you are here then set an error callback and handle the error (or not and get crashes)
 }
 
 void vdu::LogicalDevice::addExtension(const char * extensionName)

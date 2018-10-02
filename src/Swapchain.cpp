@@ -98,11 +98,11 @@ void vdu::Swapchain::create(LogicalDevice * device, VkSurfaceKHR surface)
 	createInfo.clipped = VK_TRUE;
 	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	VDU_VK_CHECK_RESULT(vkCreateSwapchainKHR(m_logicalDevice->getHandle(), &createInfo, nullptr, &m_swapchain));
+	VDU_VK_CHECK_RESULT(vkCreateSwapchainKHR(m_logicalDevice->getHandle(), &createInfo, nullptr, &m_swapchain), "creating swapchain");
 
-	VDU_VK_CHECK_RESULT(vkGetSwapchainImagesKHR(m_logicalDevice->getHandle(), m_swapchain, &m_imageCount, nullptr));
+	VDU_VK_CHECK_RESULT(vkGetSwapchainImagesKHR(m_logicalDevice->getHandle(), m_swapchain, &m_imageCount, nullptr), "getting swapchain images");
 	m_images.resize(m_imageCount);
-	VDU_VK_CHECK_RESULT(vkGetSwapchainImagesKHR(m_logicalDevice->getHandle(), m_swapchain, &m_imageCount, m_images.data()));
+	VDU_VK_CHECK_RESULT(vkGetSwapchainImagesKHR(m_logicalDevice->getHandle(), m_swapchain, &m_imageCount, m_images.data()), "getting swapchain images");
 
 	m_imageFormat = m_surfaceFormat.format;
 
@@ -121,7 +121,7 @@ void vdu::Swapchain::create(LogicalDevice * device, VkSurfaceKHR surface)
 		viewInfo.subresourceRange.layerCount = 1;
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 
-		VDU_VK_CHECK_RESULT(vkCreateImageView(m_logicalDevice->getHandle(), &viewInfo, nullptr, &m_imageViews[i]));
+		VDU_VK_CHECK_RESULT(vkCreateImageView(m_logicalDevice->getHandle(), &viewInfo, nullptr, &m_imageViews[i]), "creating swapchain image view");
 	}
 
 	auto screenInfo = m_renderPass.addColourAttachment(m_imageFormat, "screen");
@@ -144,7 +144,7 @@ void vdu::Swapchain::create(LogicalDevice * device, VkSurfaceKHR surface)
 		framebufferInfo.height = m_extent.height;
 		framebufferInfo.layers = 1;
 
-		VDU_VK_CHECK_RESULT(vkCreateFramebuffer(m_logicalDevice->getHandle(), &framebufferInfo, nullptr, &m_framebuffers[i]));
+		VDU_VK_CHECK_RESULT(vkCreateFramebuffer(m_logicalDevice->getHandle(), &framebufferInfo, nullptr, &m_framebuffers[i]), "creating swapchain framebuffer");
 	}
 }
 
