@@ -18,7 +18,16 @@ instance.addExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 instance.setDebugCallbackFunction(debugCallbackFunc);
 instance.addDebugReportLevel(vdu::Instance::DebugReportLevel::Warning);
 instance.addDebugReportLevel(vdu::Instance::DebugReportLevel::Error);
-  
+instance.setDebugCallback([](
+		vdu::Instance::DebugReportLevel level,
+		vdu::Instance::DebugObjectType objectType,
+		uint64_t objectHandle,
+		const std::string& objectName,
+		const std::string& message)
+		-> void
+{
+    // Report error in some way
+});
 instance.addLayer("VK_LAYER_LUNARG_standard_validation");
 
 instance.create();
@@ -27,59 +36,64 @@ instance.create();
 ## Enumerating physical devices and querying surface capabilities
 
 ```c++
-// Physical device capabilities and features can be queried
-std::vector<vdu::PhysicalDevice> allPhysicalDevices;
+// Get all Vulkan capable physical devices
+// Physical device info, capabilities, and features can be queried from the vdu::PhysicalDevice class
+std::vector<vdu::PhysicalDevice>& allPhysicalDevices = instance.enumratePhysicalDevices();
 
-vdu::enumeratePhysicalDevices(instance, allPhysicalDevices);
+// Get the first device
+vdu::PhysicalDevice* physDevice = allPhysicalDevices.front();
 
-VkSurfaceKHR surface;
-allPhysicalDevices.front().querySurfaceCapabilities(surface)
+// Check if device has surface capabilities
+physDevice.querySurfaceCapabilities( {your VkSurfaceKHR variable} ) // Surface creation not yet implemented
 ```
 
 ## Creating queues and logical device with extensions, layers, and features
 ```c++
-vdu::Queue graphicsQueue, transferQueue;
+vdu::Queue computeQueue;
 
-// Prepare queues with desired queue family and priority
-// Queue families and their capabilities can be queried from PhysicalDevice
-graphicsQueue.prepare(0, 1.f);
-transferQueue.prepare(0, 1.f);
+std::vector<vdu::QueueFamily>& qFamilies = physDevice->getQueueFamilies();
+for (auto& qFam : qFamilies) {
+	if (qFam.supportsCompute()) {
+		computeQueue = qFam.createQueue(1.f); // 1.f == queue priority
+	}
+}
 
-logicalDevice.addExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-logicalDevice.addLayer("VK_LAYER_LUNARG_standard_validation");
-logicalDevice.addQueue(&lGraphicsQueue);
-logicalDevice.addQueue(&lTransferQueue);
+// Create a logical device and add our queue(s)
+vdu::LogicalDevice device;
+device.addQueue(&computeQueue);
+device.addExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+device.addLayer("VK_LAYER_LUNARG_standard_validation");
 
 // Enable any device features you want
 VkPhysicalDeviceFeatures pdf = {};
 pdf.multiDrawIndirect = VK_TRUE;
 
-logicalDevice.setEnabledDeviceFeatures(pdf);
-
-logicalDevice.create(&physicalDevice);
+device.setEnabledDeviceFeatures(pdf);
+device.create(&physicalDevice);
 ```
 
 ## Creating descriptor sets
 ```c++
 // First create the descriptor pool
-descriptorPool.addPoolCount(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1);
-descriptorPool.addPoolCount(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 20);
-descriptorPool.addSetCount(1);
+vdu::DescriptorPool descPool;
+descPool.addPoolCount(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1);
+descPool.addPoolCount(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 20);
+descPool.addSetCount(1);
 
-descriptorPool.create(&logicalDevice);
+descPool.create(&device);
 
 // Create the layout with some descriptor bindings
-DescriptorSetLayout dsl;
+vdu::DescriptorSetLayout dsl;
 
 dsl.addBinding("image_descriptor", vdu::DescriptorType::CombinedImageSampler, /*binding*/ 0, /*descriptor count*/ 20, vdu::ShaderStage::Fragment);
 dsl.addBinding("buffer_descriptor", vdu::DescriptorType::UniformBuffer,       /*binding*/ 1, /*descriptor count*/ 1, vdu::ShaderStage::Fragment);
 
-dsl.create(&logicalDevice);
+dsl.create(&device);
 
 // Finally create the descriptor set
-DescriptorSet set;
+vdu::DescriptorSet set;
 
-set.create(&logicalDevice, &dsl, &pool);
+set.create(&device, &dsl, &pool);
 ```
 
 ## Updating descriptor sets
