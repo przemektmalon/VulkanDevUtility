@@ -1,5 +1,9 @@
 #include "DeviceMemory.hpp"
 #include "Initializers.hpp"
+#include "Queue.hpp"
+#include "LogicalDevice.hpp"
+#include "PhysicalDevice.hpp"
+#include "QueueFamily.hpp"
 
 void vdu::DeviceMemory::allocate(LogicalDevice * logicalDevice, VkDeviceSize size, VkMemoryPropertyFlags memFlags, VkMemoryRequirements memReqs)
 {
@@ -251,7 +255,7 @@ void vdu::Texture::create(LogicalDevice* logicalDevice)
 
 void vdu::Texture::setProperties(const TextureCreateInfo & ci)
 {
-	m_width = ci.width; m_height = ci.height; m_depth = ci.depth; m_layers = ci.layers;
+	m_width = ci.width; m_height = ci.height; m_depth = ci.depth; m_layers = ci.layers; m_numMipLevels = ci.numMipLevels; m_maxMipLevel = m_numMipLevels - 1;
 	m_format = ci.format;
 	m_layout = ci.layout;
 	m_aspectFlags = ci.aspectFlags;
@@ -355,7 +359,7 @@ void vdu::Texture::bindMemory(DeviceMemory * memory)
 	VDU_VK_CHECK_RESULT(vkBindImageMemory(m_logicalDevice->getHandle(), m_image, m_deviceMemory->getHandle(), 0), "binding texture memory");
 }
 
-uint32_t vdu::Texture::getBytesPerPixel()
+uint32_t vdu::Texture::getBitsPerPixel()
 {
 	switch (m_format)
 	{
@@ -508,6 +512,11 @@ uint32_t vdu::Texture::getBytesPerPixel()
 	};
 }
 
+uint32_t vdu::Texture::getBytesPerPixel()
+{
+	return getBitsPerPixel() / 8;
+}
+
 uint32_t vdu::Texture::getNumComponents()
 {
 	switch (m_format)
@@ -646,4 +655,104 @@ uint32_t vdu::Texture::getNumComponents()
 	default:
 		return 0;
 	};
+}
+
+void vdu::Texture::cmdTransitionLayout(CommandBuffer& cmd, VkImageLayout oldLayout, VkImageLayout newLayout, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
+{
+	// Create an image barrier object
+	VkImageMemoryBarrier imageBarrier = {};
+	imageBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	imageBarrier.oldLayout = oldLayout;
+	imageBarrier.newLayout = newLayout;
+	imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	imageBarrier.image = getHandle();
+
+	VkImageSubresourceRange subresourceRange = {};
+	subresourceRange.aspectMask = getAspectFlags();
+	subresourceRange.baseMipLevel = 0;
+	subresourceRange.levelCount = getMaxMipLevel() + 1;
+	subresourceRange.layerCount = 1;
+	imageBarrier.subresourceRange = subresourceRange;
+
+	switch (oldLayout)
+	{
+	case VK_IMAGE_LAYOUT_UNDEFINED:
+		imageBarrier.srcAccessMask = 0;
+		break;
+
+	case VK_IMAGE_LAYOUT_PREINITIALIZED:
+		imageBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_GENERAL:
+		imageBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+		imageBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+		imageBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+		imageBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+		imageBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+		imageBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		break;
+	default:
+		// Other source layouts aren't handled yet
+		break;
+	}
+
+	switch (newLayout)
+	{
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+		imageBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_GENERAL:
+		imageBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+		imageBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+		imageBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+		imageBarrier.dstAccessMask = imageBarrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+		if (imageBarrier.srcAccessMask == 0)
+		{
+			imageBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+		}
+		imageBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		break;
+	default:
+		// Other source layouts aren't handled yet
+		break;
+	}
+
+	vkCmdPipelineBarrier(
+		cmd.getHandle(),
+		srcStageMask,
+		dstStageMask,
+		0,
+		0, nullptr,
+		0, nullptr,
+		1, &imageBarrier);
 }

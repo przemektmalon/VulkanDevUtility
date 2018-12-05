@@ -51,4 +51,21 @@ namespace vdu
 		LogicalDevice * m_logicalDevice = nullptr;
 		VkFence m_fence = 0;
 	};
+
+	class Semaphore
+	{
+	public:
+		Semaphore() {}
+		Semaphore(LogicalDevice* device);
+
+		void create(LogicalDevice* device);
+		void destroy();
+
+		VkSemaphore getHandle() const { return m_semaphore; }
+
+	private:
+
+		LogicalDevice* m_logicalDevice = nullptr;
+		VkSemaphore m_semaphore = 0;
+	};
 }

@@ -1,15 +1,14 @@
 #include "PCH.hpp"
 #include "Queue.hpp"
+#include "PhysicalDevice.hpp"
+#include "LogicalDevice.hpp"
 
-vdu::Queue::Queue() : m_queue(0), m_queueFamilyIndex(~(uint32_t(0))), m_queueIndex(~(uint32_t(0))), m_priority(1.f)
-{
-}
-
-void vdu::Queue::prepare(uint32_t queueFamilyIndex, float priority)
-{
-	m_queueFamilyIndex = queueFamilyIndex;
-	m_priority = priority;
-}
+vdu::Queue::Queue(QueueFamily* queueFamily, float priority) : 
+	m_queue(0), 
+	m_queueFamily(queueFamily), 
+	m_queueIndex(~(uint32_t(0))), 
+	m_priority(priority)
+{ }
 
 VkResult vdu::Queue::submit(VkSubmitInfo * info, uint32_t count, VkFence fence)
 {
@@ -93,9 +92,22 @@ VkResult vdu::Queue::waitIdle()
 	return vkQueueWaitIdle(m_queue);
 }
 
-void vdu::QueueSubmission::addWait(VkSemaphore wait, VkPipelineStageFlags stage)
+bool vdu::Queue::sameFamilyAs(Queue & queue)
 {
-	m_waitSemaphores.push_back(wait);
+	return m_queueFamily->getIndex() == queue.getFamily()->getIndex();
+}
+
+void vdu::Queue::operator=(const Queue & rhs)
+{
+	m_queue = rhs.m_queue;
+	m_queueFamily = rhs.m_queueFamily;
+	m_priority = rhs.m_priority;
+	m_queueIndex = rhs.m_queueIndex;
+}
+
+void vdu::QueueSubmission::addWait(vdu::Semaphore wait, VkPipelineStageFlags stage)
+{
+	m_waitSemaphores.push_back(wait.getHandle());
 	m_waitStages.push_back(stage);
 }
 
@@ -109,9 +121,9 @@ void vdu::QueueSubmission::addCommands(VkCommandBuffer cmd)
 	m_commandBuffers.push_back(cmd);
 }
 
-void vdu::QueueSubmission::addSignal(VkSemaphore signal)
+void vdu::QueueSubmission::addSignal(vdu::Semaphore signal)
 {
-	m_signalSemaphores.push_back(signal);
+	m_signalSemaphores.push_back(signal.getHandle());
 }
 
 void vdu::QueueSubmission::clear()

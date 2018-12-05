@@ -4,10 +4,6 @@
 
 #include "vulkan/vulkan.h"
 
-#ifndef VDU_NO_VALIDATION
-#define VDU_WITH_VALIDATION
-#endif
-
 #define VDU_VK_CHECK_RESULT(f, message) { \
 	auto result = f; \
 	if (result != VK_SUCCESS) { \

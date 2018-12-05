@@ -1,10 +1,13 @@
 #pragma once
 #include "PCH.hpp"
-#include "LogicalDevice.hpp"
 #include "CommandBuffer.hpp"
 
 namespace vdu
 {
+
+	class LogicalDevice;
+	class QueueFamily;
+
 	class DeviceMemory
 	{
 	public:
@@ -76,9 +79,9 @@ namespace vdu
 
 	struct TextureCreateInfo
 	{
-		TextureCreateInfo() : width(0), height(0), depth(1), layers(1), format(VK_FORMAT_UNDEFINED), layout(VK_IMAGE_LAYOUT_UNDEFINED), aspectFlags(VK_IMAGE_ASPECT_COLOR_BIT), usageFlags(VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM), tiling(VK_IMAGE_TILING_OPTIMAL), memoryProperties(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {}
+		TextureCreateInfo() : width(0), height(0), depth(1), layers(1), numMipLevels(1), format(VK_FORMAT_UNDEFINED), layout(VK_IMAGE_LAYOUT_UNDEFINED), aspectFlags(VK_IMAGE_ASPECT_COLOR_BIT), usageFlags(VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM), tiling(VK_IMAGE_TILING_OPTIMAL), memoryProperties(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {}
 		
-		uint32_t width, height, depth, layers;
+		uint32_t width, height, depth, layers, numMipLevels;
 		VkFormat format;
 		VkImageLayout layout;
 		VkImageAspectFlags aspectFlags;
@@ -114,8 +117,11 @@ namespace vdu
 		uint32_t getMaxMipLevel() { return m_maxMipLevel; }
 		uint32_t getNumMipLevels() { return m_numMipLevels; }
 
+		uint32_t getBitsPerPixel();
 		uint32_t getBytesPerPixel();
 		uint32_t getNumComponents();
+
+		void cmdTransitionLayout(CommandBuffer& cmd, VkImageLayout oldLayout, VkImageLayout newLayout, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask);
 
 	protected:
 

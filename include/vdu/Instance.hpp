@@ -1,6 +1,7 @@
 #pragma once
 #include "PCH.hpp"
 #include "Debug.hpp"
+#include "PhysicalDevice.hpp"
 
 namespace vdu
 {
@@ -132,6 +133,17 @@ namespace vdu
 		*/
 		VkInstance getInstanceHandle();
 
+		/*
+		Populate a list of vulkan capable physical devices with their properties fields filled out
+		Return a reference to this list
+		*/
+		std::vector<vdu::PhysicalDevice>& enumratePhysicalDevices();
+
+		/*
+		Get a reference to the physical devices
+		*/
+		std::vector<vdu::PhysicalDevice>& getPhysicalDevices();
+
 		void nameObject(vdu::Buffer* buffer, const std::string& name);
 
 	private:
@@ -145,6 +157,11 @@ namespace vdu
 		*/
 		std::vector<const char*> m_enabledExtensions;
 		std::vector<const char*> m_enabledLayers;
+
+		/*
+		Physical devices
+		*/
+		std::vector<vdu::PhysicalDevice> m_physicalDevices;
 
 		/*
 		Application/engine/api versions names

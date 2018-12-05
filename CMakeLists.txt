@@ -1,20 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1)
 
 ################################################################
-################    SET THE DEFAULT BUILD TO DEBUG
-################################################################
-
-set(DEFAULT_BUILD_TYPE "Debug")
- 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified.")
-  set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
-endif()
-
-
-
-################################################################
 ################    SET SOME DIRECTORY CONSTANTS
 ################################################################
 
@@ -133,3 +119,21 @@ target_link_libraries (VulkanDevUtility
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT VulkanDevUtility)
 set_target_properties(VulkanDevUtility PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/")
+
+add_subdirectory("./tests")
+
+#set(DEFAULT_BUILD_TYPE "Release")
+ 
+#if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+#  message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified.")
+#  set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
+#  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
+#endif()
+
+#project(Mandelbrot)
+
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+#target_link_libraries(Mandelbrot VulkanDevUtility)
+
+#add_executable(Mandelbrot "./tests/mandelbrot/mandelbrot.cpp")

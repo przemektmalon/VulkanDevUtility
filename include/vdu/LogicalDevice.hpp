@@ -1,10 +1,11 @@
 #pragma once
 #include "PCH.hpp"
-#include "PhysicalDevice.hpp"
+
 
 namespace vdu
 {
 	class Queue;
+	class PhysicalDevice;
 
 	/*
 	Wrapper for logical device
@@ -38,12 +39,12 @@ namespace vdu
 
 	private:
 
-		VkDevice m_device;
+		VkDevice m_device = 0;
 
 		std::set<Queue*> m_queues;
 		std::map<uint32_t, std::vector<float>> m_queueFamilyCountsPriorities; // and priorities
 
-		VkPhysicalDeviceFeatures m_enabledDeviceFeatures;
+		VkPhysicalDeviceFeatures m_enabledDeviceFeatures = {};
 
 		PFN_vkErrorCallback m_vkErrorCallbackFunc = nullptr;
 		PFN_vduDebugCallback m_vduDebugCallbackFunc = nullptr;
@@ -54,6 +55,6 @@ namespace vdu
 		std::vector<const char*> m_enabledExtensions;
 		std::vector<const char*> m_enabledLayers;
 
-		PhysicalDevice* m_physicalDevice;
+		PhysicalDevice* m_physicalDevice = nullptr;
 	};
 }

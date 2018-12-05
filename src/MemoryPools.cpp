@@ -2,6 +2,7 @@
 #include "MemoryPools.hpp"
 #include "Initializers.hpp"
 #include "CommandBuffer.hpp"
+#include "QueueFamily.hpp"
 
 vdu::DescriptorPool::DescriptorPool() : m_maxSets(0)
 {
@@ -43,7 +44,7 @@ void vdu::DescriptorPool::addSetCount(uint32_t count)
 	m_maxSets += count;
 }
 
-vdu::CommandPool::CommandPool() : m_commandPool(0), m_queueFamily(nullptr)
+vdu::CommandPool::CommandPool() : m_commandPool(0), m_queueFamily(nullptr), m_flags(VkCommandPoolCreateFlagBits(0)), m_logicalDevice(nullptr)
 {
 }
 

@@ -145,7 +145,7 @@ void vdu::PipelineLayout::create(LogicalDevice * device)
 	pipelineLayoutInfo.setLayoutCount = layoutHandles.size();
 	pipelineLayoutInfo.pSetLayouts = layoutHandles.data();
 	pipelineLayoutInfo.pushConstantRangeCount = m_pushConstantRanges.size();
-	pipelineLayoutInfo.pPushConstantRanges = m_pushConstantRanges.data();
+	pipelineLayoutInfo.pPushConstantRanges = reinterpret_cast<VkPushConstantRange*>(m_pushConstantRanges.data());
 
 	VDU_VK_CHECK_RESULT(vkCreatePipelineLayout(m_logicalDevice->getHandle(), &pipelineLayoutInfo, nullptr, &m_layout), "creating pipeline layout");
 }
@@ -164,6 +164,11 @@ void vdu::PipelineLayout::addDescriptorSetLayout(DescriptorSetLayout * layout)
 }
 
 void vdu::PipelineLayout::addPushConstantRange(VkPushConstantRange range)
+{
+	m_pushConstantRanges.push_back({ range.stageFlags, range.offset, range.size });
+}
+
+void vdu::PipelineLayout::addPushConstantRange(vdu::PushConstantRange range)
 {
 	m_pushConstantRanges.push_back(range);
 }

@@ -1,19 +1,21 @@
 #pragma once
-#include "LogicalDevice.hpp"
 #include "CommandBuffer.hpp"
 #include "Synchro.hpp"
 #include "Swapchain.hpp"
 
 namespace vdu
 {
+	class PhysicalDevice;
+	class QueueFamily;
+
 	struct QueueSubmission
 	{
 	public:
 
-		void addWait(VkSemaphore wait, VkPipelineStageFlags stage);
+		void addWait(vdu::Semaphore wait, VkPipelineStageFlags stage);
 		void addCommands(vdu::CommandBuffer* cmd);
 		void addCommands(VkCommandBuffer cmd);
-		void addSignal(VkSemaphore signal);
+		void addSignal(vdu::Semaphore signal);
 
 		const std::vector<VkSemaphore>& getWaitSemaphores() const { return m_waitSemaphores; }
 		const std::vector<VkSemaphore>& getSignalSemaphores() const { return m_signalSemaphores; }
@@ -60,9 +62,8 @@ namespace vdu
 	{
 		friend class LogicalDevice;
 	public:
-		Queue();
-
-		void prepare(uint32_t queueFamilyIndex, float priority);
+		Queue() {}
+		Queue(QueueFamily* queueFamily, float priority);
 
 		VkResult submit(VkSubmitInfo* info, uint32_t count = 1, VkFence fence = VK_NULL_HANDLE);
 		VkResult submit(const QueueSubmission& qSubmit, const vdu::Fence& fence = vdu::Fence());
@@ -72,9 +73,13 @@ namespace vdu
 		VkResult waitIdle();
 
 		VkQueue getHandle() { return m_queue; }
-		uint32_t getFamilyIndex() { return m_queueFamilyIndex; }
+		QueueFamily* getFamily() { return m_queueFamily; }
 		uint32_t getIndex() { return m_queueIndex; }
 		float getPriority() { return m_priority; }
+
+		bool sameFamilyAs(Queue& queue);
+
+		void operator=(const Queue& rhs);
 
 	private:
 
@@ -94,9 +99,9 @@ namespace vdu
 		VkQueue m_queue;
 
 		/*
-		Queue's family index
+		Queue family
 		*/
-		uint32_t m_queueFamilyIndex;
+		QueueFamily* m_queueFamily;
 
 		/*
 		Queue index within family
@@ -107,7 +112,5 @@ namespace vdu
 		Queue priority
 		*/
 		float m_priority;
-
-
 	};
 }

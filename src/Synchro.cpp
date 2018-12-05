@@ -98,3 +98,17 @@ VkResult vdu::Fence::wait(uint64_t timeout) const
 		m_logicalDevice->_internalReportVkError(result, "Encountered Vulkan error while waiting for fence");
 	}
 }
+
+vdu::Semaphore::Semaphore(LogicalDevice* device) : m_logicalDevice(device) {
+	create(device);
+}
+
+void vdu::Semaphore::create(LogicalDevice* device) {
+	m_logicalDevice = device;
+	VkSemaphoreCreateInfo sci = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, nullptr, 0 };
+	vkCreateSemaphore(device->getHandle(), &sci, nullptr, &m_semaphore);
+}
+
+void vdu::Semaphore::destroy() {
+	vkDestroySemaphore(m_logicalDevice->getHandle(), m_semaphore, nullptr);
+}

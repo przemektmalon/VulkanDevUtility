@@ -9,6 +9,18 @@
 namespace vdu
 {
 
+	struct PushConstantRange
+	{
+		PushConstantRange(ShaderStageFlags stageFlags, uint32_t offset, uint32_t size)
+			: m_stageFlags(stageFlags),
+				m_offset(offset),
+				m_size(size)
+		{}
+		ShaderStageFlags m_stageFlags;
+		uint32_t m_offset;
+		uint32_t m_size;
+	};
+
 	class VertexInputState
 	{
 	public:
@@ -38,6 +50,7 @@ namespace vdu
 		void destroy();
 
 		void addDescriptorSetLayout(DescriptorSetLayout* layout);
+		void addPushConstantRange(PushConstantRange range);
 		void addPushConstantRange(VkPushConstantRange range);
 
 		const VkPipelineLayout& getHandle() { return m_layout; }
@@ -45,7 +58,7 @@ namespace vdu
 	private:
 
 		std::vector<DescriptorSetLayout*> m_descriptorSetLayouts;
-		std::vector<VkPushConstantRange> m_pushConstantRanges;
+		std::vector<PushConstantRange> m_pushConstantRanges;
 
 		LogicalDevice* m_logicalDevice;
 

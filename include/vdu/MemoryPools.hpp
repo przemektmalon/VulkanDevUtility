@@ -9,6 +9,7 @@ Wrappers for command, descriptor, and query pools
 namespace vdu
 {
 	class CommandBuffer;
+	class QueueFamily;
 
 	class DescriptorPool
 	{

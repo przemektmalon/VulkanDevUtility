@@ -16,3 +16,4 @@
 #include "Pipeline.hpp"
 #include "Synchro.hpp"
 #include "Queue.hpp"
+#include "QueueFamily.hpp"

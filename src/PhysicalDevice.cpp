@@ -11,7 +11,7 @@ VkPhysicalDevice vdu::PhysicalDevice::getHandle() const
 	return m_physicalDevice;
 }
 
-const std::vector<vdu::QueueFamily>& vdu::PhysicalDevice::getQueueFamilies() const
+std::vector<vdu::QueueFamily>& vdu::PhysicalDevice::getQueueFamilies()
 {
 	return m_queueFamilies;
 }
@@ -156,55 +156,4 @@ VkResult vdu::PhysicalDevice::querySurfaceCapabilities(VkSurfaceKHR surface)
 			return result;
 	}
 	return VK_SUCCESS;
-}
-
-VkResult vdu::enumeratePhysicalDevices(Instance& instance, std::vector<PhysicalDevice>& deviceList)
-{
-	auto instanceHandle = instance.getInstanceHandle();
-
-	// Get the physical device count
-	uint32_t deviceCount = 0;
-	VK_CHECK_RESULT(vkEnumeratePhysicalDevices(instanceHandle, &deviceCount, nullptr));
-
-	// Initialise vectors
-	std::vector<VkPhysicalDevice> physicalDeviceHandles;
-	physicalDeviceHandles.resize(deviceCount);
-	deviceList.reserve(deviceCount);
-	
-	// Get actual physical device handles
-	VK_CHECK_RESULT(vkEnumeratePhysicalDevices(instanceHandle, &deviceCount, physicalDeviceHandles.data()));
-
-	// For each handle add it to our device list and query (fill in) its details
-	for (auto physicalDevice : physicalDeviceHandles)
-	{
-		deviceList.emplace_back(physicalDevice); // Constructor queries all device details
-	}
-	return VK_SUCCESS;
-}
-
-vdu::QueueFamily::QueueFamily(PhysicalDevice * physicalDevice, VkQueueFamilyProperties props, uint32_t familyIndex) :
-	m_physicalDevice(physicalDevice),
-	m_familyProperties(props),
-	m_familyIndex(familyIndex),
-	m_supportsGraphics(false),
-	m_supportsCompute(false),
-	m_supportsTransfer(false),
-	m_supportsPresent(false)
-{
-	queryDetails();
-}
-
-VkResult vdu::QueueFamily::queryPresentCapability(VkSurfaceKHR surface)
-{
-	VkBool32 surfaceSupport = false;
-	VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevice->getHandle(), m_familyIndex, surface, &surfaceSupport));
-	m_supportsPresent = surfaceSupport;
-	return VK_SUCCESS;
-}
-
-void vdu::QueueFamily::queryDetails()
-{
-	m_supportsGraphics = m_familyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT;
-	m_supportsCompute = m_familyProperties.queueFlags & VK_QUEUE_COMPUTE_BIT;
-	m_supportsTransfer = m_familyProperties.queueFlags & VK_QUEUE_TRANSFER_BIT;
 }

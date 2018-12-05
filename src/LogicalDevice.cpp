@@ -1,5 +1,6 @@
 #include "PCH.hpp"
 #include "LogicalDevice.hpp"
+#include "PhysicalDevice.hpp"
 #include "Initializers.hpp"
 #include "Queue.hpp"
 
@@ -33,7 +34,7 @@ VkResult vdu::LogicalDevice::create(PhysicalDevice* physicalDevice)
 	for (auto queue : m_queues)
 	{
 		VkQueue queueCreate;
-		vkGetDeviceQueue(m_device, queue->getFamilyIndex(), queue->getIndex(), &queueCreate);
+		vkGetDeviceQueue(m_device, queue->getFamily()->getIndex(), queue->getIndex(), &queueCreate);
 		queue->setQueueHandle(queueCreate);
 	}
 	return VK_SUCCESS;
@@ -49,8 +50,8 @@ void vdu::LogicalDevice::addQueue(Queue * queue)
 	auto ins = m_queues.insert(queue);
 	if (ins.second)
 	{
-		queue->setIndex(m_queueFamilyCountsPriorities[queue->getFamilyIndex()].size());
-		m_queueFamilyCountsPriorities[queue->getFamilyIndex()].push_back(queue->getPriority());
+		queue->setIndex(m_queueFamilyCountsPriorities[queue->getFamily()->getIndex()].size());
+		m_queueFamilyCountsPriorities[queue->getFamily()->getIndex()].push_back(queue->getPriority());
 	}
 }
 

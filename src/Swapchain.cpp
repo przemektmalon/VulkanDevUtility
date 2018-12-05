@@ -155,7 +155,7 @@ void vdu::Swapchain::destroy()
 		// Gives error, maybe because these images are created from the swap chain by KHR extension
 		//vkDestroyImage(device, swapChainImages[i], 0);
 		vkDestroyImageView(m_logicalDevice->getHandle(), m_imageViews[i], 0);
-		m_imageViews[i] = nullptr;
+		m_imageViews[i] = 0;
 	}
 
 	for (auto fb : m_framebuffers)
@@ -165,7 +165,7 @@ void vdu::Swapchain::destroy()
 
 	vkDestroySwapchainKHR(m_logicalDevice->getHandle(), m_swapchain, 0);
 
-	m_swapchain = nullptr;
+	m_swapchain = 0;
 
 	m_renderPass.destroy();
 }

@@ -2,9 +2,14 @@
 #include "Instance.hpp"
 #include "VDU.hpp"
 
+#define VK_CHECK_RESULT(f) { \
+	auto result = f; \
+	if (result != VK_SUCCESS) return result; }
+
 vdu::Instance::Instance() :
 	m_instance(0),
 	m_debugReportLevel(0),
+	m_debugReportCallback(nullptr),
 	m_applicationName(""),
 	m_engineName(""),
 	m_apiVersion(VK_API_VERSION_1_0),
@@ -40,23 +45,24 @@ VkResult vdu::Instance::create()
 	if (result != VK_SUCCESS)
 		return result;
 
-#ifdef VDU_WITH_VALIDATION
-	auto drcci = vdu::initializer<VkDebugReportCallbackCreateInfoEXT>();
-	drcci.flags = m_debugReportLevel;
-	drcci.pfnCallback = &vduVkDebugCallbackFunc;
-	drcci.pUserData = &m_thisInstance;
-	auto createDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_instance, "vkCreateDebugReportCallbackEXT");
+	if (m_userDebugCallbackFunc != nullptr) {
+		auto drcci = vdu::initializer<VkDebugReportCallbackCreateInfoEXT>();
+		drcci.flags = m_debugReportLevel;
+		drcci.pfnCallback = &vduVkDebugCallbackFunc;
+		drcci.pUserData = &m_thisInstance;
+		auto createDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_instance, "vkCreateDebugReportCallbackEXT");
 
-	result = createDebugReportCallbackEXT(m_instance, &drcci, nullptr, &m_debugReportCallback);
-#endif
+		result = createDebugReportCallbackEXT(m_instance, &drcci, nullptr, &m_debugReportCallback);
+	}
+
 	return result;
 }
 
 void vdu::Instance::destroy()
 {
-#ifdef VDU_WITH_VALIDATION
-	PFN_vkDestroyDebugReportCallbackEXT(vkGetInstanceProcAddr(m_instance, "vkDestroyDebugReportCallbackEXT"))(m_instance, m_debugReportCallback, 0);
-#endif
+	if (m_userDebugCallbackFunc != nullptr) {
+		PFN_vkDestroyDebugReportCallbackEXT(vkGetInstanceProcAddr(m_instance, "vkDestroyDebugReportCallbackEXT"))(m_instance, m_debugReportCallback, 0);
+	}
 	vkDestroyInstance(m_instance, nullptr);
 }
 
@@ -103,6 +109,37 @@ void vdu::Instance::setVulkanVersion(int32_t major, int32_t minor, int32_t patch
 VkInstance vdu::Instance::getInstanceHandle()
 {
 	return m_instance;
+}
+
+std::vector<vdu::PhysicalDevice>& vdu::Instance::enumratePhysicalDevices()
+{
+	// Get the physical device count
+	uint32_t deviceCount = 0;
+	if (vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr) != VK_SUCCESS) {
+		assert(false);
+	}
+
+	// Initialise vectors
+	std::vector<VkPhysicalDevice> physicalDeviceHandles;
+	physicalDeviceHandles.resize(deviceCount);
+	m_physicalDevices.reserve(deviceCount);
+
+	// Get actual physical device handles
+	if (vkEnumeratePhysicalDevices(m_instance, &deviceCount, physicalDeviceHandles.data()) != VK_SUCCESS) {
+		assert(false);
+	}
+
+	// For each handle add it to our device list and query (fill in) its details
+	for (auto physicalDevice : physicalDeviceHandles)
+	{
+		m_physicalDevices.emplace_back(physicalDevice); // Constructor queries all device details
+	}
+	return m_physicalDevices;
+}
+
+std::vector<vdu::PhysicalDevice>& vdu::Instance::getPhysicalDevices()
+{
+	return m_physicalDevices;
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vduVkDebugCallbackFunc(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char * layerPrefix, const char * msg, void * userData)
