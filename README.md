@@ -121,3 +121,13 @@ set.submitUpdater(updater);
 // We can keep the updater to re-use another time or destroy it
 set.destroyUpdater(updater);
 ```
+
+# VDU also covers creation and operations with:
+- Pipelines
+- Render passes
+- Shaders
+- Framebuffers
+- Swapchains
+- Textures
+- Buffers
+- Synchronization structures
