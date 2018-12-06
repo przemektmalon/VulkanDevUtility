@@ -55,6 +55,7 @@ std::vector<vdu::QueueFamily>& qFamilies = physDevice->getQueueFamilies();
 for (auto& qFam : qFamilies) {
 	if (qFam.supportsCompute()) {
 		computeQueue = qFam.createQueue(1.f); // 1.f == queue priority
+		break;
 	}
 }
 
