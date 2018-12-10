@@ -1,5 +1,9 @@
 # VulkanDevUtility
-Vulkan development utilities, wrappers, initializers
+VDU aims to provide utilities and wrappers to speed up Vulkan programming and reduce code size. It already covers a good chunk of Vulkan functionality and provides higher level abstractions, for example handling descriptor set updates through updater objects which make the updates very concise, unlike the vanilla Vulkan code; shader compilation, as well as setting stage macros in pre-compilation to allow multiple shader stages to be placed into one file.
+
+VDU also provides utilities to easily generate mip-maps in a command buffer, and handle image layout transitions.
+
+VDU allows callbacks to report Vulkan validation layer messages, Vulkan errors, and shader compilation problems.
 
 ## Creating Vulkan instance with extensions and layers
 
