@@ -1,11 +1,6 @@
 #include "PCH.hpp"
 #include "RenderPass.hpp"
 
-vdu::RenderPass::RenderPass() : m_depthAttachment(nullptr), m_depthAttachmentInfo(nullptr), m_renderPass(0), m_logicalDevice(nullptr)
-{
-
-}
-
 void vdu::RenderPass::create(vdu::LogicalDevice * device)
 {
 	m_logicalDevice = device;

@@ -282,7 +282,7 @@ void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer & cmd)
 	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	barrier.subresourceRange.baseArrayLayer = 0;
-	barrier.subresourceRange.layerCount = 1;
+	barrier.subresourceRange.layerCount = getLayers();
 	barrier.subresourceRange.levelCount = 1;
 
 	int32_t mipWidth = m_width;
@@ -672,7 +672,7 @@ void vdu::Texture::cmdTransitionLayout(CommandBuffer& cmd, VkImageLayout oldLayo
 	subresourceRange.aspectMask = getAspectFlags();
 	subresourceRange.baseMipLevel = 0;
 	subresourceRange.levelCount = getMaxMipLevel() + 1;
-	subresourceRange.layerCount = 1;
+	subresourceRange.layerCount = getLayers();
 	imageBarrier.subresourceRange = subresourceRange;
 
 	switch (oldLayout)

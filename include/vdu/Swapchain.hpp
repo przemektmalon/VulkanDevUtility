@@ -24,7 +24,7 @@ namespace vdu
 		const std::vector<VkImageView>& getImageViews() const { return m_imageViews; }
 		const std::vector<VkFramebuffer>& getFramebuffers() const { return m_framebuffers; }
 
-		const VkResult acquireNextImage(uint32_t& imageIndex, VkSemaphore signal = VK_NULL_HANDLE, const Fence& fence = Fence(), uint64_t timeout = std::numeric_limits<uint64_t>::max());
+		const VkResult acquireNextImage(uint32_t& imageIndex, vdu::Semaphore signal = VK_NULL_HANDLE, const Fence& fence = Fence(), uint64_t timeout = std::numeric_limits<uint64_t>::max());
 
 	private:
 

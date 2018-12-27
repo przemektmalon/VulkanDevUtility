@@ -8,8 +8,6 @@ namespace vdu
 	class RenderPass
 	{
 	public:
-		RenderPass();
-
 		class AttachmentInfo
 		{
 		public:
@@ -44,18 +42,18 @@ namespace vdu
 		AttachmentInfo* setDepthAttachment(vdu::Texture* texture);
 		AttachmentInfo* setDepthAttachment(VkFormat format);
 
-		const std::map<std::string, vdu::Texture*>& getAttachments() const { return m_attachments; }
+		const std::unordered_map<std::string, vdu::Texture*>& getAttachments() const { return m_attachments; }
 
 	private:
 
-		std::map<std::string, vdu::Texture*> m_attachments;
-		std::map<std::string, AttachmentInfo*> m_attachmentInfos;
+		std::unordered_map<std::string, vdu::Texture*> m_attachments;
+		std::unordered_map<std::string, AttachmentInfo*> m_attachmentInfos;
 
-		vdu::Texture* m_depthAttachment;
-		AttachmentInfo* m_depthAttachmentInfo;
+		vdu::Texture* m_depthAttachment = nullptr;
+		AttachmentInfo* m_depthAttachmentInfo = nullptr;
 
-		VkRenderPass m_renderPass;
+		VkRenderPass m_renderPass = 0;
 
-		vdu::LogicalDevice* m_logicalDevice;
+		vdu::LogicalDevice* m_logicalDevice = nullptr;
 	};
 }

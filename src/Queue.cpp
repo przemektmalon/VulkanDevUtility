@@ -134,9 +134,9 @@ void vdu::QueueSubmission::clear()
 	m_signalSemaphores.clear();
 }
 
-void vdu::QueuePresentation::addWait(VkSemaphore wait)
+void vdu::QueuePresentation::addWait(vdu::Semaphore wait)
 {
-	m_waitSemaphores.push_back(wait);
+	m_waitSemaphores.push_back(wait.getHandle());
 }
 
 void vdu::QueuePresentation::addSwapchain(const vdu::Swapchain& swapchain, uint32_t imageIndex, const VkRect2D & srcRect, const VkRect2D & dstRect, VkBool32 persistant)

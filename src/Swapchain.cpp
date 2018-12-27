@@ -170,7 +170,7 @@ void vdu::Swapchain::destroy()
 	m_renderPass.destroy();
 }
 
-const VkResult vdu::Swapchain::acquireNextImage(uint32_t & imageIndex, VkSemaphore signal, const Fence& fence, uint64_t timeout)
+const VkResult vdu::Swapchain::acquireNextImage(uint32_t & imageIndex, vdu::Semaphore signal, const Fence& fence, uint64_t timeout)
 {
-	return vkAcquireNextImageKHR(m_logicalDevice->getHandle(), m_swapchain, timeout, signal, fence.getHandle(), &imageIndex);
+	return vkAcquireNextImageKHR(m_logicalDevice->getHandle(), m_swapchain, timeout, signal.getHandle(), fence.getHandle(), &imageIndex);
 }

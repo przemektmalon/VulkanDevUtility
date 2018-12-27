@@ -163,11 +163,6 @@ void vdu::PipelineLayout::addDescriptorSetLayout(DescriptorSetLayout * layout)
 	m_descriptorSetLayouts.push_back(layout);
 }
 
-void vdu::PipelineLayout::addPushConstantRange(VkPushConstantRange range)
-{
-	m_pushConstantRanges.push_back({ range.stageFlags, range.offset, range.size });
-}
-
 void vdu::PipelineLayout::addPushConstantRange(vdu::PushConstantRange range)
 {
 	m_pushConstantRanges.push_back(range);

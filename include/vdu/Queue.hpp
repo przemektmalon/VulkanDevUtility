@@ -37,7 +37,7 @@ namespace vdu
 	{
 	public:
 
-		void addWait(VkSemaphore wait);
+		void addWait(vdu::Semaphore wait);
 		void addSwapchain(const vdu::Swapchain& swapchain, uint32_t imageIndex, const VkRect2D& srcRect = VkRect2D({ {std::numeric_limits<int32_t>::lowest(),std::numeric_limits<int32_t>::lowest() },{0,0} }), const VkRect2D& dstRect = VkRect2D({ { std::numeric_limits<int32_t>::lowest(),std::numeric_limits<int32_t>::lowest() },{ 0,0 } }), VkBool32 persistant = VK_FALSE);
 
 		const std::vector<VkSemaphore>& getWaitSemaphores() const { return m_waitSemaphores; }

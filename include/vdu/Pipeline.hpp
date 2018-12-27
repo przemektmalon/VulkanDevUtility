@@ -51,7 +51,6 @@ namespace vdu
 
 		void addDescriptorSetLayout(DescriptorSetLayout* layout);
 		void addPushConstantRange(PushConstantRange range);
-		void addPushConstantRange(VkPushConstantRange range);
 
 		const VkPipelineLayout& getHandle() { return m_layout; }
 
