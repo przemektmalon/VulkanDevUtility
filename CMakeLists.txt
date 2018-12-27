@@ -104,9 +104,6 @@ include_directories(${INCLUDE_DIR} ${LIBS_DIR} ${LIB_VK_INCLUDE_DIR})
 ################################################################
 
 add_library(VulkanDevUtility STATIC ${SOURCES} ${INCLUDES})
-if (UNIX)
-	target_link_libraries(VulkanDevUtility ${LIB_XCB} ${LIB_XAU} ${LIB_XDMCP})
-endif(UNIX)
 
 target_link_libraries(VulkanDevUtility ${LIB_VK_LIBRARY})
 target_link_libraries (VulkanDevUtility
@@ -122,18 +119,3 @@ set_target_properties(VulkanDevUtility PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY 
 
 add_subdirectory("./tests")
 
-#set(DEFAULT_BUILD_TYPE "Release")
- 
-#if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-#  message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified.")
-#  set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
-#  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
-#endif()
-
-#project(Mandelbrot)
-
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
-#target_link_libraries(Mandelbrot VulkanDevUtility)
-
-#add_executable(Mandelbrot "./tests/mandelbrot/mandelbrot.cpp")
