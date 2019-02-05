@@ -97,8 +97,8 @@ install(
       FILE vdu-config.cmake
 	  COMPONENT headers)
 
-if (BUILD_TESTS)
+if (VDU_BUILD_TESTS)
 	add_subdirectory("./tests")
 else()
-	set(BUILD_TESTS CACHE BOOL OFF)
-endif (BUILD_TESTS)
+	set(VDU_BUILD_TESTS CACHE BOOL OFF)
+endif (VDU_BUILD_TESTS)

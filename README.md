@@ -139,7 +139,7 @@ set.destroyUpdater(updater);
 
 # Tests
 
-Tests are not built by default. Set -DBUILD_TESTS=ON to enable them
+Tests are not built by default. Set -DVDU_BUILD_TESTS=ON to enable them
 
 - Mandelbrot
 -- Renders the Mandelbrot set through compute shaders
