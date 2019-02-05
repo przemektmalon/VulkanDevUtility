@@ -136,3 +136,10 @@ set.destroyUpdater(updater);
 - Textures
 - Buffers
 - Synchronization structures
+
+# Tests
+
+Tests are not built by default. Set -DBUILD_TESTS=ON to enable them
+
+- Mandelbrot
+-- Renders the Mandelbrot set through compute shaders
