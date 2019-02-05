@@ -20,32 +20,7 @@ set(CMAKE_CXX_STANDARD 14)
 file(GLOB INCLUDES ${INCLUDE_DIR}/*.hpp)
 file(GLOB SOURCES ${SRC_DIR}/*.cpp)
 
-
-
-################################################################
-################    SET VULKAN SDK PATH
-################################################################
-
-if(NOT VK_SDK_PATH)
-	message(WARNING "Vulkan SDK path not found")
-	set(VK_SDK_PATH "" CACHE PATH "Path to your Vulkan SDK folder")
-	set(ERROR "YES")
-endif()
-
-
-
-################################################################
-################    SET VULKAN INCLUDES AND LIBRARY
-################################################################
-
-set(LIB_VK_INCLUDE_DIR "${VK_SDK_PATH}/include")
-if(WIN32)
-	set(LIB_VK_LIBRARY "${VK_SDK_PATH}/Lib/vulkan-1.lib")
-endif()
-if(UNIX)
-	set(LIB_VK_LIBRARY "${VK_SDK_PATH}/lib/libvulkan.so")
-endif()
-
+find_package(Vulkan REQUIRED)
 
 
 ################################################################
@@ -53,12 +28,12 @@ endif()
 ################################################################
 
 if(WIN32)
-	set(LIB_SHADERC_DEBUG "${VK_SDK_PATH}/shaderc/build/libshaderc/Debug/shaderc_combined.lib")
-	set(LIB_SHADERC_RELEASE "${VK_SDK_PATH}/shaderc/build/libshaderc/Release/shaderc_combined.lib")
+	set(LIB_SHADERC_DEBUG "$ENV{VULKAN_SDK}/shaderc/build/libshaderc/Debug/shaderc_combined.lib")
+	set(LIB_SHADERC_RELEASE "$ENV{VULKAN_SDK}/shaderc/build/libshaderc/Release/shaderc_combined.lib")
 endif()
 if(UNIX)
-	set(LIB_SHADERC_DEBUG "${VK_SDK_PATH}/shaderc/Debug/libshaderc_shared.so")
-	set(LIB_SHADERC_RELEASE "${VK_SDK_PATH}/shaderc/Release/libshaderc_shared.so")
+	set(LIB_SHADERC_DEBUG "$ENV{VULKAN_SDK}/shaderc/Debug/libshaderc_shared.so")
+	set(LIB_SHADERC_RELEASE "$ENV{VULKAN_SDK}/shaderc/Release/libshaderc_shared.so")
 endif()
 
 
@@ -74,15 +49,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 
 ################################################################
-################    IF SOME LIBRARY WAS NOT SPECIFIED
-################################################################
-
-if(ERROR)
-	message(FATAL_ERROR "Error(s) occured check output")
-endif()
-
-
-################################################################
 ################    SET GCC FLAGS
 ################################################################
 
@@ -95,7 +61,7 @@ endif()
 ################    SPECIFY INCLUDE DIRECTORIES
 ################################################################
 
-include_directories(${INCLUDE_DIR} ${LIBS_DIR} ${LIB_VK_INCLUDE_DIR})
+include_directories(${INCLUDE_DIR} ${LIBS_DIR} ${Vulkan_INCLUDE_DIRS})
 
 
 
@@ -105,7 +71,7 @@ include_directories(${INCLUDE_DIR} ${LIBS_DIR} ${LIB_VK_INCLUDE_DIR})
 
 add_library(VulkanDevUtility STATIC ${SOURCES} ${INCLUDES})
 
-target_link_libraries(VulkanDevUtility ${LIB_VK_LIBRARY})
+target_link_libraries(VulkanDevUtility ${Vulkan_LIBRARY})
 target_link_libraries (VulkanDevUtility
     debug ${LIB_SHADERC_DEBUG}
     optimized ${LIB_SHADERC_RELEASE})
@@ -118,4 +84,3 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT V
 set_target_properties(VulkanDevUtility PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/")
 
 add_subdirectory("./tests")
-
