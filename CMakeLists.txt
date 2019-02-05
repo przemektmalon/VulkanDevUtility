@@ -14,7 +14,7 @@ set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 ################    CREATE PROJECT AND GET ALL SOURCE FILES
 ################################################################
 
-project(VulkanDevUtility)
+project(vdu)
 set(CMAKE_CXX_STANDARD 14)
 
 file(GLOB INCLUDES ${INCLUDE_DIR}/*.hpp)
@@ -69,10 +69,10 @@ include_directories(${INCLUDE_DIR} ${LIBS_DIR} ${Vulkan_INCLUDE_DIRS})
 ################    SPECIFY EXECUTABLE AND LINK LIBRARIES
 ################################################################
 
-add_library(VulkanDevUtility STATIC ${SOURCES} ${INCLUDES})
+add_library(vdu STATIC ${SOURCES} ${INCLUDES})
 
-target_link_libraries(VulkanDevUtility ${Vulkan_LIBRARY})
-target_link_libraries (VulkanDevUtility
+target_link_libraries(vdu ${Vulkan_LIBRARY})
+target_link_libraries (vdu
     debug ${LIB_SHADERC_DEBUG}
     optimized ${LIB_SHADERC_RELEASE})
 
@@ -80,7 +80,25 @@ target_link_libraries (VulkanDevUtility
 ################    SET MSVC STARTUP PROJECT AND WORKING DIR
 ################################################################
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT VulkanDevUtility)
-set_target_properties(VulkanDevUtility PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/")
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT vdu)
+set_target_properties(vdu PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/")
 
-add_subdirectory("./tests")
+install(
+    TARGETS vdu
+      EXPORT vdu-targets
+      LIBRARY DESTINATION "./lib/"
+	  ARCHIVE DESTINATION "./lib/"
+	  RUNTIME DESTINATION 
+      FRAMEWORK DESTINATION Library/Frameworks
+      COMPONENT library)
+  install(
+    EXPORT vdu-targets
+      DESTINATION "./lib/cmake/vdu"
+      FILE vdu-config.cmake
+	  COMPONENT headers)
+
+if (BUILD_TESTS)
+	add_subdirectory("./tests")
+else()
+	set(BUILD_TESTS CACHE BOOL OFF)
+endif (BUILD_TESTS)
