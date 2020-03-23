@@ -1,11 +1,14 @@
+#define VK_USE_PLATFORM_XCB_KHR
 #include "VDU.hpp"
 #include <iostream>
+#include <cmath>
+#include <string.h>
 
 constexpr uint32_t resX = 1920;
 constexpr uint32_t resY = 1080;
 constexpr uint32_t iterations = 5000;
 
-void saveBitmapToFile(const char* file, unsigned char* bitmap, int width, int height);
+void saveBitmapToFile(const char *file, unsigned char *bitmap, int width, int height);
 
 int main() {
 
@@ -16,32 +19,37 @@ int main() {
 	instance.addDebugReportLevel(vdu::Instance::DebugReportLevel::Warning);
 	instance.addDebugReportLevel(vdu::Instance::DebugReportLevel::Error);
 	instance.setDebugCallback([](
-		vdu::Instance::DebugReportLevel level,
-		vdu::Instance::DebugObjectType objectType,
-		uint64_t objectHandle,
-		const std::string& objectName,
-		const std::string& message)
-		-> void
-	{
-		std::cout << message << std::endl << std::endl;
+								  vdu::Instance::DebugReportLevel level,
+								  vdu::Instance::DebugObjectType objectType,
+								  uint64_t objectHandle,
+								  const std::string &objectName,
+								  const std::string &message)
+								  -> void {
+		std::cout << message << std::endl
+				  << std::endl;
 	});
 	instance.addLayer("VK_LAYER_LUNARG_standard_validation");
 	instance.create();
 
+	std::cout << "Number of Vulkan capable devices: " << instance.enumratePhysicalDevices().size() << "\n";
+
 	// Choose the first physical device available
-	vdu::PhysicalDevice* physicalDevice = &instance.enumratePhysicalDevices().front();
+	vdu::PhysicalDevice *physicalDevice = &instance.enumratePhysicalDevices().front();
 
 	// We're going to choose queues that support the necessary operations
 	vdu::Queue computeQueue;
 	vdu::Queue transferQueue;
 
-	std::vector<vdu::QueueFamily>& qFamilies = physicalDevice->getQueueFamilies();
+	std::vector<vdu::QueueFamily> &qFamilies = physicalDevice->getQueueFamilies();
 
-	for (auto& qFam : qFamilies) {
-		if (qFam.supportsCompute()) {
+	for (auto &qFam : qFamilies)
+	{
+		if (qFam.supportsCompute())
+		{
 			computeQueue = qFam.createQueue(1.f); // Queue priority = 1.f
 		}
-		if (qFam.supportsTransfer()) {
+		if (qFam.supportsTransfer())
+		{
 			transferQueue = qFam.createQueue(1.f);
 		}
 	}
@@ -49,22 +57,24 @@ int main() {
 	// Create a logical device and add our queue(s)
 	vdu::LogicalDevice device;
 	device.addQueue(&computeQueue);
-	if (computeQueue.sameFamilyAs(transferQueue)) {
+	if (computeQueue.sameFamilyAs(transferQueue))
+	{
 		device.create(physicalDevice);
 		transferQueue = computeQueue;
 	}
-	else {
+	else
+	{
 		device.addQueue(&transferQueue);
 		device.create(physicalDevice);
 	}
 
 	// Setup a VDU callback (use example: shader compilation errors)
-	device.setVduDebugCallback([](vdu::LogicalDevice::VduDebugLevel level, const std::string& message) -> void {
+	device.setVduDebugCallback([](vdu::LogicalDevice::VduDebugLevel level, const std::string &message) -> void {
 		std::cout << message << std::endl;
 	});
 
 	// Setup a Vulkan error callback (for when internal VkResult is not VK_SUCCESS)
-	device.setVkErrorCallback([](VkResult error, const std::string& message) -> void {
+	device.setVkErrorCallback([](VkResult error, const std::string &message) -> void {
 		std::cout << message << std::endl;
 	});
 
@@ -73,7 +83,7 @@ int main() {
 	shader.addModule(vdu::ShaderStage::Compute, "mandelbrot.glsl");
 	shader.create(&device);
 	shader.compile();
-	
+
 	// Create a texture with desired dimensions, format, and usage
 	vdu::TextureCreateInfo tci;
 	tci.width = resX;
@@ -118,10 +128,12 @@ int main() {
 	vdu::CommandPool cmdPool, cmdPool2;
 	cmdPool.setQueueFamily(computeQueue.getFamily());
 	cmdPool.create(&device);
-	if (computeQueue.sameFamilyAs(transferQueue)) {
+	if (computeQueue.sameFamilyAs(transferQueue))
+	{
 		cmdPool2 = cmdPool;
 	}
-	else {
+	else
+	{
 		cmdPool2.setQueueFamily(transferQueue.getFamily());
 		cmdPool2.create(&device);
 	}
@@ -133,7 +145,7 @@ int main() {
 	// Create pipeline layout with our descriptor set layout and push constant range for storing resolution and number of iterations
 	vdu::PipelineLayout pipelineLayout;
 	pipelineLayout.addDescriptorSetLayout(&descSetLayout);
-	pipelineLayout.addPushConstantRange( vdu::PushConstantRange{ vdu::ShaderStage::Compute, 0u, 12u } );
+	pipelineLayout.addPushConstantRange(vdu::PushConstantRange{vdu::ShaderStage::Compute, 0u, 12u});
 	pipelineLayout.create(&device);
 
 	// Create a compute pipeline with our layout and shader
@@ -151,7 +163,7 @@ int main() {
 	vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout.getHandle(), 0, 1, &descSet.getHandle(), 0, 0);
 
 	// Push constant data
-	uint32_t pushConstData[3]; 
+	uint32_t pushConstData[3];
 	pushConstData[0] = resX;
 	pushConstData[1] = resY;
 	pushConstData[2] = iterations;
@@ -187,8 +199,8 @@ int main() {
 	cmd = transferCommands.getHandle();
 
 	VkBufferImageCopy biCopy{};
-	biCopy.imageExtent = VkExtent3D{ resX, resY, 1 };
-	biCopy.imageSubresource = VkImageSubresourceLayers{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	biCopy.imageExtent = VkExtent3D{resX, resY, 1};
+	biCopy.imageSubresource = VkImageSubresourceLayers{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
 
 	vkCmdCopyImageToBuffer(cmd, outputTexture.getHandle(), VK_IMAGE_LAYOUT_GENERAL, outputBuffer.getHandle(), 1, &biCopy);
 
@@ -203,7 +215,7 @@ int main() {
 	// Wait until the transfer is done and save the texture to a file
 	transferQueue.waitIdle();
 
-	unsigned char* dat = (unsigned char*)outputBuffer.getMemory()->map();
+	unsigned char *dat = (unsigned char *)outputBuffer.getMemory()->map();
 	saveBitmapToFile("mandelbrot.bmp", dat, resX, resY);
 	outputBuffer.getMemory()->unmap();
 
@@ -217,7 +229,10 @@ int main() {
 	drawCommands.free();
 	transferCommands.free();
 	cmdPool.destroy();
-	if (!transferQueue.sameFamilyAs(computeQueue)) { cmdPool2.destroy(); }
+	if (!transferQueue.sameFamilyAs(computeQueue))
+	{
+		cmdPool2.destroy();
+	}
 	descSetLayout.destroy();
 	descPool.destroy();
 	shader.destroy();
@@ -225,7 +240,7 @@ int main() {
 	instance.destroy();
 }
 
-void saveBitmapToFile(const char* file, unsigned char* bitmap, int width, int height)
+void saveBitmapToFile(const char *file, unsigned char *bitmap, int width, int height)
 {
 	// Adapted from:
 	// https://stackoverflow.com/a/2654860
@@ -233,11 +248,13 @@ void saveBitmapToFile(const char* file, unsigned char* bitmap, int width, int he
 	size_t imageSize = 3 * width * height;
 	size_t filesize = 54 + imageSize;
 
-	unsigned char* out = new unsigned char[imageSize];
+	unsigned char *out = new unsigned char[imageSize];
 	memset(out, 0, imageSize);
 
-	for (int i = 0; i < width; i++) {
-		for (int j = 0; j < height; j++) {
+	for (int i = 0; i < width; i++)
+	{
+		for (int j = 0; j < height; j++)
+		{
 			int x = i;
 			int y = (height - 1) - j;
 			out[(x + y * width) * 3 + 2] = (unsigned char)(bitmap[(j * width + i) * 4 + 0]);
@@ -246,9 +263,9 @@ void saveBitmapToFile(const char* file, unsigned char* bitmap, int width, int he
 		}
 	}
 
-	unsigned char bmpfileheader[14] = { 'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0 };
-	unsigned char bmpinfoheader[40] = { 40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0 };
-	unsigned char bmppad[3] = { 0,0,0 };
+	unsigned char bmpfileheader[14] = {'B', 'M', 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0};
+	unsigned char bmpinfoheader[40] = {40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 24, 0};
+	unsigned char bmppad[3] = {0, 0, 0};
 
 	bmpfileheader[2] = (unsigned char)(filesize);
 	bmpfileheader[3] = (unsigned char)(filesize >> 8);
@@ -263,12 +280,12 @@ void saveBitmapToFile(const char* file, unsigned char* bitmap, int width, int he
 	bmpinfoheader[10] = (unsigned char)(height >> 16);
 	bmpinfoheader[11] = (unsigned char)(height >> 24);
 
-	FILE* f = fopen(file, "wb");
+	FILE *f = fopen(file, "wb");
 	fwrite(bmpfileheader, 1, 14, f);
 	fwrite(bmpinfoheader, 1, 40, f);
 	for (int i = 0; i < height; i++)
 	{
-		fwrite(out + (width*(height - i - 1) * 3), 3, width, f);
+		fwrite(out + (width * (height - i - 1) * 3), 3, width, f);
 		fwrite(bmppad, 1, (4 - (width * 3) % 4) % 4, f);
 	}
 

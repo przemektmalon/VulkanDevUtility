@@ -5,9 +5,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(Mandelbrot "mandelbrot.cpp")
 
-target_link_libraries(Mandelbrot VulkanDevUtility)
+target_link_libraries(Mandelbrot vdu)
 
-target_link_libraries(Mandelbrot ${Vulkan_LIBRARY})
+target_link_libraries(Mandelbrot ${Vulkan_LIBRARIES})
 target_link_libraries(Mandelbrot
     debug ${LIB_SHADERC_DEBUG}
     optimized ${LIB_SHADERC_RELEASE})
