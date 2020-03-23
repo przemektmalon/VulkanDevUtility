@@ -10,8 +10,8 @@ constexpr uint32_t iterations = 5000;
 
 void saveBitmapToFile(const char *file, unsigned char *bitmap, int width, int height);
 
-int main() {
-
+int main()
+{
 	// Setup the instance and validation layer callback
 	vdu::Instance instance;
 	instance.setApplicationName("Mandelbrot");
@@ -80,7 +80,7 @@ int main() {
 
 	// Create and compile our mandelbrot shader
 	vdu::ShaderProgram shader;
-	shader.addModule(vdu::ShaderStage::Compute, "mandelbrot.glsl");
+	shader.addModule(vdu::ShaderStage::Compute, "mandelbrot.comp");
 	shader.create(&device);
 	shader.compile();
 

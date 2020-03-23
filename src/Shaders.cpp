@@ -5,7 +5,7 @@ vdu::ShaderModule::ShaderModule() : m_stage(ShaderStage(0)), m_language(ShaderLa
 {
 }
 
-void vdu::ShaderModule::create(ShaderStage stage, const std::string& path, LogicalDevice** logicalDevice)
+void vdu::ShaderModule::create(ShaderStage stage, const std::string &path, LogicalDevice **logicalDevice)
 {
 	m_stage = stage;
 	m_path = path;
@@ -14,12 +14,12 @@ void vdu::ShaderModule::create(ShaderStage stage, const std::string& path, Logic
 	load();
 }
 
-void vdu::ShaderModule::removeMacroDefinition(const std::string & define)
+void vdu::ShaderModule::removeMacroDefinition(const std::string &define)
 {
 	m_macroDefinitions.erase(define);
 }
 
-void vdu::ShaderModule::setMacroDefinition(const std::string & define, const std::string & value)
+void vdu::ShaderModule::setMacroDefinition(const std::string &define, const std::string &value)
 {
 	m_macroDefinitions[define] = value;
 }
@@ -44,12 +44,12 @@ void vdu::ShaderModule::load()
 	if (m_language == ShaderLanguage::GLSL)
 	{
 		m_glslSource.resize(shaderSize);
-		file.read((char*)&m_glslSource[0], sizeof(char)*shaderSize);
+		file.read((char *)&m_glslSource[0], sizeof(char) * shaderSize);
 	}
 	else if (m_language == ShaderLanguage::SPV)
 	{
 		m_spirvSource.resize(shaderSize);
-		file.read((char*)&m_spirvSource[0], sizeof(char)*shaderSize);
+		file.read((char *)&m_spirvSource[0], sizeof(char) * shaderSize);
 	}
 }
 
@@ -67,12 +67,12 @@ bool vdu::ShaderModule::compile()
 		shaderc::CompileOptions o;
 		o.SetAutoBindUniforms(true);
 		o.AddMacroDefinition(m_stageMacro);
-		for (auto& define : m_macroDefinitions)
+		for (auto &define : m_macroDefinitions)
 		{
 			if (define.second.empty())
 				o.AddMacroDefinition(define.first);
 			else
-				o.AddMacroDefinition(define.first,define.second);
+				o.AddMacroDefinition(define.first, define.second);
 		}
 		o.SetLimit(shaderc_limit::shaderc_limit_max_combined_texture_image_units, 1024);
 		auto res = c.CompileGlslToSpv(m_glslSource, m_internalStage, m_path.c_str(), o);
@@ -83,12 +83,13 @@ bool vdu::ShaderModule::compile()
 		}
 		m_spirvSource.assign(res.begin(), res.end());
 	}
-	if (m_spirvSource.size() == 0) {
+	if (m_spirvSource.size() == 0)
+	{
 		(*m_logicalDevice)->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Warning, "Source missing, cannot compile shader: " + m_path);
 		return false;
 	}
 	auto createInfo = vdu::initializer<VkShaderModuleCreateInfo>(m_spirvSource.size() * sizeof(int), m_spirvSource.data());
-	
+
 	if (m_module)
 		destroy();
 
@@ -110,17 +111,29 @@ void vdu::ShaderModule::setIntStage()
 	switch (m_stage)
 	{
 	case ShaderStage::Vertex:
-		m_internalStage = shaderc_shader_kind::shaderc_glsl_vertex_shader; m_stageMacro = "VERTEX"; return;
+		m_internalStage = shaderc_shader_kind::shaderc_glsl_vertex_shader;
+		m_stageMacro = "VERTEX";
+		return;
 	case ShaderStage::Fragment:
-		m_internalStage = shaderc_shader_kind::shaderc_glsl_fragment_shader; m_stageMacro = "FRAGMENT"; return;
+		m_internalStage = shaderc_shader_kind::shaderc_glsl_fragment_shader;
+		m_stageMacro = "FRAGMENT";
+		return;
 	case ShaderStage::Compute:
-		m_internalStage = shaderc_shader_kind::shaderc_glsl_compute_shader; m_stageMacro = "COMPUTE"; return;
+		m_internalStage = shaderc_shader_kind::shaderc_glsl_compute_shader;
+		m_stageMacro = "COMPUTE";
+		return;
 	case ShaderStage::Geometry:
-		m_internalStage = shaderc_shader_kind::shaderc_glsl_geometry_shader; m_stageMacro = "GEOMETRY"; return;
+		m_internalStage = shaderc_shader_kind::shaderc_glsl_geometry_shader;
+		m_stageMacro = "GEOMETRY";
+		return;
 	case ShaderStage::TessControl:
-		m_internalStage = shaderc_shader_kind::shaderc_glsl_tess_control_shader; m_stageMacro = "TESSCONTROL"; return;
+		m_internalStage = shaderc_shader_kind::shaderc_glsl_tess_control_shader;
+		m_stageMacro = "TESSCONTROL";
+		return;
 	case ShaderStage::TessEval:
-		m_internalStage = shaderc_shader_kind::shaderc_glsl_tess_evaluation_shader; m_stageMacro = "TESSEVAL"; return;
+		m_internalStage = shaderc_shader_kind::shaderc_glsl_tess_evaluation_shader;
+		m_stageMacro = "TESSEVAL";
+		return;
 	}
 }
 
@@ -135,18 +148,13 @@ void vdu::ShaderModule::determineLanguage()
 	}
 	std::string extension;
 	extension.assign(&m_path[i + 1]);
-	if (extension == "glsl" || extension == "GLSL")
-		m_language = ShaderLanguage::GLSL;
-	else if (extension == "spv" || extension == "SPV")
+	if (extension == "spv" || extension == "SPV")
 		m_language = ShaderLanguage::SPV;
 	else
-	{
-		(*m_logicalDevice)->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Warning, "Bad shader file extension: " + m_path + " - '.glsl' and 'spv' supported");
-		m_language = ShaderLanguage::UNKNOWN;
-	}
+		m_language = ShaderLanguage::GLSL;
 }
 
-void vdu::ShaderProgram::create(LogicalDevice * logicalDevice)
+void vdu::ShaderProgram::create(LogicalDevice *logicalDevice)
 {
 	m_logicalDevice = logicalDevice;
 	reload();
@@ -154,13 +162,13 @@ void vdu::ShaderProgram::create(LogicalDevice * logicalDevice)
 
 void vdu::ShaderProgram::destroy()
 {
-	for (auto& m : m_modules)
+	for (auto &m : m_modules)
 	{
 		m.destroy();
 	}
 }
 
-void vdu::ShaderProgram::addModule(ShaderStage stage, const std::string & path)
+void vdu::ShaderProgram::addModule(ShaderStage stage, const std::string &path)
 {
 	m_modules.push_back(ShaderModule());
 	m_modules.back().create(stage, path, &m_logicalDevice);
@@ -168,7 +176,7 @@ void vdu::ShaderProgram::addModule(ShaderStage stage, const std::string & path)
 
 void vdu::ShaderProgram::reload()
 {
-	for (auto& m : m_modules)
+	for (auto &m : m_modules)
 	{
 		m.load();
 	}
@@ -177,14 +185,14 @@ void vdu::ShaderProgram::reload()
 void vdu::ShaderProgram::compile()
 {
 	m_shaderStageCreateInfos.clear();
-	for (auto& m : m_modules)
+	for (auto &m : m_modules)
 	{
 		m.compile();
 		m_shaderStageCreateInfos.push_back(vdu::initializer<VkPipelineShaderStageCreateInfo>(static_cast<VkShaderStageFlagBits>(m.getStage()), m.getHandle(), "main"));
 	}
 }
 
-const VkPipelineShaderStageCreateInfo * vdu::ShaderProgram::getShaderStageCreateInfos()
+const VkPipelineShaderStageCreateInfo *vdu::ShaderProgram::getShaderStageCreateInfos()
 {
 	return m_shaderStageCreateInfos.data();
 }
