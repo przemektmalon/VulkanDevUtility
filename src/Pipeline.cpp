@@ -1,12 +1,12 @@
 #include "PCH.hpp"
 #include "Pipeline.hpp"
 
-void vdu::Pipeline::setPipelineLayout(PipelineLayout * layout)
+void vdu::Pipeline::setPipelineLayout(PipelineLayout *layout)
 {
 	m_layout = layout;
 }
 
-void vdu::Pipeline::setShaderProgram(vdu::ShaderProgram * shader)
+void vdu::Pipeline::setShaderProgram(vdu::ShaderProgram *shader)
 {
 	m_shaderProgram = shader;
 }
@@ -16,12 +16,12 @@ void vdu::Pipeline::destroy()
 	vkDestroyPipeline(m_logicalDevice->getHandle(), m_pipeline, 0);
 }
 
-void vdu::GraphicsPipeline::setRenderPass(RenderPass * renderPass)
+void vdu::GraphicsPipeline::setRenderPass(RenderPass *renderPass)
 {
 	m_renderPass = renderPass;
 }
 
-void vdu::ComputePipeline::create(vdu::LogicalDevice * device)
+void vdu::ComputePipeline::create(vdu::LogicalDevice *device)
 {
 	m_logicalDevice = device;
 
@@ -33,13 +33,13 @@ void vdu::ComputePipeline::create(vdu::LogicalDevice * device)
 	VDU_VK_CHECK_RESULT(vkCreateComputePipelines(m_logicalDevice->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline), "creating compute pipeline");
 }
 
-void vdu::GraphicsPipeline::setSwapchain(Swapchain * swapchain)
+void vdu::GraphicsPipeline::setSwapchain(Swapchain *swapchain)
 {
 	m_swapchain = swapchain;
-	m_renderPass = const_cast<RenderPass*>(&swapchain->getRenderPass());
+	m_renderPass = const_cast<RenderPass *>(&swapchain->getRenderPass());
 }
 
-void vdu::GraphicsPipeline::create(vdu::LogicalDevice * device)
+void vdu::GraphicsPipeline::create(vdu::LogicalDevice *device)
 {
 	m_logicalDevice = device;
 
@@ -125,11 +125,11 @@ void vdu::GraphicsPipeline::destroy()
 	m_scissors.clear();
 	m_dynamicState.clear();
 	m_blendState.clear();
-	
+
 	GraphicsPipeline();
 }
 
-void vdu::PipelineLayout::create(LogicalDevice * device)
+void vdu::PipelineLayout::create(LogicalDevice *device)
 {
 	m_logicalDevice = device;
 
@@ -145,7 +145,7 @@ void vdu::PipelineLayout::create(LogicalDevice * device)
 	pipelineLayoutInfo.setLayoutCount = layoutHandles.size();
 	pipelineLayoutInfo.pSetLayouts = layoutHandles.data();
 	pipelineLayoutInfo.pushConstantRangeCount = m_pushConstantRanges.size();
-	pipelineLayoutInfo.pPushConstantRanges = reinterpret_cast<VkPushConstantRange*>(m_pushConstantRanges.data());
+	pipelineLayoutInfo.pPushConstantRanges = reinterpret_cast<VkPushConstantRange *>(m_pushConstantRanges.data());
 
 	VDU_VK_CHECK_RESULT(vkCreatePipelineLayout(m_logicalDevice->getHandle(), &pipelineLayoutInfo, nullptr, &m_layout), "creating pipeline layout");
 }
@@ -158,7 +158,7 @@ void vdu::PipelineLayout::destroy()
 	m_layout = 0;
 }
 
-void vdu::PipelineLayout::addDescriptorSetLayout(DescriptorSetLayout * layout)
+void vdu::PipelineLayout::addDescriptorSetLayout(DescriptorSetLayout *layout)
 {
 	m_descriptorSetLayouts.push_back(layout);
 }
@@ -170,20 +170,20 @@ void vdu::PipelineLayout::addPushConstantRange(vdu::PushConstantRange range)
 
 void vdu::VertexInputState::addBinding(uint32_t binding, uint32_t stride, VkVertexInputRate rate)
 {
-	m_bindings.push_back({ binding, stride, rate });
+	m_bindings.push_back({binding, stride, rate});
 }
 
 void vdu::VertexInputState::addAttribute(uint32_t binding, uint32_t location, uint32_t offset, VkFormat format)
 {
-	m_attributes.push_back({ location, binding, format, offset });
+	m_attributes.push_back({location, binding, format, offset});
 }
 
-void vdu::VertexInputState::addBinding(VkVertexInputBindingDescription & binding)
+void vdu::VertexInputState::addBinding(VkVertexInputBindingDescription &binding)
 {
 	m_bindings.push_back(binding);
 }
 
-void vdu::VertexInputState::addAttributes(const std::vector<VkVertexInputAttributeDescription>& attributes)
+void vdu::VertexInputState::addAttributes(const std::vector<VkVertexInputAttributeDescription> &attributes)
 {
 	for (auto att : attributes)
 	{
@@ -224,7 +224,7 @@ vdu::GraphicsPipeline::GraphicsPipeline() : m_rasterizerState({}), m_multisample
 	m_colorBlendConstants[3] = 0.f;
 }
 
-void vdu::GraphicsPipeline::setVertexInputState(VertexInputState * state)
+void vdu::GraphicsPipeline::setVertexInputState(VertexInputState *state)
 {
 	m_vertexInputState = state;
 }

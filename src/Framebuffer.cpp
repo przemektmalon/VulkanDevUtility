@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 #include "Framebuffer.hpp"
 
-void vdu::Framebuffer::addAttachment(vdu::Texture * att, std::string name)
+void vdu::Framebuffer::addAttachment(vdu::Texture *att, std::string name)
 {
 	m_attachments.push_back(att);
 	if (name.length() == 0)
@@ -10,7 +10,7 @@ void vdu::Framebuffer::addAttachment(vdu::Texture * att, std::string name)
 		m_attachmentNames.push_back(name);
 }
 
-void vdu::Framebuffer::create(vdu::LogicalDevice * device, vdu::RenderPass * renderPass)
+void vdu::Framebuffer::create(vdu::LogicalDevice *device, vdu::RenderPass *renderPass)
 {
 	m_logicalDevice = device;
 	m_renderPass = renderPass;
@@ -24,7 +24,8 @@ void vdu::Framebuffer::create(vdu::LogicalDevice * device, vdu::RenderPass * ren
 
 	VkFramebufferCreateInfo framebufferInfo = {};
 	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	framebufferInfo.renderPass = m_renderPass->getHandle();;
+	framebufferInfo.renderPass = m_renderPass->getHandle();
+	;
 	framebufferInfo.attachmentCount = static_cast<uint32_t>(attachmentViews.size());
 	framebufferInfo.pAttachments = attachmentViews.data();
 	framebufferInfo.width = m_attachments[0]->getWidth();

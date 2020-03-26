@@ -8,7 +8,7 @@ vdu::DescriptorPool::DescriptorPool() : m_maxSets(0)
 {
 }
 
-void vdu::DescriptorPool::create(LogicalDevice* logicalDevice)
+void vdu::DescriptorPool::create(LogicalDevice *logicalDevice)
 {
 	m_logicalDevice = logicalDevice;
 
@@ -17,7 +17,7 @@ void vdu::DescriptorPool::create(LogicalDevice* logicalDevice)
 
 	for (auto count : m_descriptorTypeCounts)
 	{
-		poolSizes.push_back({ count.first, count.second });
+		poolSizes.push_back({count.first, count.second});
 	}
 
 	auto dpci = vdu::initializer<VkDescriptorPoolCreateInfo>();
@@ -48,14 +48,14 @@ vdu::CommandPool::CommandPool() : m_commandPool(0), m_queueFamily(nullptr), m_fl
 {
 }
 
-void vdu::CommandPool::create(LogicalDevice * logicalDevice)
+void vdu::CommandPool::create(LogicalDevice *logicalDevice)
 {
 	m_logicalDevice = logicalDevice;
 
 	auto cpci = vdu::initializer<VkCommandPoolCreateInfo>();
 	cpci.flags = m_flags;
 	cpci.queueFamilyIndex = m_queueFamily->getIndex();
-	
+
 	VDU_VK_CHECK_RESULT(vkCreateCommandPool(m_logicalDevice->getHandle(), &cpci, nullptr, &m_commandPool), "creating command pool");
 }
 
@@ -68,7 +68,7 @@ vdu::QueryPool::QueryPool() : m_queryPool(0), m_logicalDevice(nullptr), m_pipeli
 {
 }
 
-void vdu::QueryPool::create(LogicalDevice * logicalDevice)
+void vdu::QueryPool::create(LogicalDevice *logicalDevice)
 {
 	m_logicalDevice = logicalDevice;
 
@@ -103,43 +103,43 @@ void vdu::QueryPool::setQueryCount(uint32_t count)
 	m_count = count;
 }
 
-uint64_t * vdu::QueryPool::query()
+uint64_t *vdu::QueryPool::query()
 {
 	return query(0, m_count);
 }
 
-uint64_t * vdu::QueryPool::query(uint32_t first, uint32_t count)
+uint64_t *vdu::QueryPool::query(uint32_t first, uint32_t count)
 {
 	VDU_VK_CHECK_RESULT(vkGetQueryPoolResults(m_logicalDevice->getHandle(), m_queryPool, first, count, sizeof(uint64_t) * count, m_queryData, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT), "querying query pool");
 	return m_queryData;
 }
 
-void vdu::QueryPool::cmdReset(const vdu::CommandBuffer & cmd)
+void vdu::QueryPool::cmdReset(const vdu::CommandBuffer &cmd)
 {
 	cmdReset(cmd.getHandle(), 0, m_count);
 }
 
-void vdu::QueryPool::cmdReset(const vdu::CommandBuffer & cmd, uint32_t first, uint32_t count)
+void vdu::QueryPool::cmdReset(const vdu::CommandBuffer &cmd, uint32_t first, uint32_t count)
 {
 	cmdReset(cmd.getHandle(), first, count);
 }
 
-void vdu::QueryPool::cmdReset(const VkCommandBuffer & cmd)
+void vdu::QueryPool::cmdReset(const VkCommandBuffer &cmd)
 {
 	cmdReset(cmd, 0, m_count);
 }
 
-void vdu::QueryPool::cmdReset(const VkCommandBuffer & cmd, uint32_t first, uint32_t count)
+void vdu::QueryPool::cmdReset(const VkCommandBuffer &cmd, uint32_t first, uint32_t count)
 {
 	vkCmdResetQueryPool(cmd, m_queryPool, 0, count);
 }
 
-void vdu::QueryPool::cmdTimestamp(const vdu::CommandBuffer & cmd, VkPipelineStageFlagBits flags, uint32_t index)
+void vdu::QueryPool::cmdTimestamp(const vdu::CommandBuffer &cmd, VkPipelineStageFlagBits flags, uint32_t index)
 {
 	vkCmdWriteTimestamp(cmd.getHandle(), flags, m_queryPool, index);
 }
 
-void vdu::QueryPool::cmdTimestamp(const VkCommandBuffer & cmd, VkPipelineStageFlagBits flags, uint32_t index)
+void vdu::QueryPool::cmdTimestamp(const VkCommandBuffer &cmd, VkPipelineStageFlagBits flags, uint32_t index)
 {
 	vkCmdWriteTimestamp(cmd, flags, m_queryPool, index);
 }

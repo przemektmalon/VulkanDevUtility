@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 #include "RenderPass.hpp"
 
-void vdu::RenderPass::create(vdu::LogicalDevice * device)
+void vdu::RenderPass::create(vdu::LogicalDevice *device)
 {
 	m_logicalDevice = device;
 
@@ -57,7 +57,7 @@ void vdu::RenderPass::destroy()
 	m_renderPass = 0;
 }
 
-vdu::RenderPass::AttachmentInfo* vdu::RenderPass::addColourAttachment(vdu::Texture * texture, std::string name)
+vdu::RenderPass::AttachmentInfo *vdu::RenderPass::addColourAttachment(vdu::Texture *texture, std::string name)
 {
 	m_attachments.insert(std::make_pair(name, texture));
 	auto insertion = m_attachmentInfos.insert(std::make_pair(name, new AttachmentInfo()));
@@ -68,7 +68,7 @@ vdu::RenderPass::AttachmentInfo* vdu::RenderPass::addColourAttachment(vdu::Textu
 	return insertion.first->second;
 }
 
-vdu::RenderPass::AttachmentInfo* vdu::RenderPass::addColourAttachment(VkFormat format, std::string name)
+vdu::RenderPass::AttachmentInfo *vdu::RenderPass::addColourAttachment(VkFormat format, std::string name)
 {
 	m_attachments.insert(std::make_pair(name, nullptr));
 	auto insertion = m_attachmentInfos.insert(std::make_pair(name, new AttachmentInfo()));
@@ -79,7 +79,7 @@ vdu::RenderPass::AttachmentInfo* vdu::RenderPass::addColourAttachment(VkFormat f
 	return insertion.first->second;
 }
 
-vdu::RenderPass::AttachmentInfo* vdu::RenderPass::setDepthAttachment(vdu::Texture * texture)
+vdu::RenderPass::AttachmentInfo *vdu::RenderPass::setDepthAttachment(vdu::Texture *texture)
 {
 	m_depthAttachment = texture;
 
@@ -91,9 +91,9 @@ vdu::RenderPass::AttachmentInfo* vdu::RenderPass::setDepthAttachment(vdu::Textur
 	return m_depthAttachmentInfo;
 }
 
-vdu::RenderPass::AttachmentInfo* vdu::RenderPass::setDepthAttachment(VkFormat format)
+vdu::RenderPass::AttachmentInfo *vdu::RenderPass::setDepthAttachment(VkFormat format)
 {
-	m_depthAttachment = (vdu::Texture*)1;
+	m_depthAttachment = (vdu::Texture *)1;
 
 	m_depthAttachmentInfo = new AttachmentInfo();
 

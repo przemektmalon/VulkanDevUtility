@@ -43,7 +43,8 @@ VkResult vdu::Instance::create()
 	instInfo.ppEnabledLayerNames = m_enabledLayers.data();
 
 	auto result = vkCreateInstance(&instInfo, nullptr, &m_instance);
-	if (result != VK_SUCCESS) {
+	if (result != VK_SUCCESS)
+	{
 		std::cout << "Failed to create instance. Error code: " << result << "\n";
 		return result;
 	}

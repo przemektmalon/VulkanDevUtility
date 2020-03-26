@@ -6,7 +6,7 @@ vdu::Swapchain::Swapchain()
 {
 }
 
-void vdu::Swapchain::create(LogicalDevice * device, VkSurfaceKHR surface)
+void vdu::Swapchain::create(LogicalDevice *device, VkSurfaceKHR surface)
 {
 	m_surface = surface;
 	m_logicalDevice = device;
@@ -17,17 +17,19 @@ void vdu::Swapchain::create(LogicalDevice * device, VkSurfaceKHR surface)
 	auto surfaceFormats = physicalDevice->getSurfaceFormats();
 	auto presentModes = physicalDevice->getPresentModes();
 
-
 	m_presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
-	if (surfaceFormats.size() == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED) {
-		m_surfaceFormat = { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
+	if (surfaceFormats.size() == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED)
+	{
+		m_surfaceFormat = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
 	}
 	else
 	{
 		bool foundSuitable = false;
-		for (const auto& availableFormat : surfaceFormats) {
-			if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+		for (const auto &availableFormat : surfaceFormats)
+		{
+			if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			{
 				m_surfaceFormat = availableFormat;
 				foundSuitable = true;
 			}
@@ -36,21 +38,26 @@ void vdu::Swapchain::create(LogicalDevice * device, VkSurfaceKHR surface)
 			m_surfaceFormat = surfaceFormats[0];
 	}
 
-	for (const auto& availablePresentMode : presentModes) {
-		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+	for (const auto &availablePresentMode : presentModes)
+	{
+		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+		{
 			m_presentMode = availablePresentMode;
 			break;
 		}
-		else if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
+		else if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
+		{
 			m_presentMode = availablePresentMode;
 		}
 	}
 
-	if (surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+	if (surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+	{
 		m_extent = surfaceCapabilities.currentExtent;
 	}
-	else {
-		VkExtent2D actualExtent = { std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max() };
+	else
+	{
+		VkExtent2D actualExtent = {std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
 
 		actualExtent.width = std::max(surfaceCapabilities.minImageExtent.width, std::min(surfaceCapabilities.maxImageExtent.width, actualExtent.width));
 		actualExtent.height = std::max(surfaceCapabilities.minImageExtent.height, std::min(surfaceCapabilities.maxImageExtent.height, actualExtent.height));
@@ -59,7 +66,8 @@ void vdu::Swapchain::create(LogicalDevice * device, VkSurfaceKHR surface)
 	}
 
 	m_imageCount = surfaceCapabilities.minImageCount + 1;
-	if (surfaceCapabilities.maxImageCount > 0 && m_imageCount > surfaceCapabilities.maxImageCount) {
+	if (surfaceCapabilities.maxImageCount > 0 && m_imageCount > surfaceCapabilities.maxImageCount)
+	{
 		m_imageCount = surfaceCapabilities.maxImageCount;
 	}
 
@@ -108,7 +116,7 @@ void vdu::Swapchain::create(LogicalDevice * device, VkSurfaceKHR surface)
 
 	m_imageViews.resize(m_imageCount);
 
-	for (uint32_t i = 0; i < m_imageCount; i++) 
+	for (uint32_t i = 0; i < m_imageCount; i++)
 	{
 		VkImageViewCreateInfo viewInfo = {};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -133,7 +141,8 @@ void vdu::Swapchain::create(LogicalDevice * device, VkSurfaceKHR surface)
 
 	m_framebuffers.resize(m_imageCount);
 
-	for (size_t i = 0; i < m_imageViews.size(); i++) {
+	for (size_t i = 0; i < m_imageViews.size(); i++)
+	{
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -170,7 +179,7 @@ void vdu::Swapchain::destroy()
 	m_renderPass.destroy();
 }
 
-const VkResult vdu::Swapchain::acquireNextImage(uint32_t & imageIndex, vdu::Semaphore signal, const Fence& fence, uint64_t timeout)
+const VkResult vdu::Swapchain::acquireNextImage(uint32_t &imageIndex, vdu::Semaphore signal, const Fence &fence, uint64_t timeout)
 {
 	return vkAcquireNextImageKHR(m_logicalDevice->getHandle(), m_swapchain, timeout, signal.getHandle(), fence.getHandle(), &imageIndex);
 }

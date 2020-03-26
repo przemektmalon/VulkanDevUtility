@@ -5,7 +5,7 @@ void vdu::CommandBuffer::setLevel(VkCommandBufferLevel level)
 	m_level = level;
 }
 
-void vdu::CommandBuffer::allocate(LogicalDevice * logicalDevice, CommandPool * commandPool)
+void vdu::CommandBuffer::allocate(LogicalDevice *logicalDevice, CommandPool *commandPool)
 {
 	m_commandPool = commandPool;
 	m_logicalDevice = logicalDevice;
@@ -47,7 +47,7 @@ void vdu::CommandBufferArray::setLevel(VkCommandBufferLevel level)
 	m_level = level;
 }
 
-void vdu::CommandBufferArray::allocate(LogicalDevice * logicalDevice, CommandPool * commandPool, uint32_t count)
+void vdu::CommandBufferArray::allocate(LogicalDevice *logicalDevice, CommandPool *commandPool, uint32_t count)
 {
 	m_commandPool = commandPool;
 	m_logicalDevice = logicalDevice;

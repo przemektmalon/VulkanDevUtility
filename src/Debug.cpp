@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 #include "Debug.hpp"
 
-void vdu::ObjectNamer::addName(VkBuffer buffer, const std::string& name)
+void vdu::ObjectNamer::addName(VkBuffer buffer, const std::string &name)
 {
 	m_bufferNames[buffer] = name;
 }

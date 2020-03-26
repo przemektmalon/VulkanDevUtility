@@ -5,7 +5,7 @@
 #include "PhysicalDevice.hpp"
 #include "QueueFamily.hpp"
 
-void vdu::DeviceMemory::allocate(LogicalDevice * logicalDevice, VkDeviceSize size, VkMemoryPropertyFlags memFlags, VkMemoryRequirements memReqs)
+void vdu::DeviceMemory::allocate(LogicalDevice *logicalDevice, VkDeviceSize size, VkMemoryPropertyFlags memFlags, VkMemoryRequirements memReqs)
 {
 	m_logicalDevice = logicalDevice;
 	m_memoryProperties = memFlags;
@@ -24,26 +24,26 @@ void vdu::DeviceMemory::free()
 	vkFreeMemory(m_logicalDevice->getHandle(), m_deviceMemory, nullptr);
 }
 
-void * vdu::DeviceMemory::map() const
+void *vdu::DeviceMemory::map() const
 {
 	if (m_memoryProperties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 	{
 		m_logicalDevice->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Attempting to map an unmappable buffer");
 		return nullptr;
 	}
-	void* data;
+	void *data;
 	VDU_VK_CHECK_RESULT(vkMapMemory(m_logicalDevice->getHandle(), m_deviceMemory, 0, m_deviceSize, 0, &data), "mapping device memory");
 	return data;
 }
 
-void * vdu::DeviceMemory::map(VkDeviceSize offset, VkDeviceSize size) const
+void *vdu::DeviceMemory::map(VkDeviceSize offset, VkDeviceSize size) const
 {
 	if (m_memoryProperties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 	{
 		m_logicalDevice->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Attempting to map an unmappable buffer");
 		return nullptr;
 	}
-	void* data;
+	void *data;
 	VDU_VK_CHECK_RESULT(vkMapMemory(m_logicalDevice->getHandle(), m_deviceMemory, offset, size, 0, &data), "mapping device memory");
 	return data;
 }
@@ -53,22 +53,22 @@ void vdu::DeviceMemory::unmap() const
 	vkUnmapMemory(m_logicalDevice->getHandle(), m_deviceMemory);
 }
 
-vdu::Buffer::Buffer(Buffer & stagingDestination)
+vdu::Buffer::Buffer(Buffer &stagingDestination)
 {
 	createStaging(stagingDestination);
 }
 
-vdu::Buffer::Buffer(Buffer & stagingDestination, VkDeviceSize size)
+vdu::Buffer::Buffer(Buffer &stagingDestination, VkDeviceSize size)
 {
 	createStaging(stagingDestination.m_logicalDevice, size);
 }
 
-vdu::Buffer::Buffer(LogicalDevice * logicalDevice, VkDeviceSize size)
+vdu::Buffer::Buffer(LogicalDevice *logicalDevice, VkDeviceSize size)
 {
 	create(logicalDevice, size);
 }
 
-void vdu::Buffer::create(LogicalDevice * logicalDevice, VkDeviceSize size)
+void vdu::Buffer::create(LogicalDevice *logicalDevice, VkDeviceSize size)
 {
 	if (m_usageFlags == 0 || m_memoryProperties == 0)
 	{
@@ -91,7 +91,7 @@ void vdu::Buffer::create(LogicalDevice * logicalDevice, VkDeviceSize size)
 	{
 		bci.sharingMode = VK_SHARING_MODE_CONCURRENT;
 		bci.queueFamilyIndexCount = m_usingQueueFamilies.size();
-		for (auto& qf : m_usingQueueFamilies)
+		for (auto &qf : m_usingQueueFamilies)
 		{
 			sharingQueueFamilyIndices.push_back(qf->getIndex());
 		}
@@ -117,7 +117,7 @@ void vdu::Buffer::destroy()
 	m_buffer = 0;
 }
 
-void vdu::Buffer::addUsingQueueFamily(const QueueFamily * queueFamily)
+void vdu::Buffer::addUsingQueueFamily(const QueueFamily *queueFamily)
 {
 	m_usingQueueFamilies.push_back(queueFamily);
 }
@@ -132,22 +132,22 @@ void vdu::Buffer::setMemoryProperty(VkMemoryPropertyFlags memProperty)
 	m_memoryProperties = memProperty;
 }
 
-void vdu::Buffer::bindMemory(DeviceMemory * memory)
+void vdu::Buffer::bindMemory(DeviceMemory *memory)
 {
-	VDU_VK_CHECK_RESULT(vkBindBufferMemory(m_logicalDevice->getHandle(), m_buffer, memory->getHandle() , 0), "binding buffer memory");
+	VDU_VK_CHECK_RESULT(vkBindBufferMemory(m_logicalDevice->getHandle(), m_buffer, memory->getHandle(), 0), "binding buffer memory");
 }
 
-void vdu::Buffer::cmdCopyTo(CommandBuffer * cmd, Buffer * dst, VkDeviceSize range, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
+void vdu::Buffer::cmdCopyTo(CommandBuffer *cmd, Buffer *dst, VkDeviceSize range, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
 {
 	cmdCopyTo(cmd->getHandle(), dst, range, srcOffset, dstOffset);
 }
 
-void vdu::Buffer::cmdCopyTo(CommandBuffer * cmd, Texture * dst, VkDeviceSize srcOffset, int mipLevel, int baseLayer, int layerCount, VkOffset3D offset, VkExtent3D extent)
+void vdu::Buffer::cmdCopyTo(CommandBuffer *cmd, Texture *dst, VkDeviceSize srcOffset, int mipLevel, int baseLayer, int layerCount, VkOffset3D offset, VkExtent3D extent)
 {
 	cmdCopyTo(cmd->getHandle(), dst, srcOffset, mipLevel, baseLayer, layerCount, offset, extent);
 }
 
-void vdu::Buffer::cmdCopyTo(const VkCommandBuffer& commandBuffer, Buffer * dst, VkDeviceSize range, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
+void vdu::Buffer::cmdCopyTo(const VkCommandBuffer &commandBuffer, Buffer *dst, VkDeviceSize range, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
 {
 	VkBufferCopy copyRegion = {};
 	copyRegion.srcOffset = srcOffset;
@@ -158,7 +158,7 @@ void vdu::Buffer::cmdCopyTo(const VkCommandBuffer& commandBuffer, Buffer * dst, 
 	vkCmdCopyBuffer(commandBuffer, m_buffer, dst->getHandle(), 1, &copyRegion);
 }
 
-void vdu::Buffer::cmdCopyTo(const VkCommandBuffer& commandBuffer, Texture * dst, VkDeviceSize srcOffset, int mipLevel, int baseLayer, int layerCount, VkOffset3D offset, VkExtent3D extent)
+void vdu::Buffer::cmdCopyTo(const VkCommandBuffer &commandBuffer, Texture *dst, VkDeviceSize srcOffset, int mipLevel, int baseLayer, int layerCount, VkOffset3D offset, VkExtent3D extent)
 {
 	if (extent.depth == 0)
 		extent.depth = 1;
@@ -181,7 +181,7 @@ void vdu::Buffer::cmdCopyTo(const VkCommandBuffer& commandBuffer, Texture * dst,
 	vkCmdCopyBufferToImage(commandBuffer, m_buffer, dst->getHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 }
 
-void vdu::Buffer::createStaging(Buffer & staging)
+void vdu::Buffer::createStaging(Buffer &staging)
 {
 	staging.setMemoryProperty(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	staging.setUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
@@ -189,7 +189,7 @@ void vdu::Buffer::createStaging(Buffer & staging)
 	staging.create(m_logicalDevice, m_deviceMemory->getSize());
 }
 
-void vdu::Buffer::createStaging(Buffer & staging, VkDeviceSize size)
+void vdu::Buffer::createStaging(Buffer &staging, VkDeviceSize size)
 {
 	staging.setMemoryProperty(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	staging.setUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
@@ -197,7 +197,7 @@ void vdu::Buffer::createStaging(Buffer & staging, VkDeviceSize size)
 	staging.create(m_logicalDevice, size);
 }
 
-void vdu::Buffer::createStaging(LogicalDevice* logicalDevice, VkDeviceSize size)
+void vdu::Buffer::createStaging(LogicalDevice *logicalDevice, VkDeviceSize size)
 {
 	setMemoryProperty(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	setUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
@@ -205,7 +205,7 @@ void vdu::Buffer::createStaging(LogicalDevice* logicalDevice, VkDeviceSize size)
 	create(logicalDevice, size);
 }
 
-void vdu::Texture::create(LogicalDevice* logicalDevice)
+void vdu::Texture::create(LogicalDevice *logicalDevice)
 {
 	m_logicalDevice = logicalDevice;
 
@@ -234,7 +234,6 @@ void vdu::Texture::create(LogicalDevice* logicalDevice)
 	m_deviceMemory = new DeviceMemory;
 	m_deviceMemory->allocate(m_logicalDevice, memRequirements.size, m_memoryProperties, memRequirements);
 	bindMemory(m_deviceMemory);
-	
 
 	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -253,9 +252,14 @@ void vdu::Texture::create(LogicalDevice* logicalDevice)
 	VDU_VK_CHECK_RESULT(vkCreateImageView(m_logicalDevice->getHandle(), &viewInfo, nullptr, &m_imageView), "creating image view");
 }
 
-void vdu::Texture::setProperties(const TextureCreateInfo & ci)
+void vdu::Texture::setProperties(const TextureCreateInfo &ci)
 {
-	m_width = ci.width; m_height = ci.height; m_depth = ci.depth; m_layers = ci.layers; m_numMipLevels = ci.numMipLevels; m_maxMipLevel = m_numMipLevels - 1;
+	m_width = ci.width;
+	m_height = ci.height;
+	m_depth = ci.depth;
+	m_layers = ci.layers;
+	m_numMipLevels = ci.numMipLevels;
+	m_maxMipLevel = m_numMipLevels - 1;
 	m_format = ci.format;
 	m_layout = ci.layout;
 	m_aspectFlags = ci.aspectFlags;
@@ -273,7 +277,7 @@ void vdu::Texture::destroy()
 	m_deviceMemory->free();
 }
 
-void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer & cmd)
+void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer &cmd)
 {
 	VkImageMemoryBarrier barrier = {};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -288,7 +292,8 @@ void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer & cmd)
 	int32_t mipWidth = m_width;
 	int32_t mipHeight = m_height;
 
-	for (uint32_t i = 1; i < m_numMipLevels; i++) {
+	for (uint32_t i = 1; i < m_numMipLevels; i++)
+	{
 		barrier.subresourceRange.baseMipLevel = i - 1;
 		barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 		barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -296,30 +301,30 @@ void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer & cmd)
 		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
 		vkCmdPipelineBarrier(cmd,
-			VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-			0, nullptr,
-			0, nullptr,
-			1, &barrier);
+							 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+							 0, nullptr,
+							 0, nullptr,
+							 1, &barrier);
 
 		VkImageBlit blit = {};
-		blit.srcOffsets[0] = { 0, 0, 0 };
-		blit.srcOffsets[1] = { mipWidth, mipHeight, 1 };
+		blit.srcOffsets[0] = {0, 0, 0};
+		blit.srcOffsets[1] = {mipWidth, mipHeight, 1};
 		blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		blit.srcSubresource.mipLevel = i - 1;
 		blit.srcSubresource.baseArrayLayer = 0;
 		blit.srcSubresource.layerCount = 1;
-		blit.dstOffsets[0] = { 0, 0, 0 };
-		blit.dstOffsets[1] = { mipWidth / 2, mipHeight / 2, 1 };
+		blit.dstOffsets[0] = {0, 0, 0};
+		blit.dstOffsets[1] = {mipWidth / 2, mipHeight / 2, 1};
 		blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		blit.dstSubresource.mipLevel = i;
 		blit.dstSubresource.baseArrayLayer = 0;
 		blit.dstSubresource.layerCount = 1;
 
 		vkCmdBlitImage(cmd,
-			m_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			1, &blit,
-			VK_FILTER_LINEAR);
+					   m_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+					   m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+					   1, &blit,
+					   VK_FILTER_LINEAR);
 
 		barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 		barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -327,13 +332,15 @@ void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer & cmd)
 		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
 		vkCmdPipelineBarrier(cmd,
-			VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-			0, nullptr,
-			0, nullptr,
-			1, &barrier);
+							 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+							 0, nullptr,
+							 0, nullptr,
+							 1, &barrier);
 
-		if (mipWidth > 1) mipWidth /= 2;
-		if (mipHeight > 1) mipHeight /= 2;
+		if (mipWidth > 1)
+			mipWidth /= 2;
+		if (mipHeight > 1)
+			mipHeight /= 2;
 	}
 
 	barrier.subresourceRange.baseMipLevel = m_maxMipLevel;
@@ -343,18 +350,18 @@ void vdu::Texture::cmdGenerateMipMaps(const VkCommandBuffer & cmd)
 	barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
 	vkCmdPipelineBarrier(cmd,
-		VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0,
-		0, nullptr,
-		0, nullptr,
-		1, &barrier);
+						 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0,
+						 0, nullptr,
+						 0, nullptr,
+						 1, &barrier);
 }
 
-void vdu::Texture::cmdGenerateMipMaps(CommandBuffer * cmd)
+void vdu::Texture::cmdGenerateMipMaps(CommandBuffer *cmd)
 {
 	cmdGenerateMipMaps(cmd->getHandle());
 }
 
-void vdu::Texture::bindMemory(DeviceMemory * memory)
+void vdu::Texture::bindMemory(DeviceMemory *memory)
 {
 	VDU_VK_CHECK_RESULT(vkBindImageMemory(m_logicalDevice->getHandle(), m_image, m_deviceMemory->getHandle(), 0), "binding texture memory");
 }
@@ -363,148 +370,148 @@ uint32_t vdu::Texture::getBitsPerPixel()
 {
 	switch (m_format)
 	{
-	case(VK_FORMAT_R4G4_UNORM_PACK8):
-	case(VK_FORMAT_R8_UNORM):
-	case(VK_FORMAT_R8_SNORM):
-	case(VK_FORMAT_R8_USCALED):
-	case(VK_FORMAT_R8_SSCALED):
-	case(VK_FORMAT_R8_UINT):
-	case(VK_FORMAT_R8_SINT):
-	case(VK_FORMAT_R8_SRGB):
+	case (VK_FORMAT_R4G4_UNORM_PACK8):
+	case (VK_FORMAT_R8_UNORM):
+	case (VK_FORMAT_R8_SNORM):
+	case (VK_FORMAT_R8_USCALED):
+	case (VK_FORMAT_R8_SSCALED):
+	case (VK_FORMAT_R8_UINT):
+	case (VK_FORMAT_R8_SINT):
+	case (VK_FORMAT_R8_SRGB):
 		return 8;
 
-	case(VK_FORMAT_R4G4B4A4_UNORM_PACK16):
-	case(VK_FORMAT_B4G4R4A4_UNORM_PACK16):
-	case(VK_FORMAT_R5G5B5A1_UNORM_PACK16):
-	case(VK_FORMAT_B5G5R5A1_UNORM_PACK16):
-	case(VK_FORMAT_A1R5G5B5_UNORM_PACK16):
-	case(VK_FORMAT_R5G6B5_UNORM_PACK16):
-	case(VK_FORMAT_B5G6R5_UNORM_PACK16):
-	case(VK_FORMAT_R8G8_UNORM):
-	case(VK_FORMAT_R8G8_SNORM):
-	case(VK_FORMAT_R8G8_USCALED):
-	case(VK_FORMAT_R8G8_SSCALED):
-	case(VK_FORMAT_R8G8_UINT):
-	case(VK_FORMAT_R8G8_SINT):
-	case(VK_FORMAT_R8G8_SRGB):
-	case(VK_FORMAT_R16_UNORM):
-	case(VK_FORMAT_R16_SNORM):
-	case(VK_FORMAT_R16_USCALED):
-	case(VK_FORMAT_R16_SSCALED):
-	case(VK_FORMAT_R16_UINT):
-	case(VK_FORMAT_R16_SINT):
-	case(VK_FORMAT_R16_SFLOAT):
+	case (VK_FORMAT_R4G4B4A4_UNORM_PACK16):
+	case (VK_FORMAT_B4G4R4A4_UNORM_PACK16):
+	case (VK_FORMAT_R5G5B5A1_UNORM_PACK16):
+	case (VK_FORMAT_B5G5R5A1_UNORM_PACK16):
+	case (VK_FORMAT_A1R5G5B5_UNORM_PACK16):
+	case (VK_FORMAT_R5G6B5_UNORM_PACK16):
+	case (VK_FORMAT_B5G6R5_UNORM_PACK16):
+	case (VK_FORMAT_R8G8_UNORM):
+	case (VK_FORMAT_R8G8_SNORM):
+	case (VK_FORMAT_R8G8_USCALED):
+	case (VK_FORMAT_R8G8_SSCALED):
+	case (VK_FORMAT_R8G8_UINT):
+	case (VK_FORMAT_R8G8_SINT):
+	case (VK_FORMAT_R8G8_SRGB):
+	case (VK_FORMAT_R16_UNORM):
+	case (VK_FORMAT_R16_SNORM):
+	case (VK_FORMAT_R16_USCALED):
+	case (VK_FORMAT_R16_SSCALED):
+	case (VK_FORMAT_R16_UINT):
+	case (VK_FORMAT_R16_SINT):
+	case (VK_FORMAT_R16_SFLOAT):
 		return 16;
 
-	case(VK_FORMAT_R8G8B8_UNORM):
-	case(VK_FORMAT_R8G8B8_SNORM):
-	case(VK_FORMAT_R8G8B8_USCALED):
-	case(VK_FORMAT_R8G8B8_SSCALED):
-	case(VK_FORMAT_R8G8B8_UINT):
-	case(VK_FORMAT_R8G8B8_SINT):
-	case(VK_FORMAT_R8G8B8_SRGB):
-	case(VK_FORMAT_B8G8R8_UNORM):
-	case(VK_FORMAT_B8G8R8_SNORM):
-	case(VK_FORMAT_B8G8R8_USCALED):
-	case(VK_FORMAT_B8G8R8_SSCALED):
-	case(VK_FORMAT_B8G8R8_UINT):
-	case(VK_FORMAT_B8G8R8_SINT):
-	case(VK_FORMAT_B8G8R8_SRGB):
+	case (VK_FORMAT_R8G8B8_UNORM):
+	case (VK_FORMAT_R8G8B8_SNORM):
+	case (VK_FORMAT_R8G8B8_USCALED):
+	case (VK_FORMAT_R8G8B8_SSCALED):
+	case (VK_FORMAT_R8G8B8_UINT):
+	case (VK_FORMAT_R8G8B8_SINT):
+	case (VK_FORMAT_R8G8B8_SRGB):
+	case (VK_FORMAT_B8G8R8_UNORM):
+	case (VK_FORMAT_B8G8R8_SNORM):
+	case (VK_FORMAT_B8G8R8_USCALED):
+	case (VK_FORMAT_B8G8R8_SSCALED):
+	case (VK_FORMAT_B8G8R8_UINT):
+	case (VK_FORMAT_B8G8R8_SINT):
+	case (VK_FORMAT_B8G8R8_SRGB):
 		return 24;
 
-	case(VK_FORMAT_R8G8B8A8_UNORM):
-	case(VK_FORMAT_R8G8B8A8_SNORM):
-	case(VK_FORMAT_R8G8B8A8_USCALED):
-	case(VK_FORMAT_R8G8B8A8_SSCALED):
-	case(VK_FORMAT_R8G8B8A8_UINT):
-	case(VK_FORMAT_R8G8B8A8_SINT):
-	case(VK_FORMAT_R8G8B8A8_SRGB):
-	case(VK_FORMAT_B8G8R8A8_UNORM):
-	case(VK_FORMAT_B8G8R8A8_SNORM):
-	case(VK_FORMAT_B8G8R8A8_USCALED):
-	case(VK_FORMAT_B8G8R8A8_SSCALED):
-	case(VK_FORMAT_B8G8R8A8_UINT):
-	case(VK_FORMAT_B8G8R8A8_SINT):
-	case(VK_FORMAT_B8G8R8A8_SRGB):
-	case(VK_FORMAT_A8B8G8R8_UNORM_PACK32):
-	case(VK_FORMAT_A8B8G8R8_SNORM_PACK32):
-	case(VK_FORMAT_A8B8G8R8_USCALED_PACK32):
-	case(VK_FORMAT_A8B8G8R8_SSCALED_PACK32):
-	case(VK_FORMAT_A8B8G8R8_UINT_PACK32):
-	case(VK_FORMAT_A8B8G8R8_SINT_PACK32):
-	case(VK_FORMAT_A8B8G8R8_SRGB_PACK32):
-	case(VK_FORMAT_A2R10G10B10_UNORM_PACK32):
-	case(VK_FORMAT_A2R10G10B10_SNORM_PACK32):
-	case(VK_FORMAT_A2R10G10B10_USCALED_PACK32):
-	case(VK_FORMAT_A2R10G10B10_SSCALED_PACK32):
-	case(VK_FORMAT_A2R10G10B10_UINT_PACK32):
-	case(VK_FORMAT_A2R10G10B10_SINT_PACK32):
-	case(VK_FORMAT_A2B10G10R10_UNORM_PACK32):
-	case(VK_FORMAT_A2B10G10R10_SNORM_PACK32):
-	case(VK_FORMAT_A2B10G10R10_USCALED_PACK32):
-	case(VK_FORMAT_A2B10G10R10_SSCALED_PACK32):
-	case(VK_FORMAT_A2B10G10R10_UINT_PACK32):
-	case(VK_FORMAT_A2B10G10R10_SINT_PACK32):
-	case(VK_FORMAT_R16G16_UNORM):
-	case(VK_FORMAT_R16G16_SNORM):
-	case(VK_FORMAT_R16G16_USCALED):
-	case(VK_FORMAT_R16G16_SSCALED):
-	case(VK_FORMAT_R16G16_UINT):
-	case(VK_FORMAT_R16G16_SINT):
-	case(VK_FORMAT_R16G16_SFLOAT):
-	case(VK_FORMAT_B10G11R11_UFLOAT_PACK32):
-	case(VK_FORMAT_E5B9G9R9_UFLOAT_PACK32):
-	case(VK_FORMAT_R32_UINT):
-	case(VK_FORMAT_R32_SINT):
-	case(VK_FORMAT_R32_SFLOAT):
-	case(VK_FORMAT_D32_SFLOAT):
+	case (VK_FORMAT_R8G8B8A8_UNORM):
+	case (VK_FORMAT_R8G8B8A8_SNORM):
+	case (VK_FORMAT_R8G8B8A8_USCALED):
+	case (VK_FORMAT_R8G8B8A8_SSCALED):
+	case (VK_FORMAT_R8G8B8A8_UINT):
+	case (VK_FORMAT_R8G8B8A8_SINT):
+	case (VK_FORMAT_R8G8B8A8_SRGB):
+	case (VK_FORMAT_B8G8R8A8_UNORM):
+	case (VK_FORMAT_B8G8R8A8_SNORM):
+	case (VK_FORMAT_B8G8R8A8_USCALED):
+	case (VK_FORMAT_B8G8R8A8_SSCALED):
+	case (VK_FORMAT_B8G8R8A8_UINT):
+	case (VK_FORMAT_B8G8R8A8_SINT):
+	case (VK_FORMAT_B8G8R8A8_SRGB):
+	case (VK_FORMAT_A8B8G8R8_UNORM_PACK32):
+	case (VK_FORMAT_A8B8G8R8_SNORM_PACK32):
+	case (VK_FORMAT_A8B8G8R8_USCALED_PACK32):
+	case (VK_FORMAT_A8B8G8R8_SSCALED_PACK32):
+	case (VK_FORMAT_A8B8G8R8_UINT_PACK32):
+	case (VK_FORMAT_A8B8G8R8_SINT_PACK32):
+	case (VK_FORMAT_A8B8G8R8_SRGB_PACK32):
+	case (VK_FORMAT_A2R10G10B10_UNORM_PACK32):
+	case (VK_FORMAT_A2R10G10B10_SNORM_PACK32):
+	case (VK_FORMAT_A2R10G10B10_USCALED_PACK32):
+	case (VK_FORMAT_A2R10G10B10_SSCALED_PACK32):
+	case (VK_FORMAT_A2R10G10B10_UINT_PACK32):
+	case (VK_FORMAT_A2R10G10B10_SINT_PACK32):
+	case (VK_FORMAT_A2B10G10R10_UNORM_PACK32):
+	case (VK_FORMAT_A2B10G10R10_SNORM_PACK32):
+	case (VK_FORMAT_A2B10G10R10_USCALED_PACK32):
+	case (VK_FORMAT_A2B10G10R10_SSCALED_PACK32):
+	case (VK_FORMAT_A2B10G10R10_UINT_PACK32):
+	case (VK_FORMAT_A2B10G10R10_SINT_PACK32):
+	case (VK_FORMAT_R16G16_UNORM):
+	case (VK_FORMAT_R16G16_SNORM):
+	case (VK_FORMAT_R16G16_USCALED):
+	case (VK_FORMAT_R16G16_SSCALED):
+	case (VK_FORMAT_R16G16_UINT):
+	case (VK_FORMAT_R16G16_SINT):
+	case (VK_FORMAT_R16G16_SFLOAT):
+	case (VK_FORMAT_B10G11R11_UFLOAT_PACK32):
+	case (VK_FORMAT_E5B9G9R9_UFLOAT_PACK32):
+	case (VK_FORMAT_R32_UINT):
+	case (VK_FORMAT_R32_SINT):
+	case (VK_FORMAT_R32_SFLOAT):
+	case (VK_FORMAT_D32_SFLOAT):
 		return 32;
 
-	case(VK_FORMAT_R16G16B16_UNORM):
-	case(VK_FORMAT_R16G16B16_SNORM):
-	case(VK_FORMAT_R16G16B16_USCALED):
-	case(VK_FORMAT_R16G16B16_SSCALED):
-	case(VK_FORMAT_R16G16B16_UINT):
-	case(VK_FORMAT_R16G16B16_SINT):
-	case(VK_FORMAT_R16G16B16_SFLOAT):
+	case (VK_FORMAT_R16G16B16_UNORM):
+	case (VK_FORMAT_R16G16B16_SNORM):
+	case (VK_FORMAT_R16G16B16_USCALED):
+	case (VK_FORMAT_R16G16B16_SSCALED):
+	case (VK_FORMAT_R16G16B16_UINT):
+	case (VK_FORMAT_R16G16B16_SINT):
+	case (VK_FORMAT_R16G16B16_SFLOAT):
 		return 48;
 
-	case(VK_FORMAT_R16G16B16A16_UNORM):
-	case(VK_FORMAT_R16G16B16A16_SNORM):
-	case(VK_FORMAT_R16G16B16A16_USCALED):
-	case(VK_FORMAT_R16G16B16A16_SSCALED):
-	case(VK_FORMAT_R16G16B16A16_UINT):
-	case(VK_FORMAT_R16G16B16A16_SINT):
-	case(VK_FORMAT_R16G16B16A16_SFLOAT):
-	case(VK_FORMAT_R32G32_UINT):
-	case(VK_FORMAT_R32G32_SINT):
-	case(VK_FORMAT_R32G32_SFLOAT):
-	case(VK_FORMAT_R64_UINT):
-	case(VK_FORMAT_R64_SINT):
-	case(VK_FORMAT_R64_SFLOAT):
+	case (VK_FORMAT_R16G16B16A16_UNORM):
+	case (VK_FORMAT_R16G16B16A16_SNORM):
+	case (VK_FORMAT_R16G16B16A16_USCALED):
+	case (VK_FORMAT_R16G16B16A16_SSCALED):
+	case (VK_FORMAT_R16G16B16A16_UINT):
+	case (VK_FORMAT_R16G16B16A16_SINT):
+	case (VK_FORMAT_R16G16B16A16_SFLOAT):
+	case (VK_FORMAT_R32G32_UINT):
+	case (VK_FORMAT_R32G32_SINT):
+	case (VK_FORMAT_R32G32_SFLOAT):
+	case (VK_FORMAT_R64_UINT):
+	case (VK_FORMAT_R64_SINT):
+	case (VK_FORMAT_R64_SFLOAT):
 		return 64;
 
-	case(VK_FORMAT_R32G32B32_UINT):
-	case(VK_FORMAT_R32G32B32_SINT):
-	case(VK_FORMAT_R32G32B32_SFLOAT):
+	case (VK_FORMAT_R32G32B32_UINT):
+	case (VK_FORMAT_R32G32B32_SINT):
+	case (VK_FORMAT_R32G32B32_SFLOAT):
 		return 96;
 
-	case(VK_FORMAT_R32G32B32A32_UINT):
-	case(VK_FORMAT_R32G32B32A32_SINT):
-	case(VK_FORMAT_R32G32B32A32_SFLOAT):
-	case(VK_FORMAT_R64G64_UINT):
-	case(VK_FORMAT_R64G64_SINT):
-	case(VK_FORMAT_R64G64_SFLOAT):
+	case (VK_FORMAT_R32G32B32A32_UINT):
+	case (VK_FORMAT_R32G32B32A32_SINT):
+	case (VK_FORMAT_R32G32B32A32_SFLOAT):
+	case (VK_FORMAT_R64G64_UINT):
+	case (VK_FORMAT_R64G64_SINT):
+	case (VK_FORMAT_R64G64_SFLOAT):
 		return 128;
 
-	case(VK_FORMAT_R64G64B64_UINT):
-	case(VK_FORMAT_R64G64B64_SINT):
-	case(VK_FORMAT_R64G64B64_SFLOAT):
+	case (VK_FORMAT_R64G64B64_UINT):
+	case (VK_FORMAT_R64G64B64_SINT):
+	case (VK_FORMAT_R64G64B64_SFLOAT):
 		return 192;
 
-	case(VK_FORMAT_R64G64B64A64_UINT):
-	case(VK_FORMAT_R64G64B64A64_SINT):
-	case(VK_FORMAT_R64G64B64A64_SFLOAT):
+	case (VK_FORMAT_R64G64B64A64_UINT):
+	case (VK_FORMAT_R64G64B64A64_SINT):
+	case (VK_FORMAT_R64G64B64A64_SFLOAT):
 		return 256;
 
 	default:
@@ -521,135 +528,135 @@ uint32_t vdu::Texture::getNumComponents()
 {
 	switch (m_format)
 	{
-	case(VK_FORMAT_R8_UNORM):
-	case(VK_FORMAT_R8_SNORM):
-	case(VK_FORMAT_R8_USCALED):
-	case(VK_FORMAT_R8_SSCALED):
-	case(VK_FORMAT_R8_UINT):
-	case(VK_FORMAT_R8_SINT):
-	case(VK_FORMAT_R8_SRGB):
-	case(VK_FORMAT_R16_UNORM):
-	case(VK_FORMAT_R16_SNORM):
-	case(VK_FORMAT_R16_USCALED):
-	case(VK_FORMAT_R16_SSCALED):
-	case(VK_FORMAT_R16_UINT):
-	case(VK_FORMAT_R16_SINT):
-	case(VK_FORMAT_R16_SFLOAT):
-	case(VK_FORMAT_R32_UINT):
-	case(VK_FORMAT_R32_SINT):
-	case(VK_FORMAT_R32_SFLOAT):
-	case(VK_FORMAT_D32_SFLOAT):
-	case(VK_FORMAT_R64_UINT):
-	case(VK_FORMAT_R64_SINT):
-	case(VK_FORMAT_R64_SFLOAT):
+	case (VK_FORMAT_R8_UNORM):
+	case (VK_FORMAT_R8_SNORM):
+	case (VK_FORMAT_R8_USCALED):
+	case (VK_FORMAT_R8_SSCALED):
+	case (VK_FORMAT_R8_UINT):
+	case (VK_FORMAT_R8_SINT):
+	case (VK_FORMAT_R8_SRGB):
+	case (VK_FORMAT_R16_UNORM):
+	case (VK_FORMAT_R16_SNORM):
+	case (VK_FORMAT_R16_USCALED):
+	case (VK_FORMAT_R16_SSCALED):
+	case (VK_FORMAT_R16_UINT):
+	case (VK_FORMAT_R16_SINT):
+	case (VK_FORMAT_R16_SFLOAT):
+	case (VK_FORMAT_R32_UINT):
+	case (VK_FORMAT_R32_SINT):
+	case (VK_FORMAT_R32_SFLOAT):
+	case (VK_FORMAT_D32_SFLOAT):
+	case (VK_FORMAT_R64_UINT):
+	case (VK_FORMAT_R64_SINT):
+	case (VK_FORMAT_R64_SFLOAT):
 		return 1;
 
-	case(VK_FORMAT_R4G4_UNORM_PACK8):
-	case(VK_FORMAT_R8G8_UNORM):
-	case(VK_FORMAT_R8G8_SNORM):
-	case(VK_FORMAT_R8G8_USCALED):
-	case(VK_FORMAT_R8G8_SSCALED):
-	case(VK_FORMAT_R8G8_UINT):
-	case(VK_FORMAT_R8G8_SINT):
-	case(VK_FORMAT_R8G8_SRGB):
-	case(VK_FORMAT_R16G16_UNORM):
-	case(VK_FORMAT_R16G16_SNORM):
-	case(VK_FORMAT_R16G16_USCALED):
-	case(VK_FORMAT_R16G16_SSCALED):
-	case(VK_FORMAT_R16G16_UINT):
-	case(VK_FORMAT_R16G16_SINT):
-	case(VK_FORMAT_R16G16_SFLOAT):
-	case(VK_FORMAT_R32G32_UINT):
-	case(VK_FORMAT_R32G32_SINT):
-	case(VK_FORMAT_R32G32_SFLOAT):
-	case(VK_FORMAT_R64G64_UINT):
-	case(VK_FORMAT_R64G64_SINT):
-	case(VK_FORMAT_R64G64_SFLOAT):
+	case (VK_FORMAT_R4G4_UNORM_PACK8):
+	case (VK_FORMAT_R8G8_UNORM):
+	case (VK_FORMAT_R8G8_SNORM):
+	case (VK_FORMAT_R8G8_USCALED):
+	case (VK_FORMAT_R8G8_SSCALED):
+	case (VK_FORMAT_R8G8_UINT):
+	case (VK_FORMAT_R8G8_SINT):
+	case (VK_FORMAT_R8G8_SRGB):
+	case (VK_FORMAT_R16G16_UNORM):
+	case (VK_FORMAT_R16G16_SNORM):
+	case (VK_FORMAT_R16G16_USCALED):
+	case (VK_FORMAT_R16G16_SSCALED):
+	case (VK_FORMAT_R16G16_UINT):
+	case (VK_FORMAT_R16G16_SINT):
+	case (VK_FORMAT_R16G16_SFLOAT):
+	case (VK_FORMAT_R32G32_UINT):
+	case (VK_FORMAT_R32G32_SINT):
+	case (VK_FORMAT_R32G32_SFLOAT):
+	case (VK_FORMAT_R64G64_UINT):
+	case (VK_FORMAT_R64G64_SINT):
+	case (VK_FORMAT_R64G64_SFLOAT):
 		return 2;
 
-	case(VK_FORMAT_R5G6B5_UNORM_PACK16):
-	case(VK_FORMAT_B5G6R5_UNORM_PACK16):
-	case(VK_FORMAT_R8G8B8_UNORM):
-	case(VK_FORMAT_R8G8B8_SNORM):
-	case(VK_FORMAT_R8G8B8_USCALED):
-	case(VK_FORMAT_R8G8B8_SSCALED):
-	case(VK_FORMAT_R8G8B8_UINT):
-	case(VK_FORMAT_R8G8B8_SINT):
-	case(VK_FORMAT_R8G8B8_SRGB):
-	case(VK_FORMAT_B8G8R8_UNORM):
-	case(VK_FORMAT_B8G8R8_SNORM):
-	case(VK_FORMAT_B8G8R8_USCALED):
-	case(VK_FORMAT_B8G8R8_SSCALED):
-	case(VK_FORMAT_B8G8R8_UINT):
-	case(VK_FORMAT_B8G8R8_SINT):
-	case(VK_FORMAT_B8G8R8_SRGB):
-	case(VK_FORMAT_B10G11R11_UFLOAT_PACK32):
-	case(VK_FORMAT_R16G16B16_UNORM):
-	case(VK_FORMAT_R16G16B16_SNORM):
-	case(VK_FORMAT_R16G16B16_USCALED):
-	case(VK_FORMAT_R16G16B16_SSCALED):
-	case(VK_FORMAT_R16G16B16_UINT):
-	case(VK_FORMAT_R16G16B16_SINT):
-	case(VK_FORMAT_R16G16B16_SFLOAT):
-	case(VK_FORMAT_R32G32B32_UINT):
-	case(VK_FORMAT_R32G32B32_SINT):
-	case(VK_FORMAT_R32G32B32_SFLOAT):
-	case(VK_FORMAT_R64G64B64_UINT):
-	case(VK_FORMAT_R64G64B64_SINT):
-	case(VK_FORMAT_R64G64B64_SFLOAT):
+	case (VK_FORMAT_R5G6B5_UNORM_PACK16):
+	case (VK_FORMAT_B5G6R5_UNORM_PACK16):
+	case (VK_FORMAT_R8G8B8_UNORM):
+	case (VK_FORMAT_R8G8B8_SNORM):
+	case (VK_FORMAT_R8G8B8_USCALED):
+	case (VK_FORMAT_R8G8B8_SSCALED):
+	case (VK_FORMAT_R8G8B8_UINT):
+	case (VK_FORMAT_R8G8B8_SINT):
+	case (VK_FORMAT_R8G8B8_SRGB):
+	case (VK_FORMAT_B8G8R8_UNORM):
+	case (VK_FORMAT_B8G8R8_SNORM):
+	case (VK_FORMAT_B8G8R8_USCALED):
+	case (VK_FORMAT_B8G8R8_SSCALED):
+	case (VK_FORMAT_B8G8R8_UINT):
+	case (VK_FORMAT_B8G8R8_SINT):
+	case (VK_FORMAT_B8G8R8_SRGB):
+	case (VK_FORMAT_B10G11R11_UFLOAT_PACK32):
+	case (VK_FORMAT_R16G16B16_UNORM):
+	case (VK_FORMAT_R16G16B16_SNORM):
+	case (VK_FORMAT_R16G16B16_USCALED):
+	case (VK_FORMAT_R16G16B16_SSCALED):
+	case (VK_FORMAT_R16G16B16_UINT):
+	case (VK_FORMAT_R16G16B16_SINT):
+	case (VK_FORMAT_R16G16B16_SFLOAT):
+	case (VK_FORMAT_R32G32B32_UINT):
+	case (VK_FORMAT_R32G32B32_SINT):
+	case (VK_FORMAT_R32G32B32_SFLOAT):
+	case (VK_FORMAT_R64G64B64_UINT):
+	case (VK_FORMAT_R64G64B64_SINT):
+	case (VK_FORMAT_R64G64B64_SFLOAT):
 		return 3;
 
-	case(VK_FORMAT_R4G4B4A4_UNORM_PACK16):
-	case(VK_FORMAT_B4G4R4A4_UNORM_PACK16):
-	case(VK_FORMAT_R5G5B5A1_UNORM_PACK16):
-	case(VK_FORMAT_B5G5R5A1_UNORM_PACK16):
-	case(VK_FORMAT_A1R5G5B5_UNORM_PACK16):
-	case(VK_FORMAT_R8G8B8A8_UNORM):
-	case(VK_FORMAT_R8G8B8A8_SNORM):
-	case(VK_FORMAT_R8G8B8A8_USCALED):
-	case(VK_FORMAT_R8G8B8A8_SSCALED):
-	case(VK_FORMAT_R8G8B8A8_UINT):
-	case(VK_FORMAT_R8G8B8A8_SINT):
-	case(VK_FORMAT_R8G8B8A8_SRGB):
-	case(VK_FORMAT_B8G8R8A8_UNORM):
-	case(VK_FORMAT_B8G8R8A8_SNORM):
-	case(VK_FORMAT_B8G8R8A8_USCALED):
-	case(VK_FORMAT_B8G8R8A8_SSCALED):
-	case(VK_FORMAT_B8G8R8A8_UINT):
-	case(VK_FORMAT_B8G8R8A8_SINT):
-	case(VK_FORMAT_B8G8R8A8_SRGB):
-	case(VK_FORMAT_A8B8G8R8_UNORM_PACK32):
-	case(VK_FORMAT_A8B8G8R8_SNORM_PACK32):
-	case(VK_FORMAT_A8B8G8R8_USCALED_PACK32):
-	case(VK_FORMAT_A8B8G8R8_SSCALED_PACK32):
-	case(VK_FORMAT_A8B8G8R8_UINT_PACK32):
-	case(VK_FORMAT_A8B8G8R8_SINT_PACK32):
-	case(VK_FORMAT_A8B8G8R8_SRGB_PACK32):
-	case(VK_FORMAT_A2R10G10B10_UNORM_PACK32):
-	case(VK_FORMAT_A2R10G10B10_SNORM_PACK32):
-	case(VK_FORMAT_A2R10G10B10_USCALED_PACK32):
-	case(VK_FORMAT_A2R10G10B10_SSCALED_PACK32):
-	case(VK_FORMAT_A2R10G10B10_UINT_PACK32):
-	case(VK_FORMAT_A2R10G10B10_SINT_PACK32):
-	case(VK_FORMAT_A2B10G10R10_UNORM_PACK32):
-	case(VK_FORMAT_A2B10G10R10_SNORM_PACK32):
-	case(VK_FORMAT_A2B10G10R10_USCALED_PACK32):
-	case(VK_FORMAT_A2B10G10R10_SSCALED_PACK32):
-	case(VK_FORMAT_A2B10G10R10_UINT_PACK32):
-	case(VK_FORMAT_A2B10G10R10_SINT_PACK32):
-	case(VK_FORMAT_R16G16B16A16_UNORM):
-	case(VK_FORMAT_R16G16B16A16_SNORM):
-	case(VK_FORMAT_R16G16B16A16_USCALED):
-	case(VK_FORMAT_R16G16B16A16_SSCALED):
-	case(VK_FORMAT_R16G16B16A16_UINT):
-	case(VK_FORMAT_R16G16B16A16_SINT):
-	case(VK_FORMAT_R16G16B16A16_SFLOAT):
-	case(VK_FORMAT_R32G32B32A32_UINT):
-	case(VK_FORMAT_R32G32B32A32_SINT):
-	case(VK_FORMAT_R32G32B32A32_SFLOAT):
-	case(VK_FORMAT_R64G64B64A64_UINT):
-	case(VK_FORMAT_R64G64B64A64_SINT):
-	case(VK_FORMAT_R64G64B64A64_SFLOAT):
+	case (VK_FORMAT_R4G4B4A4_UNORM_PACK16):
+	case (VK_FORMAT_B4G4R4A4_UNORM_PACK16):
+	case (VK_FORMAT_R5G5B5A1_UNORM_PACK16):
+	case (VK_FORMAT_B5G5R5A1_UNORM_PACK16):
+	case (VK_FORMAT_A1R5G5B5_UNORM_PACK16):
+	case (VK_FORMAT_R8G8B8A8_UNORM):
+	case (VK_FORMAT_R8G8B8A8_SNORM):
+	case (VK_FORMAT_R8G8B8A8_USCALED):
+	case (VK_FORMAT_R8G8B8A8_SSCALED):
+	case (VK_FORMAT_R8G8B8A8_UINT):
+	case (VK_FORMAT_R8G8B8A8_SINT):
+	case (VK_FORMAT_R8G8B8A8_SRGB):
+	case (VK_FORMAT_B8G8R8A8_UNORM):
+	case (VK_FORMAT_B8G8R8A8_SNORM):
+	case (VK_FORMAT_B8G8R8A8_USCALED):
+	case (VK_FORMAT_B8G8R8A8_SSCALED):
+	case (VK_FORMAT_B8G8R8A8_UINT):
+	case (VK_FORMAT_B8G8R8A8_SINT):
+	case (VK_FORMAT_B8G8R8A8_SRGB):
+	case (VK_FORMAT_A8B8G8R8_UNORM_PACK32):
+	case (VK_FORMAT_A8B8G8R8_SNORM_PACK32):
+	case (VK_FORMAT_A8B8G8R8_USCALED_PACK32):
+	case (VK_FORMAT_A8B8G8R8_SSCALED_PACK32):
+	case (VK_FORMAT_A8B8G8R8_UINT_PACK32):
+	case (VK_FORMAT_A8B8G8R8_SINT_PACK32):
+	case (VK_FORMAT_A8B8G8R8_SRGB_PACK32):
+	case (VK_FORMAT_A2R10G10B10_UNORM_PACK32):
+	case (VK_FORMAT_A2R10G10B10_SNORM_PACK32):
+	case (VK_FORMAT_A2R10G10B10_USCALED_PACK32):
+	case (VK_FORMAT_A2R10G10B10_SSCALED_PACK32):
+	case (VK_FORMAT_A2R10G10B10_UINT_PACK32):
+	case (VK_FORMAT_A2R10G10B10_SINT_PACK32):
+	case (VK_FORMAT_A2B10G10R10_UNORM_PACK32):
+	case (VK_FORMAT_A2B10G10R10_SNORM_PACK32):
+	case (VK_FORMAT_A2B10G10R10_USCALED_PACK32):
+	case (VK_FORMAT_A2B10G10R10_SSCALED_PACK32):
+	case (VK_FORMAT_A2B10G10R10_UINT_PACK32):
+	case (VK_FORMAT_A2B10G10R10_SINT_PACK32):
+	case (VK_FORMAT_R16G16B16A16_UNORM):
+	case (VK_FORMAT_R16G16B16A16_SNORM):
+	case (VK_FORMAT_R16G16B16A16_USCALED):
+	case (VK_FORMAT_R16G16B16A16_SSCALED):
+	case (VK_FORMAT_R16G16B16A16_UINT):
+	case (VK_FORMAT_R16G16B16A16_SINT):
+	case (VK_FORMAT_R16G16B16A16_SFLOAT):
+	case (VK_FORMAT_R32G32B32A32_UINT):
+	case (VK_FORMAT_R32G32B32A32_SINT):
+	case (VK_FORMAT_R32G32B32A32_SFLOAT):
+	case (VK_FORMAT_R64G64B64A64_UINT):
+	case (VK_FORMAT_R64G64B64A64_SINT):
+	case (VK_FORMAT_R64G64B64A64_SFLOAT):
 		return 4;
 
 	default:
@@ -657,7 +664,7 @@ uint32_t vdu::Texture::getNumComponents()
 	};
 }
 
-void vdu::Texture::cmdTransitionLayout(CommandBuffer& cmd, VkImageLayout oldLayout, VkImageLayout newLayout, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
+void vdu::Texture::cmdTransitionLayout(CommandBuffer &cmd, VkImageLayout oldLayout, VkImageLayout newLayout, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
 {
 	// Create an image barrier object
 	VkImageMemoryBarrier imageBarrier = {};

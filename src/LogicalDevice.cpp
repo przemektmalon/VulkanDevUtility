@@ -4,12 +4,12 @@
 #include "Initializers.hpp"
 #include "Queue.hpp"
 
-VkResult vdu::LogicalDevice::create(PhysicalDevice* physicalDevice)
+VkResult vdu::LogicalDevice::create(PhysicalDevice *physicalDevice)
 {
 	m_physicalDevice = physicalDevice;
 
 	std::vector<VkDeviceQueueCreateInfo> qcis;
-	for (auto& familyCount : m_queueFamilyCountsPriorities)
+	for (auto &familyCount : m_queueFamilyCountsPriorities)
 	{
 		auto qci = vdu::initializer<VkDeviceQueueCreateInfo>();
 		qci.queueFamilyIndex = familyCount.first;
@@ -45,7 +45,7 @@ void vdu::LogicalDevice::destroy()
 	vkDestroyDevice(m_device, nullptr);
 }
 
-void vdu::LogicalDevice::addQueue(Queue * queue)
+void vdu::LogicalDevice::addQueue(Queue *queue)
 {
 	auto ins = m_queues.insert(queue);
 	if (ins.second)
@@ -55,7 +55,7 @@ void vdu::LogicalDevice::addQueue(Queue * queue)
 	}
 }
 
-void vdu::LogicalDevice::setEnabledDeviceFeatures(const VkPhysicalDeviceFeatures & pdf)
+void vdu::LogicalDevice::setEnabledDeviceFeatures(const VkPhysicalDeviceFeatures &pdf)
 {
 	m_enabledDeviceFeatures = pdf;
 }
@@ -70,7 +70,7 @@ void vdu::LogicalDevice::setVduDebugCallback(PFN_vduDebugCallback errorCallback)
 	m_vduDebugCallbackFunc = errorCallback;
 }
 
-void vdu::LogicalDevice::_internalReportVkError(VkResult error, const std::string & message)
+void vdu::LogicalDevice::_internalReportVkError(VkResult error, const std::string &message)
 {
 	if (m_vkErrorCallbackFunc)
 		m_vkErrorCallbackFunc(error, message);
@@ -78,7 +78,7 @@ void vdu::LogicalDevice::_internalReportVkError(VkResult error, const std::strin
 		assert(false); // If you are here then set an error callback and handle the error (or not and get crashes)
 }
 
-void vdu::LogicalDevice::_internalReportVduDebug(VduDebugLevel level, const std::string & message)
+void vdu::LogicalDevice::_internalReportVduDebug(VduDebugLevel level, const std::string &message)
 {
 	if (m_vduDebugCallbackFunc)
 		m_vduDebugCallbackFunc(level, message);
@@ -86,12 +86,12 @@ void vdu::LogicalDevice::_internalReportVduDebug(VduDebugLevel level, const std:
 		assert(false); // If you are here then set an error callback and handle the error (or not and get crashes)
 }
 
-void vdu::LogicalDevice::addExtension(const char * extensionName)
+void vdu::LogicalDevice::addExtension(const char *extensionName)
 {
 	m_enabledExtensions.push_back(extensionName);
 }
 
-void vdu::LogicalDevice::addLayer(const char * layerName)
+void vdu::LogicalDevice::addLayer(const char *layerName)
 {
 	m_enabledLayers.push_back(layerName);
 }

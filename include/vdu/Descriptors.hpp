@@ -6,79 +6,73 @@
 
 namespace vdu
 {
-	class DescriptorSetLayout
+class DescriptorSetLayout
+{
+public:
+	void create(LogicalDevice *logicalDevice);
+
+	void destroy();
+
+	const VkDescriptorSetLayout &getHandle() const { return m_descriptorSetLayout; }
+
+	void addBinding(const std::string &label, VkDescriptorType type, uint32_t binding, uint32_t count, VkShaderStageFlags stageFlags);
+	void addBinding(const std::string &label, DescriptorTypeFlags type, uint32_t binding, uint32_t count, ShaderStageFlags stageFlags);
+
+	const std::unordered_map<std::string, VkDescriptorSetLayoutBinding> &getLayoutBindingLabels() const { return m_layoutBindingsLabels; }
+	const std::unordered_map<std::string, VkDescriptorSetLayoutBinding> &getImageLayoutBindings() const { return m_imageLayoutBindings; }
+	const std::unordered_map<std::string, VkDescriptorSetLayoutBinding> &getBufferLayoutBindings() const { return m_bufferLayoutBindings; }
+
+private:
+	VkDescriptorSetLayout m_descriptorSetLayout;
+	std::unordered_map<std::string, VkDescriptorSetLayoutBinding> m_layoutBindingsLabels;
+	std::unordered_map<std::string, VkDescriptorSetLayoutBinding> m_imageLayoutBindings;
+	std::unordered_map<std::string, VkDescriptorSetLayoutBinding> m_bufferLayoutBindings;
+	std::vector<VkDescriptorSetLayoutBinding> m_layoutBindings;
+	LogicalDevice *m_logicalDevice;
+};
+
+class DescriptorSet
+{
+private:
+	class SetUpdater
 	{
 	public:
+		SetUpdater(DescriptorSet *dset, LogicalDevice *logicalDevice);
+		~SetUpdater();
 
-		void create(LogicalDevice* logicalDevice);
+		VkDescriptorImageInfo *addImageUpdate(const std::string &label, uint32_t arrayElement = 0, uint32_t count = 1);
+		VkDescriptorBufferInfo *addBufferUpdate(const std::string &label, uint32_t arrayElement = 0, uint32_t count = 1);
 
-		void destroy();
-
-		const VkDescriptorSetLayout& getHandle() const { return m_descriptorSetLayout; }
-
-		void addBinding(const std::string& label, VkDescriptorType type, uint32_t binding, uint32_t count, VkShaderStageFlags stageFlags);
-		void addBinding(const std::string& label, DescriptorTypeFlags type, uint32_t binding, uint32_t count, ShaderStageFlags stageFlags);
-
-		const std::unordered_map<std::string, VkDescriptorSetLayoutBinding>& getLayoutBindingLabels() const { return m_layoutBindingsLabels; }
-		const std::unordered_map<std::string, VkDescriptorSetLayoutBinding>& getImageLayoutBindings() const { return m_imageLayoutBindings; }
-		const std::unordered_map<std::string, VkDescriptorSetLayoutBinding>& getBufferLayoutBindings() const { return m_bufferLayoutBindings; }
+		const std::vector<VkWriteDescriptorSet> &getWrites() { return m_writes; }
 
 	private:
+		std::vector<VkWriteDescriptorSet> m_writes;
+		std::vector<VkDescriptorBufferInfo *> m_bufferInfos;
+		std::vector<VkDescriptorImageInfo *> m_imageInfos;
 
-		VkDescriptorSetLayout m_descriptorSetLayout;
-		std::unordered_map<std::string, VkDescriptorSetLayoutBinding> m_layoutBindingsLabels;
-		std::unordered_map<std::string, VkDescriptorSetLayoutBinding> m_imageLayoutBindings;
-		std::unordered_map<std::string, VkDescriptorSetLayoutBinding> m_bufferLayoutBindings;
-		std::vector<VkDescriptorSetLayoutBinding> m_layoutBindings;
-		LogicalDevice* m_logicalDevice;
+		DescriptorSet *m_descriptorSet;
+		LogicalDevice *m_logicalDevice;
 	};
 
-	class DescriptorSet
-	{
-	private:
+public:
+	void allocate(LogicalDevice *logicalDevice, DescriptorSetLayout *layout, DescriptorPool *descriptorPool);
 
-		class SetUpdater
-		{
-		public:
-			SetUpdater(DescriptorSet* dset, LogicalDevice* logicalDevice);
-			~SetUpdater();
+	void free();
 
-			VkDescriptorImageInfo* addImageUpdate(const std::string& label, uint32_t arrayElement = 0, uint32_t count = 1);
-			VkDescriptorBufferInfo* addBufferUpdate(const std::string& label, uint32_t arrayElement = 0, uint32_t count = 1);
+	const VkDescriptorSet &getHandle() { return m_descriptorSet; }
 
-			const std::vector<VkWriteDescriptorSet>& getWrites() { return m_writes; }
+	const DescriptorSetLayout *getLayout() { return m_descriptorSetLayout; }
 
-		private:
+	SetUpdater *makeUpdater();
 
-			std::vector<VkWriteDescriptorSet> m_writes;
-			std::vector<VkDescriptorBufferInfo*> m_bufferInfos;
-			std::vector<VkDescriptorImageInfo*> m_imageInfos;
+	void destroyUpdater(SetUpdater *updater);
 
-			DescriptorSet* m_descriptorSet;
-			LogicalDevice* m_logicalDevice;
-		};
+	void submitUpdater(SetUpdater *updater);
 
-	public:
-
-		void allocate(LogicalDevice* logicalDevice, DescriptorSetLayout* layout, DescriptorPool* descriptorPool);
-
-		void free();
-
-		const VkDescriptorSet& getHandle() { return m_descriptorSet; }
-
-		const DescriptorSetLayout* getLayout() { return m_descriptorSetLayout; }
-
-		SetUpdater* makeUpdater();
-
-		void destroyUpdater(SetUpdater* updater);
-
-		void submitUpdater(SetUpdater* updater);
-
-	private:
-
-		VkDescriptorSet m_descriptorSet;
-		DescriptorSetLayout* m_descriptorSetLayout;
-		DescriptorPool* m_descriptorPool;
-		LogicalDevice* m_logicalDevice;
-	};
-}
+private:
+	VkDescriptorSet m_descriptorSet;
+	DescriptorSetLayout *m_descriptorSetLayout;
+	DescriptorPool *m_descriptorPool;
+	LogicalDevice *m_logicalDevice;
+};
+} // namespace vdu

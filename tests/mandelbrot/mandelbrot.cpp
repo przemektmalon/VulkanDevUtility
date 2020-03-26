@@ -36,6 +36,8 @@ int main()
 	// Choose the first physical device available
 	vdu::PhysicalDevice *physicalDevice = &instance.enumratePhysicalDevices().front();
 
+	std::cout << "Vulkan device used: " << physicalDevice->getDeviceProperties().deviceName << "\n";
+
 	// We're going to choose queues that support the necessary operations
 	vdu::Queue computeQueue;
 	vdu::Queue transferQueue;

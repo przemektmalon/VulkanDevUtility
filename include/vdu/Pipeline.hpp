@@ -9,156 +9,146 @@
 namespace vdu
 {
 
-	struct PushConstantRange
+struct PushConstantRange
+{
+	PushConstantRange(ShaderStageFlags stageFlags, uint32_t offset, uint32_t size)
+		: m_stageFlags(stageFlags),
+		  m_offset(offset),
+		  m_size(size)
 	{
-		PushConstantRange(ShaderStageFlags stageFlags, uint32_t offset, uint32_t size)
-			: m_stageFlags(stageFlags),
-				m_offset(offset),
-				m_size(size)
-		{}
-		ShaderStageFlags m_stageFlags;
-		uint32_t m_offset;
-		uint32_t m_size;
-	};
+	}
+	ShaderStageFlags m_stageFlags;
+	uint32_t m_offset;
+	uint32_t m_size;
+};
 
-	class VertexInputState
-	{
-	public:
+class VertexInputState
+{
+public:
+	void addBinding(uint32_t binding, uint32_t stride, VkVertexInputRate rate = VK_VERTEX_INPUT_RATE_VERTEX);
+	void addAttribute(uint32_t binding, uint32_t location, uint32_t offset, VkFormat format);
 
-		void addBinding(uint32_t binding, uint32_t stride, VkVertexInputRate rate = VK_VERTEX_INPUT_RATE_VERTEX);
-		void addAttribute(uint32_t binding, uint32_t location, uint32_t offset, VkFormat format);
+	void addBinding(VkVertexInputBindingDescription &binding);
+	void addAttributes(const std::vector<VkVertexInputAttributeDescription> &attributes);
 
-		void addBinding(VkVertexInputBindingDescription& binding);
-		void addAttributes(const std::vector<VkVertexInputAttributeDescription>& attributes);
+	const std::vector<VkVertexInputBindingDescription> &getBindings() { return m_bindings; }
+	const std::vector<VkVertexInputAttributeDescription> &getAttributes() { return m_attributes; }
 
-		const std::vector<VkVertexInputBindingDescription>& getBindings() { return m_bindings; }
-		const std::vector<VkVertexInputAttributeDescription>& getAttributes() { return m_attributes; }
+private:
+	std::vector<VkVertexInputBindingDescription> m_bindings;
+	std::vector<VkVertexInputAttributeDescription> m_attributes;
+};
 
-	private:
+class PipelineLayout
+{
+public:
+	void create(LogicalDevice *device);
 
-		std::vector<VkVertexInputBindingDescription> m_bindings;
-		std::vector<VkVertexInputAttributeDescription> m_attributes;
+	void destroy();
 
-	};
+	void addDescriptorSetLayout(DescriptorSetLayout *layout);
+	void addPushConstantRange(PushConstantRange range);
 
-	class PipelineLayout
-	{
-	public:
+	const VkPipelineLayout &getHandle() { return m_layout; }
 
-		void create(LogicalDevice* device);
+private:
+	std::vector<DescriptorSetLayout *> m_descriptorSetLayouts;
+	std::vector<PushConstantRange> m_pushConstantRanges;
 
-		void destroy();
+	LogicalDevice *m_logicalDevice;
 
-		void addDescriptorSetLayout(DescriptorSetLayout* layout);
-		void addPushConstantRange(PushConstantRange range);
+	VkPipelineLayout m_layout;
+};
 
-		const VkPipelineLayout& getHandle() { return m_layout; }
+class Pipeline
+{
+public:
+	void setPipelineLayout(PipelineLayout *layout);
+	void setShaderProgram(ShaderProgram *shader);
 
-	private:
+	const VkPipeline &getHandle() { return m_pipeline; }
+	const PipelineLayout *getLayout() { return m_layout; }
 
-		std::vector<DescriptorSetLayout*> m_descriptorSetLayouts;
-		std::vector<PushConstantRange> m_pushConstantRanges;
+	virtual void destroy();
 
-		LogicalDevice* m_logicalDevice;
+protected:
+	VkPipeline m_pipeline;
+	PipelineLayout *m_layout;
 
-		VkPipelineLayout m_layout;
-	};
+	DescriptorSet *m_descriptorSet;
+	DescriptorSetLayout *m_descriptorSetLayout;
 
-	class Pipeline
-	{
-	public:
+	ShaderProgram *m_shaderProgram;
 
-		void setPipelineLayout(PipelineLayout* layout);
-		void setShaderProgram(ShaderProgram* shader);
-		
+	LogicalDevice *m_logicalDevice;
+};
 
-		const VkPipeline& getHandle() { return m_pipeline; }
-		const PipelineLayout* getLayout() { return m_layout; }
+class GraphicsPipeline : public Pipeline
+{
+public:
+	GraphicsPipeline();
 
-		virtual void destroy();
+	void setRenderPass(RenderPass *renderPass);
+	void setSwapchain(Swapchain *swapchain);
 
-	protected:
+	void create(LogicalDevice *device);
+	void destroy() override;
 
-		VkPipeline m_pipeline;
-		PipelineLayout* m_layout;
+	void setVertexInputState(VertexInputState *state);
 
-		DescriptorSet* m_descriptorSet;
-		DescriptorSetLayout* m_descriptorSetLayout;
+	void setPrimitiveTopology(VkPrimitiveTopology topology);
+	void setPrimitiveRestart(VkBool32 enable);
 
-		ShaderProgram* m_shaderProgram;
+	void addViewport(VkViewport viewport, VkRect2D scissor);
 
-		LogicalDevice* m_logicalDevice;
-	};
+	void setDepthClamp(VkBool32 enable);
+	void setRasterizerDiscard(VkBool32 enable);
+	void setPolygonMode(VkPolygonMode mode);
+	void setLineWidth(float width);
+	void setCullMode(VkCullModeFlags mode);
+	void setFrontFace(VkFrontFace face);
+	void setDepthBias(VkBool32 enable);
 
-	class GraphicsPipeline : public Pipeline
-	{
-	public:
-		GraphicsPipeline();
+	void setSampleShading(VkBool32 enable);
+	void setRasterSamples(VkSampleCountFlagBits sampleCount);
 
-		void setRenderPass(RenderPass* renderPass);
-		void setSwapchain(Swapchain* swapchain);
+	void setAttachmentColorBlendState(std::string attachment, VkPipelineColorBlendAttachmentState blendState);
+	void setColorBlendLogicOp(VkBool32 enable, VkLogicOp op = VK_LOGIC_OP_COPY);
+	void setColorBlendConstants(float r, float g, float b, float a);
 
-		void create(LogicalDevice* device);
-		void destroy() override;
+	void setDepthTest(VkBool32 enable);
+	void setDepthWrite(VkBool32 enable);
+	void setDepthCompare(VkCompareOp op);
+	void setDepthBoundsTest(VkBool32 enable);
+	void setMinDepthBounds(float min);
+	void setMaxDepthBounds(float max);
 
-		void setVertexInputState(VertexInputState* state);
+	void addDynamicState(VkDynamicState state);
 
-		void setPrimitiveTopology(VkPrimitiveTopology topology);
-		void setPrimitiveRestart(VkBool32 enable);
+private:
+	VertexInputState *m_vertexInputState;
 
-		void addViewport(VkViewport viewport, VkRect2D scissor);
+	std::vector<VkViewport> m_viewports;
+	std::vector<VkRect2D> m_scissors;
+	std::vector<VkDynamicState> m_dynamicState;
 
-		void setDepthClamp(VkBool32 enable);
-		void setRasterizerDiscard(VkBool32 enable);
-		void setPolygonMode(VkPolygonMode mode);
-		void setLineWidth(float width);
-		void setCullMode(VkCullModeFlags mode);
-		void setFrontFace(VkFrontFace face);
-		void setDepthBias(VkBool32 enable);
+	std::map<std::string, VkPipelineColorBlendAttachmentState> m_blendState;
+	VkBool32 m_logicOpEnable;
+	VkLogicOp m_logicOp;
+	std::array<float, 4> m_colorBlendConstants;
 
-		void setSampleShading(VkBool32 enable);
-		void setRasterSamples(VkSampleCountFlagBits sampleCount);
+	VkPipelineInputAssemblyStateCreateInfo m_assemblyState;
+	VkPipelineRasterizationStateCreateInfo m_rasterizerState;
+	VkPipelineMultisampleStateCreateInfo m_multisampleState;
+	VkPipelineDepthStencilStateCreateInfo m_depthStencilState;
 
-		void setAttachmentColorBlendState(std::string attachment, VkPipelineColorBlendAttachmentState blendState);
-		void setColorBlendLogicOp(VkBool32 enable, VkLogicOp op = VK_LOGIC_OP_COPY);
-		void setColorBlendConstants(float r, float g, float b, float a);
+	RenderPass *m_renderPass;
+	Swapchain *m_swapchain;
+};
 
-		void setDepthTest(VkBool32 enable);
-		void setDepthWrite(VkBool32 enable);
-		void setDepthCompare(VkCompareOp op);
-		void setDepthBoundsTest(VkBool32 enable);
-		void setMinDepthBounds(float min);
-		void setMaxDepthBounds(float max);
-
-		void addDynamicState(VkDynamicState state);
-
-	private:
-
-		VertexInputState * m_vertexInputState;
-
-		std::vector<VkViewport> m_viewports;
-		std::vector<VkRect2D> m_scissors;
-		std::vector<VkDynamicState> m_dynamicState;
-
-		std::map<std::string, VkPipelineColorBlendAttachmentState> m_blendState;
-		VkBool32 m_logicOpEnable;
-		VkLogicOp m_logicOp;
-		std::array<float, 4> m_colorBlendConstants;
-
-		VkPipelineInputAssemblyStateCreateInfo m_assemblyState;
-		VkPipelineRasterizationStateCreateInfo m_rasterizerState;
-		VkPipelineMultisampleStateCreateInfo m_multisampleState;
-		VkPipelineDepthStencilStateCreateInfo m_depthStencilState;
-
-		RenderPass* m_renderPass;
-		Swapchain* m_swapchain;
-	};
-
-	class ComputePipeline : public Pipeline
-	{
-	public:
-
-		void create(LogicalDevice* device);
-
-	};
-}
+class ComputePipeline : public Pipeline
+{
+public:
+	void create(LogicalDevice *device);
+};
+} // namespace vdu
