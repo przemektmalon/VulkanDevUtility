@@ -1,167 +1,175 @@
-#include "PCH.hpp"
 #include "Descriptors.hpp"
 #include "Initializers.hpp"
+#include "PCH.hpp"
 
-void vdu::DescriptorSetLayout::addBinding(const std::string &label, VkDescriptorType type, uint32_t binding, uint32_t count, VkShaderStageFlags stageFlags)
-{
-	VkDescriptorSetLayoutBinding dslb = {binding, type, count, stageFlags};
-	m_layoutBindingsLabels.insert(std::make_pair(label, dslb));
-	m_layoutBindings.push_back(dslb);
-	switch (type)
-	{
-	case VK_DESCRIPTOR_TYPE_SAMPLER:
-	case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-	case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-	case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-	case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-		m_imageLayoutBindings.insert(std::make_pair(label, dslb));
-		break;
-	case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-	case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-	case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-	case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-	case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-	case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-		m_bufferLayoutBindings.insert(std::make_pair(label, dslb));
-		break;
-	}
+void vdu::DescriptorSetLayout::addBinding(const std::string &label,
+                                          VkDescriptorType type,
+                                          uint32_t binding, uint32_t count,
+                                          VkShaderStageFlags stageFlags) {
+  VkDescriptorSetLayoutBinding dslb = {binding, type, count, stageFlags};
+  m_layoutBindingsLabels.insert(std::make_pair(label, dslb));
+  m_layoutBindings.push_back(dslb);
+  switch (type) {
+  case VK_DESCRIPTOR_TYPE_SAMPLER:
+  case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+  case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+  case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+  case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+    m_imageLayoutBindings.insert(std::make_pair(label, dslb));
+    break;
+  case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+  case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+  case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+  case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+  case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+  case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+    m_bufferLayoutBindings.insert(std::make_pair(label, dslb));
+    break;
+  }
 }
 
-void vdu::DescriptorSetLayout::addBinding(const std::string &label, DescriptorTypeFlags type, uint32_t binding, uint32_t count, ShaderStageFlags stageFlags)
-{
-	addBinding(label, static_cast<VkDescriptorType>(type), binding, count, static_cast<VkShaderStageFlags>(stageFlags));
+void vdu::DescriptorSetLayout::addBinding(const std::string &label,
+                                          DescriptorTypeFlags type,
+                                          uint32_t binding, uint32_t count,
+                                          ShaderStageFlags stageFlags) {
+  addBinding(label, static_cast<VkDescriptorType>(type), binding, count,
+             static_cast<VkShaderStageFlags>(stageFlags));
 }
 
-void vdu::DescriptorSetLayout::create(LogicalDevice *logicalDevice)
-{
-	m_logicalDevice = logicalDevice;
-	auto dslci = vdu::initializer<VkDescriptorSetLayoutCreateInfo>();
-	dslci.bindingCount = m_layoutBindings.size();
-	dslci.pBindings = m_layoutBindings.data();
-	VDU_VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_logicalDevice->getHandle(), &dslci, nullptr, &m_descriptorSetLayout), "creating descriptor set layout");
+void vdu::DescriptorSetLayout::create(LogicalDevice *logicalDevice) {
+  m_logicalDevice = logicalDevice;
+  auto dslci = vdu::initializer<VkDescriptorSetLayoutCreateInfo>();
+  dslci.bindingCount = m_layoutBindings.size();
+  dslci.pBindings = m_layoutBindings.data();
+  VDU_VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_logicalDevice->getHandle(),
+                                                  &dslci, nullptr,
+                                                  &m_descriptorSetLayout),
+                      "creating descriptor set layout");
 }
 
-void vdu::DescriptorSetLayout::destroy()
-{
-	vkDestroyDescriptorSetLayout(m_logicalDevice->getHandle(), m_descriptorSetLayout, nullptr);
-	m_layoutBindingsLabels.clear();
-	m_imageLayoutBindings.clear();
-	m_bufferLayoutBindings.clear();
-	m_layoutBindings.clear();
-	m_descriptorSetLayout = 0;
+void vdu::DescriptorSetLayout::destroy() {
+  vkDestroyDescriptorSetLayout(m_logicalDevice->getHandle(),
+                               m_descriptorSetLayout, nullptr);
+  m_layoutBindingsLabels.clear();
+  m_imageLayoutBindings.clear();
+  m_bufferLayoutBindings.clear();
+  m_layoutBindings.clear();
+  m_descriptorSetLayout = 0;
 }
 
-vdu::DescriptorSet::SetUpdater::SetUpdater(DescriptorSet *dset, LogicalDevice *logicalDevice)
-{
-	auto layout = dset->getLayout();
-	const auto &allBindings = layout->getLayoutBindingLabels();
-	const auto &imageBindings = layout->getImageLayoutBindings();
-	const auto &bufferBindings = layout->getBufferLayoutBindings();
+vdu::DescriptorSet::SetUpdater::SetUpdater(DescriptorSet *dset,
+                                           LogicalDevice *logicalDevice) {
+  auto layout = dset->getLayout();
+  const auto &allBindings = layout->getLayoutBindingLabels();
+  const auto &imageBindings = layout->getImageLayoutBindings();
+  const auto &bufferBindings = layout->getBufferLayoutBindings();
 
-	m_writes.reserve(allBindings.size());
-	m_imageInfos.reserve(imageBindings.size());
-	m_bufferInfos.reserve(bufferBindings.size());
+  m_writes.reserve(allBindings.size());
+  m_imageInfos.reserve(imageBindings.size());
+  m_bufferInfos.reserve(bufferBindings.size());
 
-	m_descriptorSet = dset;
-	m_logicalDevice = logicalDevice;
+  m_descriptorSet = dset;
+  m_logicalDevice = logicalDevice;
 }
 
-vdu::DescriptorSet::SetUpdater::~SetUpdater()
-{
-	for (auto imageInfo : m_imageInfos)
-	{
-		delete[] imageInfo;
-	}
-	for (auto bufferInfo : m_bufferInfos)
-	{
-		delete[] bufferInfo;
-	}
+vdu::DescriptorSet::SetUpdater::~SetUpdater() {
+  for (auto imageInfo : m_imageInfos) {
+    delete[] imageInfo;
+  }
+  for (auto bufferInfo : m_bufferInfos) {
+    delete[] bufferInfo;
+  }
 }
 
-VkDescriptorImageInfo *vdu::DescriptorSet::SetUpdater::addImageUpdate(const std::string &label, uint32_t arrayElement, uint32_t count)
-{
-	auto dii = new VkDescriptorImageInfo[count];
-	m_imageInfos.push_back(dii);
-	auto ret = m_imageInfos.back();
+VkDescriptorImageInfo *vdu::DescriptorSet::SetUpdater::addImageUpdate(
+    const std::string &label, uint32_t arrayElement, uint32_t count) {
+  auto dii = new VkDescriptorImageInfo[count];
+  m_imageInfos.push_back(dii);
+  auto ret = m_imageInfos.back();
 
-	const auto &allBindings = m_descriptorSet->getLayout()->getLayoutBindingLabels();
+  const auto &allBindings =
+      m_descriptorSet->getLayout()->getLayoutBindingLabels();
 
-	auto bindingFind = allBindings.find(label);
-	if (bindingFind == allBindings.end())
-	{
-		m_logicalDevice->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Attempting to update a descriptor label that doesnt exist");
-		return nullptr;
-	}
+  auto bindingFind = allBindings.find(label);
+  if (bindingFind == allBindings.end()) {
+    m_logicalDevice->_internalReportVduDebug(
+        vdu::LogicalDevice::VduDebugLevel::Error,
+        "Attempting to update a descriptor label that doesnt exist");
+    return nullptr;
+  }
 
-	auto wds = vdu::initializer<VkWriteDescriptorSet>();
-	wds.dstSet = m_descriptorSet->getHandle();
-	wds.dstBinding = bindingFind->second.binding;
-	wds.descriptorType = bindingFind->second.descriptorType;
-	wds.dstArrayElement = arrayElement;
-	wds.descriptorCount = count;
-	wds.pImageInfo = ret;
-	m_writes.push_back(wds);
+  auto wds = vdu::initializer<VkWriteDescriptorSet>();
+  wds.dstSet = m_descriptorSet->getHandle();
+  wds.dstBinding = bindingFind->second.binding;
+  wds.descriptorType = bindingFind->second.descriptorType;
+  wds.dstArrayElement = arrayElement;
+  wds.descriptorCount = count;
+  wds.pImageInfo = ret;
+  m_writes.push_back(wds);
 
-	return ret;
+  return ret;
 }
 
-VkDescriptorBufferInfo *vdu::DescriptorSet::SetUpdater::addBufferUpdate(const std::string &label, uint32_t arrayElement, uint32_t count)
-{
-	auto dbi = new VkDescriptorBufferInfo[count];
-	m_bufferInfos.push_back(dbi);
-	auto ret = m_bufferInfos.back();
+VkDescriptorBufferInfo *vdu::DescriptorSet::SetUpdater::addBufferUpdate(
+    const std::string &label, uint32_t arrayElement, uint32_t count) {
+  auto dbi = new VkDescriptorBufferInfo[count];
+  m_bufferInfos.push_back(dbi);
+  auto ret = m_bufferInfos.back();
 
-	const auto &allBindings = m_descriptorSet->getLayout()->getLayoutBindingLabels();
+  const auto &allBindings =
+      m_descriptorSet->getLayout()->getLayoutBindingLabels();
 
-	auto bindingFind = allBindings.find(label);
-	if (bindingFind == allBindings.end())
-	{
-		m_logicalDevice->_internalReportVduDebug(vdu::LogicalDevice::VduDebugLevel::Error, "Attempting to update a descriptor label that doesnt exist");
-	}
+  auto bindingFind = allBindings.find(label);
+  if (bindingFind == allBindings.end()) {
+    m_logicalDevice->_internalReportVduDebug(
+        vdu::LogicalDevice::VduDebugLevel::Error,
+        "Attempting to update a descriptor label that doesnt exist");
+  }
 
-	auto wds = vdu::initializer<VkWriteDescriptorSet>();
-	wds.dstSet = m_descriptorSet->getHandle();
-	wds.dstBinding = bindingFind->second.binding;
-	wds.descriptorType = bindingFind->second.descriptorType;
-	wds.dstArrayElement = arrayElement;
-	wds.descriptorCount = count;
-	wds.pBufferInfo = ret;
-	m_writes.push_back(wds);
+  auto wds = vdu::initializer<VkWriteDescriptorSet>();
+  wds.dstSet = m_descriptorSet->getHandle();
+  wds.dstBinding = bindingFind->second.binding;
+  wds.descriptorType = bindingFind->second.descriptorType;
+  wds.dstArrayElement = arrayElement;
+  wds.descriptorCount = count;
+  wds.pBufferInfo = ret;
+  m_writes.push_back(wds);
 
-	return ret;
+  return ret;
 }
 
-void vdu::DescriptorSet::allocate(LogicalDevice *logicalDevice, DescriptorSetLayout *layout, DescriptorPool *descriptorPool)
-{
-	m_logicalDevice = logicalDevice;
-	m_descriptorSetLayout = layout;
-	m_descriptorPool = descriptorPool;
+void vdu::DescriptorSet::allocate(LogicalDevice *logicalDevice,
+                                  DescriptorSetLayout *layout,
+                                  DescriptorPool *descriptorPool) {
+  m_logicalDevice = logicalDevice;
+  m_descriptorSetLayout = layout;
+  m_descriptorPool = descriptorPool;
 
-	auto dsai = vdu::initializer<VkDescriptorSetAllocateInfo>();
-	dsai.descriptorPool = m_descriptorPool->getHandle();
-	dsai.descriptorSetCount = 1;
-	dsai.pSetLayouts = &m_descriptorSetLayout->getHandle();
+  auto dsai = vdu::initializer<VkDescriptorSetAllocateInfo>();
+  dsai.descriptorPool = m_descriptorPool->getHandle();
+  dsai.descriptorSetCount = 1;
+  dsai.pSetLayouts = &m_descriptorSetLayout->getHandle();
 
-	VDU_VK_CHECK_RESULT(vkAllocateDescriptorSets(m_logicalDevice->getHandle(), &dsai, &m_descriptorSet), "allocating descriptor set");
+  VDU_VK_CHECK_RESULT(vkAllocateDescriptorSets(m_logicalDevice->getHandle(),
+                                               &dsai, &m_descriptorSet),
+                      "allocating descriptor set");
 }
 
-void vdu::DescriptorSet::free()
-{
-	VDU_VK_CHECK_RESULT(vkFreeDescriptorSets(m_logicalDevice->getHandle(), m_descriptorPool->getHandle(), 1, &m_descriptorSet), "freeing descriptor set");
+void vdu::DescriptorSet::free() {
+  VDU_VK_CHECK_RESULT(vkFreeDescriptorSets(m_logicalDevice->getHandle(),
+                                           m_descriptorPool->getHandle(), 1,
+                                           &m_descriptorSet),
+                      "freeing descriptor set");
 }
 
-vdu::DescriptorSet::SetUpdater *vdu::DescriptorSet::makeUpdater()
-{
-	return new SetUpdater(this, m_logicalDevice);
+vdu::DescriptorSet::SetUpdater *vdu::DescriptorSet::makeUpdater() {
+  return new SetUpdater(this, m_logicalDevice);
 }
 
-void vdu::DescriptorSet::destroyUpdater(SetUpdater *updater)
-{
-	delete updater;
-}
+void vdu::DescriptorSet::destroyUpdater(SetUpdater *updater) { delete updater; }
 
-void vdu::DescriptorSet::submitUpdater(SetUpdater *updater)
-{
-	auto &writes = updater->getWrites();
-	vkUpdateDescriptorSets(m_logicalDevice->getHandle(), writes.size(), writes.data(), 0, nullptr);
+void vdu::DescriptorSet::submitUpdater(SetUpdater *updater) {
+  auto &writes = updater->getWrites();
+  vkUpdateDescriptorSets(m_logicalDevice->getHandle(), writes.size(),
+                         writes.data(), 0, nullptr);
 }

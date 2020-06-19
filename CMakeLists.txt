@@ -1,17 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 
-################################################################
-################    SET SOME DIRECTORY CONSTANTS
-################################################################
-
-set(LIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/vdu")
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
-
-
-################################################################
-################    CREATE PROJECT AND GET ALL SOURCE FILES
-################################################################
 
 project(vdu)
 set(CMAKE_CXX_STANDARD 14)
@@ -21,66 +11,24 @@ file(GLOB SOURCES ${SRC_DIR}/*.cpp)
 
 find_package(Vulkan REQUIRED)
 
-
-################################################################
-################    SET SHADERC INCLUDE AND LIBRARY
-################################################################
-
-
 if(WIN32)
-  set(LIB_SHADERC_DEBUG "$ENV{VULKAN_SDK}/shaderc/build/libshaderc/Debug/shaderc_combined.lib")
-  set(LIB_SHADERC_RELEASE "$ENV{VULKAN_SDK}/shaderc/build/libshaderc/Release/shaderc_combined.lib")
+  set(LIB_SHADERC "$ENV{VULKAN_SDK}/Lib/shaderc_combined.lib")
+elseif(UNIX)
+  set(LIB_SHADERC "$ENV{VULKAN_SDK}/lib/libshaderc_combined.a")
 endif()
-if(UNIX)
-  set(LIB_SHADERC_DEBUG "$ENV{VULKAN_SDK}/lib/libshaderc_combined.a")
-  set(LIB_SHADERC_RELEASE "$ENV{VULKAN_SDK}/lib/libshaderc_combined.a")
-endif()
-
-
-################################################################
-################    SET SOME CMAKE VARIABLES
-################################################################
 
 set(CMAKE_SUPPRESS_REGENERATION true)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-
-################################################################
-################    SET GCC FLAGS
-################################################################
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -pthread")
-endif()
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -pthread")
 endif()
 
-
-
-################################################################
-################    SPECIFY INCLUDE DIRECTORIES
-################################################################
-
-include_directories(${INCLUDE_DIR} ${LIBS_DIR} ${Vulkan_INCLUDE_DIRS})
-
-
-################################################################
-################    SPECIFY EXECUTABLE AND LINK LIBRARIES
-################################################################
-
+include_directories(${INCLUDE_DIR} ${Vulkan_INCLUDE_DIRS})
 add_library(vdu STATIC ${SOURCES} ${INCLUDES})
-
 target_link_libraries(vdu ${Vulkan_LIBRARY})
-target_link_libraries (vdu
-    debug ${LIB_SHADERC_DEBUG}
-    optimized ${LIB_SHADERC_RELEASE})
-
-
-################################################################
-################    SET MSVC STARTUP PROJECT AND WORKING DIR
-################################################################
+target_link_libraries (vdu ${LIB_SHADERC})
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT vdu)
 set_target_properties(vdu PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/")
